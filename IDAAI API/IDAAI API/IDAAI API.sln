@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IDAAI API", "IDAAI API.csproj", "{1908822F-6432-4A16-8A56-A15EAB3A8F64}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IDAAI API", "IDAAI API.csproj", "{0AF3AC07-2634-41BA-BCF1-256BB6D92143}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1908822F-6432-4A16-8A56-A15EAB3A8F64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1908822F-6432-4A16-8A56-A15EAB3A8F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1908822F-6432-4A16-8A56-A15EAB3A8F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1908822F-6432-4A16-8A56-A15EAB3A8F64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AF3AC07-2634-41BA-BCF1-256BB6D92143}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AF3AC07-2634-41BA-BCF1-256BB6D92143}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AF3AC07-2634-41BA-BCF1-256BB6D92143}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AF3AC07-2634-41BA-BCF1-256BB6D92143}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {32463D6A-A0A5-4085-9FF0-0FAF08C1CEAD}
+		SolutionGuid = {957BE19D-1835-45CC-9F6D-FF758F4C0224}
 	EndGlobalSection
 EndGlobal

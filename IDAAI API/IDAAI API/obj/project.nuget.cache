@@ -1,33 +1,16 @@
 {
   "version": 2,
   "dgSpecHash": "Vxf+WJ4hGJx7Kzs/4oFOmb1RFgX3mh6aHhxkHQXaH6939bMEcStPK3AWPiWuFElrHmHGO5UTA7HQFkkkqwtnSQ==",
-  "success": false,
+  "success": true,
   "projectFilePath": "D:\\Archivos\\Materia Integradora\\IDAAI\\Proyecto IDAAI\\IDAAI API\\IDAAI API\\IDAAI API.csproj",
-  "expectedPackageFiles": [],
-  "logs": [
-    {
-      "code": "NU1301",
-      "level": "Error",
-      "message": "No se pudo recuperar información sobre \"Microsoft.AspNetCore.OpenApi\" del origen remoto \"https://nexusnp.grupodifare.com/repository/nuget-hosted/FindPackagesById()?id='Microsoft.AspNetCore.OpenApi'&semVerLevel=2.0.0\".",
-      "libraryId": "Microsoft.AspNetCore.OpenApi"
-    },
-    {
-      "code": "NU1301",
-      "level": "Error",
-      "message": "No se pudo recuperar información sobre \"Swashbuckle.AspNetCore\" del origen remoto \"https://nexusnp.grupodifare.com/repository/nuget-hosted/FindPackagesById()?id='Swashbuckle.AspNetCore'&semVerLevel=2.0.0\".",
-      "libraryId": "Swashbuckle.AspNetCore"
-    },
-    {
-      "code": "NU1301",
-      "level": "Error",
-      "message": "No se pudo recuperar información sobre \"Microsoft.AspNetCore.OpenApi\" del origen remoto \"https://nexusnp.grupodifare.com/repository/nuget-hosted/FindPackagesById()?id='Microsoft.AspNetCore.OpenApi'&semVerLevel=2.0.0\".",
-      "libraryId": "Microsoft.AspNetCore.OpenApi"
-    },
-    {
-      "code": "NU1301",
-      "level": "Error",
-      "message": "No se pudo recuperar información sobre \"Swashbuckle.AspNetCore\" del origen remoto \"https://nexusnp.grupodifare.com/repository/nuget-hosted/FindPackagesById()?id='Swashbuckle.AspNetCore'&semVerLevel=2.0.0\".",
-      "libraryId": "Swashbuckle.AspNetCore"
-    }
-  ]
+  "expectedPackageFiles": [
+    "C:\\Users\\alex9\\.nuget\\packages\\microsoft.aspnetcore.openapi\\7.0.0\\microsoft.aspnetcore.openapi.7.0.0.nupkg.sha512",
+    "C:\\Users\\alex9\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "C:\\Users\\alex9\\.nuget\\packages\\microsoft.openapi\\1.4.3\\microsoft.openapi.1.4.3.nupkg.sha512",
+    "C:\\Users\\alex9\\.nuget\\packages\\swashbuckle.aspnetcore\\6.4.0\\swashbuckle.aspnetcore.6.4.0.nupkg.sha512",
+    "C:\\Users\\alex9\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.4.0\\swashbuckle.aspnetcore.swagger.6.4.0.nupkg.sha512",
+    "C:\\Users\\alex9\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.4.0\\swashbuckle.aspnetcore.swaggergen.6.4.0.nupkg.sha512",
+    "C:\\Users\\alex9\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.4.0\\swashbuckle.aspnetcore.swaggerui.6.4.0.nupkg.sha512"
+  ],
+  "logs": []
 }
