@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "dgSpecHash": "Vxf+WJ4hGJx7Kzs/4oFOmb1RFgX3mh6aHhxkHQXaH6939bMEcStPK3AWPiWuFElrHmHGO5UTA7HQFkkkqwtnSQ==",
+  "success": false,
+  "projectFilePath": "D:\\Archivos\\Materia Integradora\\IDAAI\\Proyecto IDAAI\\IDAAI API\\IDAAI API\\IDAAI API.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "No se pudo recuperar información sobre \"Microsoft.AspNetCore.OpenApi\" del origen remoto \"https://nexusnp.grupodifare.com/repository/nuget-hosted/FindPackagesById()?id='Microsoft.AspNetCore.OpenApi'&semVerLevel=2.0.0\".",
+      "libraryId": "Microsoft.AspNetCore.OpenApi"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "No se pudo recuperar información sobre \"Swashbuckle.AspNetCore\" del origen remoto \"https://nexusnp.grupodifare.com/repository/nuget-hosted/FindPackagesById()?id='Swashbuckle.AspNetCore'&semVerLevel=2.0.0\".",
+      "libraryId": "Swashbuckle.AspNetCore"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "No se pudo recuperar información sobre \"Microsoft.AspNetCore.OpenApi\" del origen remoto \"https://nexusnp.grupodifare.com/repository/nuget-hosted/FindPackagesById()?id='Microsoft.AspNetCore.OpenApi'&semVerLevel=2.0.0\".",
+      "libraryId": "Microsoft.AspNetCore.OpenApi"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "No se pudo recuperar información sobre \"Swashbuckle.AspNetCore\" del origen remoto \"https://nexusnp.grupodifare.com/repository/nuget-hosted/FindPackagesById()?id='Swashbuckle.AspNetCore'&semVerLevel=2.0.0\".",
+      "libraryId": "Swashbuckle.AspNetCore"
+    }
+  ]
+}
