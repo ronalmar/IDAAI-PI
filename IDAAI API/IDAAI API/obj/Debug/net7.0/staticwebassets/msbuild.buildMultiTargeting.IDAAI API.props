@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\IDAAI API.props" />
+</Project>
