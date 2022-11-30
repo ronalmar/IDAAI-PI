@@ -1,7 +1,8 @@
 ﻿using IDAAI_API.Contexts;
 using IDAAI_API.Entidades.Models;
-using IDAAI_API.Entidades.Operations;
+using IDAAI_API.Entidades.Operations.Consultas;
 using IDAAI_API.Entidades.Operations.Estudiante;
+using IDAAI_API.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,11 @@ namespace IDAAI_API.Controllers
 
         // api/asistencia/listarPorNombres
         [HttpGet("listarPorNombres")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Estudiante>> listarPorNombres(
             [FromQuery] NombresQuery query)
         {
@@ -30,7 +36,7 @@ namespace IDAAI_API.Controllers
 
                 if (result.Count > 0)
                     return Ok(result);
-                return NotFound();
+                return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
             {
@@ -40,6 +46,11 @@ namespace IDAAI_API.Controllers
 
         // api/asistencia/listarPorCarrera
         [HttpGet("listarPorCarrera")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Estudiante>> listarPorCarrera(
             [FromQuery] CarreraQuery query)
         {
@@ -49,7 +60,7 @@ namespace IDAAI_API.Controllers
                     .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CC', @i_carrera='{query.Carrera}', @i_modulo='{query.Modulo}'").ToListAsync();
                 if (result.Count > 0)
                     return Ok(result);
-                return NotFound();
+                return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
             {
@@ -59,6 +70,11 @@ namespace IDAAI_API.Controllers
 
         // api/asistencia/listarPorModulo
         [HttpGet("listarPorModulo")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Estudiante>> listarPorModulo(
            [FromQuery] ModuloQuery query)
         {
@@ -69,7 +85,7 @@ namespace IDAAI_API.Controllers
 
                 if (result.Count > 0)
                     return Ok(result);
-                return NotFound();
+                return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
             {
@@ -79,6 +95,11 @@ namespace IDAAI_API.Controllers
 
         // api/asistencia/listarTodos
         [HttpGet("listarTodos")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Estudiante>> listarTodos()
         {
             try
@@ -88,7 +109,7 @@ namespace IDAAI_API.Controllers
 
                 if (result.Count > 0)
                     return Ok(result);
-                return NotFound();
+                return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
             {
@@ -98,6 +119,11 @@ namespace IDAAI_API.Controllers
 
         // api/asistencia/consultarPorMatricula
         [HttpGet("consultarPorMatricula")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Estudiante>> consultarPorMatricula(
             [FromQuery] MatriculaQuery query)
         {
@@ -108,7 +134,7 @@ namespace IDAAI_API.Controllers
 
                 if (result.Count > 0)
                     return Ok(result[0]);
-                return NotFound();
+                return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
             {

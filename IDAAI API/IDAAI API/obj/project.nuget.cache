@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "nREjdl7HDnl7DM/GKFdg0PP6MmBn19w0j72VtU4WDmR4Im6efu7LTk98ZYKzBbNYDO43t087dqs1Yjg4JBgtxQ==",
+  "dgSpecHash": "AjAphaNtNs0GBgamhobqH87kDIYT1kN6imWxBcU1E5uGlKRLEd6DsuRXSp7tdLXW03zc3GGzjgtsJjQ+2llLdw==",
   "success": true,
   "projectFilePath": "D:\\Archivos\\Materia Integradora\\IDAAI\\Proyecto IDAAI\\IDAAI API\\IDAAI API\\IDAAI API.csproj",
   "expectedPackageFiles": [
@@ -46,6 +46,7 @@
     "C:\\Users\\alex9\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\alex9\\.nuget\\packages\\newtonsoft.json\\13.0.2\\newtonsoft.json.13.0.2.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\swashbuckle.aspnetcore\\6.4.0\\swashbuckle.aspnetcore.6.4.0.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.4.0\\swashbuckle.aspnetcore.swagger.6.4.0.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.4.0\\swashbuckle.aspnetcore.swaggergen.6.4.0.nupkg.sha512",

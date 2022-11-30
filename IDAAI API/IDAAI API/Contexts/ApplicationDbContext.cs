@@ -11,5 +11,6 @@ namespace IDAAI_API.Contexts
 
         public DbSet<Estudiante> Estudiantes { get; set; }
         public DbSet<Asistencia> RegistroAsistencia { get; set; }
+        public DbSet<Autenticacion> Autenticacion { get; set; }
     }
 }

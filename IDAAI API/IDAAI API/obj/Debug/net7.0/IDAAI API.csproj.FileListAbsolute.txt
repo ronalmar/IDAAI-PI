@@ -75,3 +75,4 @@ D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Deb
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.pdb
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.genruntimeconfig.cache
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\ref\IDAAI API.dll
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Newtonsoft.Json.dll
