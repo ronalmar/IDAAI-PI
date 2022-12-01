@@ -78,3 +78,4 @@ D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Deb
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Newtonsoft.Json.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\AutoMapper.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

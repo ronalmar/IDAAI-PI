@@ -6,18 +6,21 @@ using IDAAI_API.Entidades.Operations.Consultas;
 using IDAAI_API.Entidades.Operations.Estudiante;
 using IDAAI_API.Services;
 using IDAAI_API.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace IDAAI_API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/asistencia")]
 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public class AsistenciaController : ControllerBase

@@ -13,15 +13,19 @@ using IDAAI_API.DTOs;
 using AutoMapper;
 using IDAAI_API.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Security.Principal;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IDAAI_API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/estudiante")]
 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public class EstudianteController : ControllerBase
