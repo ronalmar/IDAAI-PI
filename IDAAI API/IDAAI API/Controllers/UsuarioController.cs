@@ -1,4 +1,5 @@
-﻿using IDAAI_API.Contexts;
+﻿using Azure.Core;
+using IDAAI_API.Contexts;
 using IDAAI_API.Entidades.Operations.Consultas;
 using IDAAI_API.Entidades.Operations.Requests;
 using IDAAI_API.Services;
@@ -10,6 +11,12 @@ namespace IDAAI_API.Controllers
 {
     [ApiController]
     [Route("api/usuario")]
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public class UsuarioController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -21,18 +28,15 @@ namespace IDAAI_API.Controllers
 
         // api/usuario/login
         [HttpGet("login")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> login(
+        public async Task<ActionResult> Login(
             [FromQuery] LoginQuery query)
         {
             try
             {
+                string passwordEncriptado = Encrypt.GetSHA256(query.Password);
+
                 var result = await _context.Autenticacion
-                    .FromSqlRaw($"EXEC sp_usuario @i_accion='LG', @i_usuario='{query.Usuario}', @i_password='{query.Password}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_usuario @i_accion='LG', @i_usuario='{query.Usuario}', @i_password='{passwordEncriptado}'").ToListAsync();
                 
                 if (result.Count > 0)
                     return Ok(result[0]);
@@ -46,12 +50,7 @@ namespace IDAAI_API.Controllers
 
         // api/usuario/registro
         [HttpPost("registro")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> register(
+        public async Task<ActionResult> Registro(
             [FromBody] RegistroRequest request)
         {
             try

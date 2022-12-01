@@ -9,37 +9,52 @@ using Microsoft.Data.SqlClient;
 using IDAAI_API.Entidades.Operations.Estudiante;
 using IDAAI_API.Entidades.Operations.Consultas;
 using IDAAI_API.Utils;
+using IDAAI_API.DTOs;
+using AutoMapper;
+using IDAAI_API.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace IDAAI_API.Controllers
 {
     [ApiController]
     [Route("api/estudiante")]
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public class EstudianteController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper mapper;
 
-        public EstudianteController(ApplicationDbContext context)
+        public EstudianteController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            this.mapper = mapper;
         }
 
         // api/estudiante/listarPorNombres
         [HttpGet("listarPorNombres")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Estudiante>> listarPorNombres(
+        public async Task<ActionResult<List<EstudianteDTO>>> ListarPorNombres(
             [FromQuery] NombresQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CN', @i_nombres='{query.Nombres}', @i_apellidos='{query.Apellidos}', @i_modulo='{query.Modulo}'").ToListAsync();
-
                 if (result.Count > 0)
-                    return Ok(result);
+                {
+                    var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                    List<EstudianteDTO> listaEstudiantesDTO = new();
+                    foreach (var estudiante in resultPaginado)
+                    {
+                        var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                        listaEstudiantesDTO.Add(estudianteDTO);
+                    }
+                    return Ok(listaEstudiantesDTO);
+                }
                 return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
@@ -50,20 +65,24 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/listarPorCarrera
         [HttpGet("listarPorCarrera")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Estudiante>> listarPorCarrera(
+        public async Task<ActionResult<Estudiante>> ListarPorCarrera(
             [FromQuery] CarreraQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CC', @i_carrera='{query.Carrera}', @i_modulo='{query.Modulo}'").ToListAsync();
-                if(result.Count > 0)
-                    return Ok(result);
+                if (result.Count > 0) 
+                {
+                    var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                    List<EstudianteDTO> listaEstudiantesDTO = new();
+                    foreach (var estudiante in resultPaginado)
+                    {
+                        var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                        listaEstudiantesDTO.Add(estudianteDTO);
+                    }
+                    return Ok(listaEstudiantesDTO);
+                }
                 return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
@@ -74,12 +93,7 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/listarPorModulo
         [HttpGet("listarPorModulo")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Estudiante>> listarPorModulo(
+        public async Task<ActionResult<Estudiante>> ListarPorModulo(
            [FromQuery] ModuloQuery query)
         {
             try
@@ -88,7 +102,16 @@ namespace IDAAI_API.Controllers
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CL', @i_modulo='{query.Modulo}'").ToListAsync();
 
                 if (result.Count > 0)
-                    return Ok(result);
+                {
+                    var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                    List<EstudianteDTO> listaEstudiantesDTO = new();
+                    foreach (var estudiante in resultPaginado)
+                    {
+                        var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                        listaEstudiantesDTO.Add(estudianteDTO);
+                    }
+                    return Ok(listaEstudiantesDTO);
+                }
                 return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
@@ -99,20 +122,26 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/listarTodos
         [HttpGet("listarTodos")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Estudiante>> listarTodos()
+        public async Task<ActionResult<Estudiante>> ListarTodos(
+            [FromQuery] PaginacionQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CT'").ToListAsync();
 
+
                 if (result.Count > 0)
-                    return Ok(result);
+                {
+                    var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                    List<EstudianteDTO> listaEstudiantesDTO = new();
+                    foreach (var estudiante in resultPaginado)
+                    {
+                        var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                        listaEstudiantesDTO.Add(estudianteDTO);
+                    }
+                    return Ok(listaEstudiantesDTO);
+                }
                 return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
@@ -123,12 +152,7 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/consultarPorMatricula
         [HttpGet("consultarPorMatricula")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Estudiante>> consultarPorMatricula(
+        public async Task<ActionResult<Estudiante>> ConsultarPorMatricula(
             [FromQuery] MatriculaQuery query)
         {
             try
@@ -137,7 +161,10 @@ namespace IDAAI_API.Controllers
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CM', @i_matricula='{query.Matricula}', @i_modulo='{query.Modulo}'").ToListAsync();
 
                 if (result.Count > 0)
-                    return Ok(result[0]);
+                {
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+                    return Ok(estudianteDTO);
+                }                  
                 return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)
@@ -148,12 +175,7 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/consultarPorEmail
         [HttpGet("consultarPorEmail")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Estudiante>> consultarPorEmail(
+        public async Task<ActionResult<Estudiante>> ConsultarPorEmail(
             [FromQuery] EmailQuery query)
         {
             try
@@ -162,7 +184,10 @@ namespace IDAAI_API.Controllers
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CE', @i_email='{query.Email}', @i_modulo='{query.Modulo}'").ToListAsync();
 
                 if (result.Count > 0)
-                    return Ok(result[0]);
+                {
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+                    return Ok(estudianteDTO);
+                }
                 return NotFound(Mensajes.ERROR_VAL_04);
             }
             catch (Exception e)

@@ -1,7 +1,9 @@
 ﻿using IDAAI_API.Contexts;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
+[assembly: ApiConventionType(typeof(DefaultApiConventions))]
 namespace IDAAI_API
 {
     public class Startup
@@ -25,6 +27,7 @@ namespace IDAAI_API
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
+            services.AddAutoMapper(typeof(Startup));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
