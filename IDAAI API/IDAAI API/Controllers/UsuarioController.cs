@@ -1,6 +1,5 @@
 ﻿using Azure.Core;
 using IDAAI_API.Contexts;
-using IDAAI_API.Entidades.Operations.Consultas;
 using IDAAI_API.Entidades.Operations.Requests;
 using IDAAI_API.Services;
 using IDAAI_API.Utils;
@@ -36,20 +35,20 @@ namespace IDAAI_API.Controllers
         }
 
         // api/usuario/login
-        [HttpGet("login")]
+        [HttpPost("login")]
         public async Task<ActionResult> Login(
-            [FromQuery] LoginQuery query)
+            [FromBody] LoginRequest request)
         {
             try
             {
-                string passwordEncriptado = Encrypt.GetSHA256(query.Password);
+                string passwordEncriptado = Encrypt.GetSHA256(request.Password);
 
                 var result = await _context.Autenticacion
-                    .FromSqlRaw($"EXEC sp_usuario @i_accion='LG', @i_usuario='{query.Usuario}', @i_password='{passwordEncriptado}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_usuario @i_accion='LG', @i_usuario='{request.Usuario}', @i_password='{passwordEncriptado}'").ToListAsync();
                 
                 if (result.Count > 0)
                 {
-                    var token = ConstruirToken(query);
+                    var token = ConstruirToken(request);
                     return Ok(token);
                 }                    
                 return StatusCode(StatusCodes.Status401Unauthorized, new { token = ""});
@@ -74,7 +73,11 @@ namespace IDAAI_API.Controllers
 
                 if (result.Count > 0)
                 {
-                    LoginQuery credencialesUsuario = new LoginQuery
+                    if (result[0].Id == 0)
+                    {
+                        return BadRequest(Mensajes.ERROR_VAL_07);
+                    }
+                    LoginRequest credencialesUsuario = new()
                     {
                         Usuario = request.Usuario,
                         Password = request.Password,
@@ -82,7 +85,7 @@ namespace IDAAI_API.Controllers
                     var token = ConstruirToken(credencialesUsuario);
                     return Ok(token);
                 }                    
-                return BadRequest(Mensajes.ERROR_VAL_06);
+                return BadRequest(Mensajes.ERROR_VAL_08);
             }
             catch (Exception e)
             {
@@ -97,14 +100,14 @@ namespace IDAAI_API.Controllers
         {
             var usuarioClaim = HttpContext.User.Claims.Where(claim => claim.Type == "Usuario").FirstOrDefault();
             var usuario = usuarioClaim.Value;
-            var credencialesUsuario = new LoginQuery
+            var credencialesUsuario = new LoginRequest
             {
                 Usuario = usuario,
             };
             return ConstruirToken(credencialesUsuario);
         }
 
-        private RespuestaAutenticacion ConstruirToken(LoginQuery credencialesUsuario)
+        private RespuestaAutenticacion ConstruirToken(LoginRequest credencialesUsuario)
         {
             var keyBytes = Encoding.ASCII.GetBytes(secretKey);
             var claims = new ClaimsIdentity();

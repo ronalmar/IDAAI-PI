@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
-namespace IDAAI_API.Entidades.Operations.Consultas
+namespace IDAAI_API.Entidades.Operations.Requests
 {
-    public class LoginQuery
+    public class LoginRequest
     {
         [Required]
         [StringLength(maximumLength: 25)]

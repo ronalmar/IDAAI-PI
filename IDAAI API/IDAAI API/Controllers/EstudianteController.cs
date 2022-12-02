@@ -15,6 +15,7 @@ using IDAAI_API.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
+using IDAAI_API.Entidades.Operations.Requests;
 
 namespace IDAAI_API.Controllers
 {
@@ -193,6 +194,34 @@ namespace IDAAI_API.Controllers
                     return Ok(estudianteDTO);
                 }
                 return NotFound(Mensajes.ERROR_VAL_04);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/estudiante/registrarEstudiante
+        [HttpPost("registrarEstudiante")]
+        public async Task<ActionResult<Estudiante>> RegistrarEstudiante(
+            [FromBody] RegistrarEstudianteRequest request)
+        {
+            try
+            {
+                var result = await _context.Estudiantes
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='IN', @i_nombres='{request.Nombres}', @i_apellidos='{request.Apellidos}', @i_matricula='{request.Matricula}'" +
+                                    $", @i_email='{request.Email}', @i_direccion='{request.Direccion}', @i_carrera='{request.Carrera}', @i_modulo='{request.Modulo}'").ToListAsync();
+
+                if (result.Count > 0)
+                {
+                    if (result[0].Id == 0)
+                    {
+                        return BadRequest(Mensajes.ERROR_VAL_07);
+                    }
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+                    return Ok(estudianteDTO);
+                }
+                return BadRequest(Mensajes.ERROR_VAL_08);
             }
             catch (Exception e)
             {
