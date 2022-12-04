@@ -2,6 +2,8 @@
 {
     public class AsistenciaDTO
     {
+        public int Id { get; set; }
+        public int IdEstudiante { get; set; }
         public string Nombres { get; set; }
         public string Apellidos { get; set; }
         public string Matricula { get; set; }

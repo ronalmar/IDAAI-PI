@@ -36,7 +36,7 @@ namespace IDAAI_API.Controllers
 
         // api/usuario/login
         [HttpPost("login")]
-        public async Task<ActionResult> Login(
+        public async Task<ActionResult<RespuestaAutenticacion>> Login(
             [FromBody] LoginRequest request)
         {
             try
@@ -61,7 +61,7 @@ namespace IDAAI_API.Controllers
 
         // api/usuario/registro
         [HttpPost("registro")]
-        public async Task<ActionResult> Registro(
+        public async Task<ActionResult<RespuestaAutenticacion>> Registro(
             [FromBody] RegistroRequest request)
         {
             try

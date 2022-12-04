@@ -19,7 +19,7 @@ using IDAAI_API.Entidades.Operations.Requests;
 
 namespace IDAAI_API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/estudiante")]
 
@@ -49,18 +49,15 @@ namespace IDAAI_API.Controllers
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CN', @i_nombres='{query.Nombres}', @i_apellidos='{query.Apellidos}', @i_modulo='{query.Modulo}'").ToListAsync();
-                if (result.Count > 0)
+                
+                var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                List<EstudianteDTO> listaEstudiantesDTO = new();
+                foreach (var estudiante in resultPaginado)
                 {
-                    var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
-                    List<EstudianteDTO> listaEstudiantesDTO = new();
-                    foreach (var estudiante in resultPaginado)
-                    {
-                        var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
-                        listaEstudiantesDTO.Add(estudianteDTO);
-                    }
-                    return Ok(listaEstudiantesDTO);
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                    listaEstudiantesDTO.Add(estudianteDTO);
                 }
-                return NotFound(Mensajes.ERROR_VAL_04);
+                return Ok(listaEstudiantesDTO);
             }
             catch (Exception e)
             {
@@ -70,25 +67,22 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/listarPorCarrera
         [HttpGet("listarPorCarrera")]
-        public async Task<ActionResult<Estudiante>> ListarPorCarrera(
+        public async Task<ActionResult<EstudianteDTO>> ListarPorCarrera(
             [FromQuery] CarreraQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CC', @i_carrera='{query.Carrera}', @i_modulo='{query.Modulo}'").ToListAsync();
-                if (result.Count > 0) 
+                
+                var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                List<EstudianteDTO> listaEstudiantesDTO = new();
+                foreach (var estudiante in resultPaginado)
                 {
-                    var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
-                    List<EstudianteDTO> listaEstudiantesDTO = new();
-                    foreach (var estudiante in resultPaginado)
-                    {
-                        var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
-                        listaEstudiantesDTO.Add(estudianteDTO);
-                    }
-                    return Ok(listaEstudiantesDTO);
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                    listaEstudiantesDTO.Add(estudianteDTO);
                 }
-                return NotFound(Mensajes.ERROR_VAL_04);
+                return Ok(listaEstudiantesDTO);             
             }
             catch (Exception e)
             {
@@ -98,26 +92,22 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/listarPorModulo
         [HttpGet("listarPorModulo")]
-        public async Task<ActionResult<Estudiante>> ListarPorModulo(
+        public async Task<ActionResult<EstudianteDTO>> ListarPorModulo(
            [FromQuery] ModuloQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CL', @i_modulo='{query.Modulo}'").ToListAsync();
-
-                if (result.Count > 0)
+               
+                var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                List<EstudianteDTO> listaEstudiantesDTO = new();
+                foreach (var estudiante in resultPaginado)
                 {
-                    var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
-                    List<EstudianteDTO> listaEstudiantesDTO = new();
-                    foreach (var estudiante in resultPaginado)
-                    {
-                        var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
-                        listaEstudiantesDTO.Add(estudianteDTO);
-                    }
-                    return Ok(listaEstudiantesDTO);
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                    listaEstudiantesDTO.Add(estudianteDTO);
                 }
-                return NotFound(Mensajes.ERROR_VAL_04);
+                return Ok(listaEstudiantesDTO);              
             }
             catch (Exception e)
             {
@@ -127,7 +117,7 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/listarTodos
         [HttpGet("listarTodos")]
-        public async Task<ActionResult<Estudiante>> ListarTodos(
+        public async Task<ActionResult<EstudianteDTO>> ListarTodos(
             [FromQuery] PaginacionQuery query)
         {
             try
@@ -135,19 +125,14 @@ namespace IDAAI_API.Controllers
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CT'").ToListAsync();
 
-
-                if (result.Count > 0)
+                var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                List<EstudianteDTO> listaEstudiantesDTO = new();
+                foreach (var estudiante in resultPaginado)
                 {
-                    var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
-                    List<EstudianteDTO> listaEstudiantesDTO = new();
-                    foreach (var estudiante in resultPaginado)
-                    {
-                        var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
-                        listaEstudiantesDTO.Add(estudianteDTO);
-                    }
-                    return Ok(listaEstudiantesDTO);
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                    listaEstudiantesDTO.Add(estudianteDTO);
                 }
-                return NotFound(Mensajes.ERROR_VAL_04);
+                return Ok(listaEstudiantesDTO);              
             }
             catch (Exception e)
             {
@@ -157,20 +142,16 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/consultarPorMatricula
         [HttpGet("consultarPorMatricula")]
-        public async Task<ActionResult<Estudiante>> ConsultarPorMatricula(
+        public async Task<ActionResult<EstudianteDTO>> ConsultarPorMatricula(
             [FromQuery] MatriculaQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CM', @i_matricula='{query.Matricula}', @i_modulo='{query.Modulo}'").ToListAsync();
-
-                if (result.Count > 0)
-                {
-                    var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
-                    return Ok(estudianteDTO);
-                }                  
-                return NotFound(Mensajes.ERROR_VAL_04);
+             
+                var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+                return Ok(estudianteDTO);               
             }
             catch (Exception e)
             {
@@ -180,20 +161,16 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/consultarPorEmail
         [HttpGet("consultarPorEmail")]
-        public async Task<ActionResult<Estudiante>> ConsultarPorEmail(
+        public async Task<ActionResult<EstudianteDTO>> ConsultarPorEmail(
             [FromQuery] EmailQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CE', @i_email='{query.Email}', @i_modulo='{query.Modulo}'").ToListAsync();
-
-                if (result.Count > 0)
-                {
-                    var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
-                    return Ok(estudianteDTO);
-                }
-                return NotFound(Mensajes.ERROR_VAL_04);
+               
+                var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+                return Ok(estudianteDTO);             
             }
             catch (Exception e)
             {
@@ -203,7 +180,7 @@ namespace IDAAI_API.Controllers
 
         // api/estudiante/registrarEstudiante
         [HttpPost("registrarEstudiante")]
-        public async Task<ActionResult<Estudiante>> RegistrarEstudiante(
+        public async Task<ActionResult<EstudianteDTO>> RegistrarEstudiante(
             [FromBody] RegistrarEstudianteRequest request)
         {
             try
@@ -211,17 +188,45 @@ namespace IDAAI_API.Controllers
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='IN', @i_nombres='{request.Nombres}', @i_apellidos='{request.Apellidos}', @i_matricula='{request.Matricula}'" +
                                     $", @i_email='{request.Email}', @i_direccion='{request.Direccion}', @i_carrera='{request.Carrera}', @i_modulo='{request.Modulo}'").ToListAsync();
-
-                if (result.Count > 0)
+                
+                if (result[0].Id == 0)
                 {
-                    if (result[0].Id == 0)
-                    {
-                        return BadRequest(Mensajes.ERROR_VAL_07);
-                    }
-                    var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
-                    return Ok(estudianteDTO);
+                    return BadRequest(Mensajes.ERROR_VAL_07);
                 }
-                return BadRequest(Mensajes.ERROR_VAL_08);
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_12);
+                }
+                if (result[0].Id == -2)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_13);
+                }
+                var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+                return Ok(estudianteDTO);               
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/estudiante/editarEstudiante
+        [HttpPut("editarEstudiante")]
+        public async Task<ActionResult<EstudianteDTO>> EditarEstudiante(
+            [FromBody] EditarEstudianteRequest request)
+        {
+            try
+            {
+                var result = await _context.Estudiantes
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='UP', @i_id='{request.Id}', @i_nombres='{request.Nombres}', @i_apellidos='{request.Apellidos}', @i_matricula='{request.Matricula}'" +
+                                    $", @i_email='{request.Email}', @i_direccion='{request.Direccion}', @i_carrera='{request.Carrera}', @i_modulo='{request.Modulo}'").ToListAsync();
+
+                if (result[0].Id == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_09);
+                }
+                var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+                return Ok(estudianteDTO);
             }
             catch (Exception e)
             {
