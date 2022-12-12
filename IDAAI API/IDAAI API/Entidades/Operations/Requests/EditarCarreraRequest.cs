@@ -13,7 +13,7 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [StringLength(maximumLength: 100)]
         public string Nombre { get; set; }
 
-        [JsonProperty("Descripcion")]
+        [JsonProperty("Modulo")]
         [StringLength(maximumLength: 50)]
         public string Modulo { get; set; }
 
