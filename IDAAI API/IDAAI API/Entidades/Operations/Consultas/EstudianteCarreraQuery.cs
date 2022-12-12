@@ -3,11 +3,10 @@ using IDAAI_API.Entidades.Operations.Consultas;
 
 namespace IDAAI_API.Entidades.Operations.Estudiante
 {
-    public class EmailQuery: ModuloQuery
+    public class EstudianteCarreraQuery: EstudianteModuloQuery
     {
         [Required]
-        [EmailAddress]
-        [StringLength(maximumLength: 50)]
-        public string Email { get; set; }
+        [StringLength(maximumLength: 100)]
+        public string Carrera { get; set; }
     }
 }

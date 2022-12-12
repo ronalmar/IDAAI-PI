@@ -3,7 +3,7 @@ using IDAAI_API.Entidades.Operations.Consultas;
 
 namespace IDAAI_API.Entidades.Operations.Estudiante
 {
-    public class MatriculaQuery : ModuloQuery
+    public class EstudianteMatriculaQuery : EstudianteModuloQuery
     {
         [Required]
         [StringLength(maximumLength: 10)]

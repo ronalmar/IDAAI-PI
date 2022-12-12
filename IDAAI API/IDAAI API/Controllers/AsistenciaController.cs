@@ -38,7 +38,7 @@ namespace IDAAI_API.Controllers
         // api/asistencia/listarPorNombres
         [HttpGet("listarPorNombres")]
         public async Task<ActionResult<AsistenciaDTO>> ListarPorNombres(
-            [FromQuery] NombresQuery query)
+            [FromQuery] EstudianteNombresQuery query)
         {
             try
             {
@@ -63,7 +63,7 @@ namespace IDAAI_API.Controllers
         // api/asistencia/listarPorCarrera
         [HttpGet("listarPorCarrera")]
         public async Task<ActionResult<AsistenciaDTO>> ListarPorCarrera(
-            [FromQuery] CarreraQuery query)
+            [FromQuery] EstudianteCarreraQuery query)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace IDAAI_API.Controllers
         // api/asistencia/listarPorModulo
         [HttpGet("listarPorModulo")]
         public async Task<ActionResult<AsistenciaDTO>> ListarPorModulo(
-           [FromQuery] ModuloQuery query)
+           [FromQuery] EstudianteModuloQuery query)
         {
             try
             {
@@ -138,14 +138,19 @@ namespace IDAAI_API.Controllers
         // api/asistencia/consultarPorMatricula
         [HttpGet("consultarPorMatricula")]
         public async Task<ActionResult<AsistenciaDTO>> ConsultarPorMatricula(
-            [FromQuery] MatriculaQuery query)
+            [FromQuery] EstudianteMatriculaQuery query)
         {
             try
             {
                 var result = await _context.RegistroAsistencia
                     .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CM', @i_matricula='{query.Matricula}', @i_modulo='{query.Modulo}'").ToListAsync();
-           
-                var asistenciaDTO = mapper.Map<AsistenciaDTO>(result[0]);
+
+                AsistenciaDTO asistenciaDTO = new();
+                if (result.Count == 0)
+                {
+                    return Ok();
+                }
+                asistenciaDTO = mapper.Map<AsistenciaDTO>(result[0]);
                 return Ok(asistenciaDTO);
             }
             catch (Exception e)

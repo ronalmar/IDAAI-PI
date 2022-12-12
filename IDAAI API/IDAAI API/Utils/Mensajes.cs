@@ -25,6 +25,9 @@
         internal const string CODE_ERROR_VAL_13 = "VAL-013";
         internal const string CODE_ERROR_VAL_14 = "VAL-014";
         internal const string CODE_ERROR_VAL_15 = "VAL-015";
+        internal const string CODE_ERROR_VAL_16 = "VAL-016";
+        internal const string CODE_ERROR_VAL_17 = "VAL-017";
+        internal const string CODE_ERROR_VAL_18 = "VAL-018";
         // Mensajes de error
         internal const string ERROR_VAL_01 = "El campo {0} no puede ser Nulo o Vacío.";
         internal const string ERROR_VAL_02 = "La longitud del campo {0} no puede superar los {1} caracteres";
@@ -33,14 +36,17 @@
         internal const string ERROR_VAL_05 = "No se encontró un usuario con los datos ingresados";
         internal const string ERROR_VAL_06 = "El usuario ya se encuentra registrado";
         internal const string ERROR_VAL_07 = "Ya existe un estudiante con la matrícula ingresada";
-        internal const string ERROR_VAL_08 = "Hubo un problema en la conexión con la base de datos";
+        internal const string ERROR_VAL_08 = "Hubo un problema en la ejecución de la instrucción en la base de datos";
         internal const string ERROR_VAL_09 = "No existe un estudiante con el Id ingresado";
         internal const string ERROR_VAL_10 = "No existe un registro de asistencia con el Id ingresado";
         internal const string ERROR_VAL_11 = "No existe un estudiante con la matrícula ingresada";
         internal const string ERROR_VAL_12 = "No existe la carrera ingresada";
         internal const string ERROR_VAL_13 = "No existe el módulo ingresado";
         internal const string ERROR_VAL_14 = "Ya existe un módulo con el nombre ingresado";
-        internal const string ERROR_VAL_15 = "No existe el módulo ingresado";
+        internal const string ERROR_VAL_15 = "No existe un usuario con el Id ingresado";
+        internal const string ERROR_VAL_16 = "Ya existe el usuario ingresado";
+        internal const string ERROR_VAL_17 = "Ya existe la carrera ingresada";
+        internal const string ERROR_VAL_18 = "No existe una carrera con el Id ingresado";
 
     }
 }

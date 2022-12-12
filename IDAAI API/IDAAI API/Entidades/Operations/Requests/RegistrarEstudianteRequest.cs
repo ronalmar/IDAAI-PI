@@ -23,7 +23,6 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [StringLength(maximumLength: 100)]
         public string Direccion { get; set; }
 
-        [Required]
         [StringLength(maximumLength: 100)]
         public string Carrera { get; set; }
 

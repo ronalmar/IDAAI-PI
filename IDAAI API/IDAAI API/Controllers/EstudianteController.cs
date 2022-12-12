@@ -43,7 +43,7 @@ namespace IDAAI_API.Controllers
         // api/estudiante/listarPorNombres
         [HttpGet("listarPorNombres")]
         public async Task<ActionResult<List<EstudianteDTO>>> ListarPorNombres(
-            [FromQuery] NombresQuery query)
+            [FromQuery] EstudianteNombresQuery query)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace IDAAI_API.Controllers
         // api/estudiante/listarPorCarrera
         [HttpGet("listarPorCarrera")]
         public async Task<ActionResult<EstudianteDTO>> ListarPorCarrera(
-            [FromQuery] CarreraQuery query)
+            [FromQuery] EstudianteCarreraQuery query)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace IDAAI_API.Controllers
         // api/estudiante/listarPorModulo
         [HttpGet("listarPorModulo")]
         public async Task<ActionResult<EstudianteDTO>> ListarPorModulo(
-           [FromQuery] ModuloQuery query)
+           [FromQuery] EstudianteModuloQuery query)
         {
             try
             {
@@ -143,14 +143,19 @@ namespace IDAAI_API.Controllers
         // api/estudiante/consultarPorMatricula
         [HttpGet("consultarPorMatricula")]
         public async Task<ActionResult<EstudianteDTO>> ConsultarPorMatricula(
-            [FromQuery] MatriculaQuery query)
+            [FromQuery] EstudianteMatriculaQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CM', @i_matricula='{query.Matricula}', @i_modulo='{query.Modulo}'").ToListAsync();
-             
-                var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+
+                EstudianteDTO estudianteDTO = new();
+                if(result.Count == 0)
+                {
+                    return Ok();
+                }
+                estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
                 return Ok(estudianteDTO);               
             }
             catch (Exception e)
@@ -162,14 +167,19 @@ namespace IDAAI_API.Controllers
         // api/estudiante/consultarPorEmail
         [HttpGet("consultarPorEmail")]
         public async Task<ActionResult<EstudianteDTO>> ConsultarPorEmail(
-            [FromQuery] EmailQuery query)
+            [FromQuery] EstudianteEmailQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='CE', @i_email='{query.Email}', @i_modulo='{query.Modulo}'").ToListAsync();
-               
-                var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+
+                EstudianteDTO estudianteDTO = new();
+                if (result.Count == 0)
+                {
+                    return Ok();
+                }
+                estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
                 return Ok(estudianteDTO);             
             }
             catch (Exception e)
@@ -224,6 +234,14 @@ namespace IDAAI_API.Controllers
                 if (result[0].Id == 0)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_09);
+                }
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_12);
+                }
+                if (result[0].Id == -2)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_13);
                 }
                 var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
                 return Ok(estudianteDTO);

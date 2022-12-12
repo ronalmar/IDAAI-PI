@@ -2,7 +2,7 @@
 
 namespace IDAAI_API.Entidades.Operations.Consultas
 {
-    public class ModuloQuery: PaginacionQuery
+    public class CarreraModuloQuery : PaginacionQuery
     {
         [Required]
         [StringLength(maximumLength: 50)]

@@ -12,6 +12,9 @@ using System.Text;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using IDAAI_API.Entidades.Models;
+using AutoMapper;
+using IDAAI_API.DTOs;
 
 namespace IDAAI_API.Controllers
 {
@@ -26,11 +29,13 @@ namespace IDAAI_API.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper mapper;
         private readonly string secretKey;
 
-        public UsuarioController(ApplicationDbContext context, IConfiguration config)
+        public UsuarioController(ApplicationDbContext context, IConfiguration config, IMapper mapper)
         {
             _context = context;
+            this.mapper = mapper;
             secretKey = config.GetSection("settings").GetSection("secretkey").ToString();
         }
 
@@ -85,6 +90,39 @@ namespace IDAAI_API.Controllers
                     var token = ConstruirToken(credencialesUsuario);
                     return Ok(token);
                 }                    
+                return BadRequest(Mensajes.ERROR_VAL_08);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/usuario/editarUsuario
+        [HttpPost("editarUsuario")]
+        public async Task<ActionResult<AutenticacionDTO>> EditarUsuario(
+            [FromBody] EditarUsuarioRequest request)
+        {
+            try
+            {
+                string passwordEncriptado = Encrypt.GetSHA256(request.Password);
+
+                var result = await _context.Autenticacion
+                    .FromSqlRaw($"EXEC sp_usuario @i_accion='UP', @i_usuario='{request.Usuario}', @i_password='{passwordEncriptado}', @i_email='{request.Email}'").ToListAsync();
+
+                if (result.Count > 0)
+                {
+                    if (result[0].Id == 0)
+                    {
+                        return BadRequest(Mensajes.ERROR_VAL_15);
+                    }
+                    if (result[0].Id == -1)
+                    {
+                        return BadRequest(Mensajes.ERROR_VAL_16);
+                    }
+                    var usuarioDTO = mapper.Map<AutenticacionDTO>(result[0]);
+                    return Ok(usuarioDTO);
+                }
                 return BadRequest(Mensajes.ERROR_VAL_08);
             }
             catch (Exception e)
