@@ -2,7 +2,8 @@ ALTER PROCEDURE sp_usuario
 	@i_accion			CHAR(2)				=NULL,
 	@i_usuario			VARCHAR(25)			=NULL,
 	@i_password			VARCHAR(300)		=NULL,
-	@i_email			VARCHAR(50)			=NULL
+	@i_email			VARCHAR(50)			=NULL,
+	@i_id				INT					=NULL
 AS
 BEGIN
 	DECLARE 
@@ -16,36 +17,62 @@ BEGIN
 	SET @usuario			=	LOWER(@usuarioTrim)
 	SET @email				=	LOWER(@emailTrim)
 
+	DECLARE @TablaUsuario TABLE(
+				Id			INT,
+				Usuario		VARCHAR(25),
+				Email		VARCHAR(50)
+			)
 
 	IF(@i_accion = 'LG')
 	BEGIN
 		SELECT Id, Usuario, Email FROM Usuarios
-		WHERE Usuario=@usuario AND Password=@i_password
+		WHERE Usuario=@usuario AND Password=@i_password AND Estado=1
 	END
 	IF(@i_accion = 'RG')
 	BEGIN
-		IF EXISTS (SELECT 1 FROM Usuarios WHERE Usuario=@usuario)
+		IF EXISTS (SELECT 1 FROM Usuarios WHERE Usuario=@usuario AND Estado=1)
 		BEGIN
-			DECLARE @TablaUsuario TABLE(
-				Id			INT,
-				Usuario		VARCHAR(25), 
-				Email		VARCHAR(50)
-			)
-
 			INSERT INTO @TablaUsuario (Id) VALUES (0)
 
 			SELECT Id, Usuario, Email FROM @TablaUsuario
 			RETURN 0;
 		END
 
-		INSERT INTO Usuarios (Usuario, Password, Email) VALUES (@usuario, @i_password, 
+		INSERT INTO Usuarios (Usuario, Password, Email, Estado) VALUES (@usuario, @i_password, 
 		CASE	WHEN @email=''	THEN NULL
 				WHEN @email!=''	THEN @email
-		END)
+		END, 1)
 
 		DECLARE @id INT = @@IDENTITY
 		SELECT Id, Usuario, Email FROM Usuarios
 		WHERE Id=@id
+		AND Estado=1
+		RETURN 0;
+	END
+	IF(@i_accion = 'UP')
+	BEGIN
+		IF EXISTS (SELECT 1 FROM Usuarios WHERE Id=@i_id AND Estado=1)
+		BEGIN
+			IF EXISTS(SELECT 1 FROM Usuarios WHERE Usuario=@usuario AND Estado=1)
+			BEGIN
+				INSERT INTO @TablaUsuario (Id) VALUES (-1)
+
+				SELECT Id, Usuario, Email FROM @TablaUsuario
+				RETURN 0;
+			END
+			UPDATE Usuarios SET
+			Usuario			=	CASE WHEN ISNULL(@usuario, '')='' THEN Usuario ELSE @usuario END,
+			Password		=	CASE WHEN ISNULL(@i_password, '')='' THEN Password ELSE @i_password END,
+			Email			=	CASE WHEN ISNULL(@email, '')='' THEN Email ELSE @email END
+			WHERE Id=@i_id
+			SELECT Id, Usuario, Email FROM Usuarios WHERE Id=@i_id AND Estado=1
+
+			RETURN 0;
+		END
+		INSERT INTO @TablaUsuario (Id) VALUES (0)
+
+		SELECT Id, Usuario, Email FROM @TablaUsuario
+		RETURN 0;
 	END
 END
 GO

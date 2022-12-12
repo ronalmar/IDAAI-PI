@@ -22,10 +22,10 @@ BEGIN
 	BEGIN
 		IF NOT EXISTS (SELECT 1 FROM Modulos WHERE Nombre=@nombre)
 		BEGIN
-			INSERT INTO Modulos VALUES (@nombre, @descripcion)
+			INSERT INTO Modulos VALUES (@nombre, @descripcion, 1)
 
 			SET @idInsertado=@@IDENTITY
-			SELECT Id, Nombre, Descripcion FROM Modulos WHERE Id=@idInsertado
+			SELECT Id, Nombre, Descripcion FROM Modulos WHERE Id=@idInsertado AND Estado=1
 
 			RETURN 0;
 		END
@@ -33,7 +33,7 @@ BEGIN
 	END
 	IF(@i_accion = 'UP')
 	BEGIN
-		IF EXISTS (SELECT 1 FROM Modulos WHERE Id=@i_id)
+		IF EXISTS (SELECT 1 FROM Modulos WHERE Id=@i_id AND Estado=1)
 		BEGIN
 			UPDATE Modulos SET
 			Nombre			=	CASE	WHEN EXISTS(SELECT 1 FROM Modulos WHERE Nombre=@nombre)	THEN Nombre
@@ -42,11 +42,22 @@ BEGIN
 			Descripcion		=	CASE	WHEN @descripcion!=''	THEN	 @descripcion
 								ELSE	Descripcion		END
 			WHERE Id=@i_id
-			SELECT Id, Nombre, Descripcion FROM Modulos WHERE Id=@i_id
+			SELECT Id, Nombre, Descripcion FROM Modulos WHERE Id=@i_id AND Estado=1
 
 			RETURN 0;
 		END
 		SELECT Id, Nombre, Descripcion FROM Modulos WHERE Id=0
+	END
+	IF(@i_accion = 'CN')
+	BEGIN
+		SELECT Id, Nombre, Descripcion FROM Modulos 
+		WHERE Nombre LIKE '%' + @nombre + '%'
+		AND Estado=1
+	END
+	IF(@i_accion = 'CT')
+	BEGIN
+		SELECT Id, Nombre, Descripcion FROM Modulos
+		Where Estado=1
 	END
 END
 GO

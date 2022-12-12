@@ -53,7 +53,10 @@ BEGIN
 	BEGIN
 		IF NOT EXISTS(SELECT 1 FROM Estudiantes e
 						INNER JOIN Modulos m ON m.Id=e.ModuloId
-						WHERE Matricula=@matricula	AND  m.Nombre=@modulo)
+						WHERE Matricula=@matricula	
+						AND m.Nombre=@modulo
+						AND e.Estado=1
+						AND m.Estado=1)
 		BEGIN
 			--Matricula no existe
 			SELECT * FROM @RegistroAsistencia
@@ -61,10 +64,13 @@ BEGIN
 		END
 		SELECT @estudianteId=e.Id FROM Estudiantes e
 		INNER JOIN Modulos m ON m.Id=e.ModuloId 
-		WHERE Matricula=@matricula AND  m.Nombre=@modulo
+		WHERE Matricula=@matricula 
+		AND m.Nombre=@modulo
+		AND e.Estado=1
+		AND m.Estado=1
 
-		INSERT INTO RegistroAsistencia (Fecha, EstudianteId, EstadoAsistenciaId)
-		SELECT @i_fecha, @estudianteId, 1
+		INSERT INTO RegistroAsistencia (Fecha, EstudianteId, EstadoAsistenciaId, Estado)
+		SELECT @i_fecha, @estudianteId, 1, 1
 
 		SET @idInsertado = @@IDENTITY
 		SELECT Id=r.Id, IdEstudiante=e.Id, Nombres, Apellidos, Matricula, 
@@ -74,13 +80,16 @@ BEGIN
 		INNER JOIN Carreras c			ON	c.Id=e.CarreraId
 		INNER JOIN RegistroAsistencia r	ON	r.EstudianteId=e.Id
 		INNER JOIN EstadoAsistencia ea	ON	ea.Id=r.EstadoAsistenciaId
-		WHERE r.Id=@idInsertado
+		WHERE r.Id=@idInsertado		
 	END
 	IF(@i_accion='IF')
 	BEGIN
 	IF NOT EXISTS(SELECT 1 FROM Estudiantes e
 						INNER JOIN Modulos m ON m.Id=e.ModuloId
-						WHERE Matricula=@matricula	AND  m.Nombre=@modulo)
+						WHERE Matricula=@matricula	
+						AND m.Nombre=@modulo
+						AND e.Estado=1
+						AND m.Estado=1)
 		BEGIN
 			--Matricula no existe
 			SELECT * FROM @RegistroAsistencia
@@ -88,10 +97,13 @@ BEGIN
 		END
 		SELECT @estudianteId=e.Id FROM Estudiantes e
 		INNER JOIN Modulos m ON m.Id=e.ModuloId 
-		WHERE Matricula=@matricula AND  m.Nombre=@modulo
+		WHERE Matricula=@matricula 
+		AND m.Nombre=@modulo
+		AND e.Estado=1
+		AND m.Estado=1
 
-		INSERT INTO RegistroAsistencia (Fecha, EstudianteId, EstadoAsistenciaId)
-		SELECT @i_fecha, @estudianteId, 2
+		INSERT INTO RegistroAsistencia (Fecha, EstudianteId, EstadoAsistenciaId, Estado)
+		SELECT @i_fecha, @estudianteId, 2, 1
 
 		SET @idInsertado = @@IDENTITY
 		SELECT Id=r.Id, IdEstudiante=e.Id, Nombres, Apellidos, Matricula, 
@@ -105,8 +117,14 @@ BEGIN
 	END
 	IF(@i_accion='UA')
 	BEGIN
-		UPDATE RegistroAsistencia SET EstadoAsistenciaId=1
-		WHERE Id=@i_idRegistroAsistencia
+		UPDATE r SET EstadoAsistenciaId=1
+		FROM RegistroAsistencia r
+		INNER JOIN Estudiantes e ON e.Id=r.EstudianteId
+		INNER JOIN Modulos m ON m.Id=e.ModuloId
+		WHERE r.Id=@i_idRegistroAsistencia 
+		AND r.Estado=1
+		AND e.Estado=1
+		AND m.Estado=1
 
 		SELECT Id=r.Id, IdEstudiante=e.Id, Nombres, Apellidos, Matricula, 
 		Email, Fecha=r.Fecha,EstadoAsistencia=ea.Estado, Carrera=c.Nombre, Modulo=m.Nombre
@@ -116,11 +134,20 @@ BEGIN
 		INNER JOIN RegistroAsistencia r	ON	r.EstudianteId=e.Id
 		INNER JOIN EstadoAsistencia ea	ON	ea.Id=r.EstadoAsistenciaId
 		WHERE r.Id=@i_idRegistroAsistencia
+		AND r.Estado=1
+		AND e.Estado=1
+		AND m.Estado=1
 	END
 	IF(@i_accion='UF')
 	BEGIN
-		UPDATE RegistroAsistencia SET EstadoAsistenciaId=2
-		WHERE Id=@i_idRegistroAsistencia
+		UPDATE r SET EstadoAsistenciaId=2
+		FROM RegistroAsistencia r
+		INNER JOIN Estudiantes e ON e.Id=r.EstudianteId
+		INNER JOIN Modulos m ON m.Id=e.ModuloId
+		WHERE r.Id=@i_idRegistroAsistencia 
+		AND r.Estado=1
+		AND e.Estado=1
+		AND m.Estado=1
 
 		SELECT Id=r.Id, IdEstudiante=e.Id, Nombres, Apellidos, Matricula, 
 		Email, Fecha=r.Fecha,EstadoAsistencia=ea.Estado, Carrera=c.Nombre, Modulo=m.Nombre
@@ -130,6 +157,9 @@ BEGIN
 		INNER JOIN RegistroAsistencia r	ON	r.EstudianteId=e.Id
 		INNER JOIN EstadoAsistencia ea	ON	ea.Id=r.EstadoAsistenciaId
 		WHERE r.Id=@i_idRegistroAsistencia
+		AND r.Estado=1
+		AND e.Estado=1
+		AND m.Estado=1
 	END
 	IF(@i_accion='CC')
 	BEGIN
@@ -143,6 +173,9 @@ BEGIN
 		INNER JOIN Modulos m			ON m.Id=e.ModuloId
 		WHERE c.Nombre LIKE '%' + @carrera + '%'
 		AND m.Nombre=@modulo
+		AND r.Estado=1
+		AND e.Estado=1
+		AND m.Estado=1
 	END
 	IF(@i_accion='CL')
 	BEGIN
@@ -155,6 +188,9 @@ BEGIN
 		INNER JOIN Carreras c			ON c.Id=e.CarreraId
 		INNER JOIN Modulos m			ON m.Id=e.ModuloId
 		WHERE m.Nombre=@modulo
+		AND r.Estado=1
+		AND e.Estado=1
+		AND m.Estado=1
 	END
 	IF(@i_accion='CM')
 	BEGIN
@@ -168,6 +204,9 @@ BEGIN
 		INNER JOIN Modulos m			ON m.Id=e.ModuloId
 		WHERE e.Matricula=@matricula
 		AND m.Nombre=@modulo
+		AND r.Estado=1
+		AND e.Estado=1
+		AND m.Estado=1
 	END
 	IF(@i_accion='CN')
 	BEGIN
@@ -184,6 +223,9 @@ BEGIN
 			WHERE	Nombres		= @nombres
 			AND		Apellidos	= @apellidos
 			AND m.Nombre=@modulo
+			AND r.Estado=1
+			AND e.Estado=1
+			AND m.Estado=1
 		END
 		IF(@nombres = '' AND @apellidos != '')
 		BEGIN
@@ -197,6 +239,9 @@ BEGIN
 			INNER JOIN Modulos m			ON m.Id=e.ModuloId
 			WHERE Apellidos LIKE '%' + @apellidos + '%'
 			AND m.Nombre=@modulo
+			AND r.Estado=1
+			AND e.Estado=1
+			AND m.Estado=1
 		END
 		ELSE IF(@nombres != '' AND @apellidos = '')
 		BEGIN
@@ -210,6 +255,9 @@ BEGIN
 			INNER JOIN Modulos m			ON m.Id=e.ModuloId
 			WHERE Nombres LIKE '%' + @nombres + '%'
 			AND m.Nombre=@modulo
+			AND r.Estado=1
+			AND e.Estado=1
+			AND m.Estado=1
 		END
 		ELSE
 		BEGIN
@@ -224,6 +272,9 @@ BEGIN
 			WHERE (Nombres LIKE '%' + @nombres + '%'
 			AND Apellidos LIKE '%' + @apellidos + '%')
 			AND m.Nombre=@modulo
+			AND r.Estado=1
+			AND e.Estado=1
+			AND m.Estado=1
 		END		
 	END
 	IF(@i_accion='CT')
@@ -236,6 +287,9 @@ BEGIN
 		INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
 		INNER JOIN Carreras c			ON c.Id=e.CarreraId
 		INNER JOIN Modulos m			ON m.Id=e.ModuloId
+		WHERE r.Estado=1
+		AND e.Estado=1
+		AND m.Estado=1
 	END
 END
 GO
