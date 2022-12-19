@@ -80,7 +80,7 @@ namespace IDAAI_API.Controllers
                 {
                     if (result[0].Id == 0)
                     {
-                        return BadRequest(Mensajes.ERROR_VAL_07);
+                        return BadRequest(Mensajes.ERROR_VAL_16);
                     }
                     LoginRequest credencialesUsuario = new()
                     {
@@ -102,13 +102,16 @@ namespace IDAAI_API.Controllers
         [HttpPost("editarUsuario")]
         public async Task<ActionResult<AutenticacionDTO>> EditarUsuario(
             [FromBody] EditarUsuarioRequest request)
-        {
+            {
             try
             {
-                string passwordEncriptado = Encrypt.GetSHA256(request.Password);
+                string passwordEncriptado="";
+                if (!(request.Password is null)){
+                    passwordEncriptado = Encrypt.GetSHA256(request.Password);
+                }              
 
                 var result = await _context.Autenticacion
-                    .FromSqlRaw($"EXEC sp_usuario @i_accion='UP', @i_usuario='{request.Usuario}', @i_password='{passwordEncriptado}', @i_email='{request.Email}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_usuario @i_accion='UP', @i_id='{request.Id}', @i_usuario='{request.Usuario}', @i_password='{passwordEncriptado}', @i_email='{request.Email}'").ToListAsync();
 
                 if (result.Count > 0)
                 {
@@ -124,6 +127,29 @@ namespace IDAAI_API.Controllers
                     return Ok(usuarioDTO);
                 }
                 return BadRequest(Mensajes.ERROR_VAL_08);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/usuario/eliminarUsuario
+        [HttpDelete("eliminarUsuario")]
+        public async Task<ActionResult<AutenticacionDTO>> EliminarUsuario(
+            [FromBody] EliminarModuloRequest request)
+        {
+            try
+            {
+                var result = await _context.Autenticacion
+                    .FromSqlRaw($"EXEC sp_usuario @i_accion='DE', @i_id='{request.Id}'").ToListAsync();
+
+                if (result.Count == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+                var usuarioDTO = mapper.Map<AutenticacionDTO>(result[0]);
+                return Ok(usuarioDTO);
             }
             catch (Exception e)
             {

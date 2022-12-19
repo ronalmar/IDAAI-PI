@@ -7,12 +7,14 @@ using IDAAI_API.Entidades.Operations.Consultas;
 using IDAAI_API.Entidades.Operations.Requests;
 using IDAAI_API.Services;
 using IDAAI_API.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace IDAAI_API.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/modulo")]
 
@@ -41,6 +43,31 @@ namespace IDAAI_API.Controllers
             {
                 var result = await _context.Modulos
                     .FromSqlRaw($"EXEC sp_modulo @i_accion='CN', @i_nombre='{query.Nombre}'").ToListAsync();
+
+                var resultPaginado = Paginacion<Modulo>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                List<ModuloDTO> listaModuloDTO = new();
+                foreach (var modulo in resultPaginado)
+                {
+                    var moduloDTO = mapper.Map<ModuloDTO>(modulo);
+                    listaModuloDTO.Add(moduloDTO);
+                }
+                return Ok(listaModuloDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/modulo/listarPorPeriodoAcademico
+        [HttpGet("listarPorPeriodoAcademico")]
+        public async Task<ActionResult<List<ModuloDTO>>> ListarPorPeriodoAcademico(
+            [FromQuery] ModuloPeriodoQuery query)
+        {
+            try
+            {
+                var result = await _context.Modulos
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='CP', @i_periodoAcademico='{query.PeriodoAcademico}'").ToListAsync();
 
                 var resultPaginado = Paginacion<Modulo>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<ModuloDTO> listaModuloDTO = new();
@@ -90,7 +117,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='IN', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='IN', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}'").ToListAsync();
 
                 if (result.Count == 0)
                 {
@@ -113,7 +140,30 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='UP', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_id='{request.Id}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='UP', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}', @i_id='{request.Id}'").ToListAsync();
+
+                if (result.Count == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_13);
+                }
+                var moduloDTO = mapper.Map<ModuloDTO>(result[0]);
+                return Ok(moduloDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/modulo/eliminarModulo
+        [HttpDelete("eliminarModulo")]
+        public async Task<ActionResult<ModuloDTO>> EliminarModulo(
+            [FromBody] EliminarModuloRequest request)
+        {
+            try
+            {
+                var result = await _context.Modulos
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='DE', @i_id='{request.Id}'").ToListAsync();
 
                 if (result.Count == 0)
                 {

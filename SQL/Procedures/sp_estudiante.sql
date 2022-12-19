@@ -66,7 +66,7 @@ BEGIN
 						AND e.Estado=1
 						AND m.Estado=1)
 		BEGIN
-			--Ya existe un estudiante con esa matricula			
+			--Ya existe un estudiante con esa matricula
 			INSERT INTO @Estudiantes (Id) VALUES (0)
 
 			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
@@ -77,20 +77,71 @@ BEGIN
 		SELECT @idCarrera=Id FROM Carreras WHERE Nombre = @carrera	AND Estado=1
 		SELECT @idModulo=Id	FROM Modulos WHERE Nombre = @modulo		AND Estado=1
 
-		IF(@idCarrera IS NULL)
-		BEGIN
-			INSERT INTO @Estudiantes (Id) VALUES (-1)
+		--IF(@idCarrera IS NULL)
+		--BEGIN
+		--	INSERT INTO @Estudiantes (Id) VALUES (-1)
 
-			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
-			FROM @Estudiantes
-			RETURN 0;
-		END
+		--	SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
+		--	FROM @Estudiantes
+		--	RETURN 0;
+		--END
 		IF(@idModulo IS NULL)
 		BEGIN
 			INSERT INTO @Estudiantes (Id) VALUES (-2)
 
 			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
 			FROM @Estudiantes
+			RETURN 0;
+		END
+
+		IF EXISTS(SELECT 1 FROM Estudiantes e
+						INNER JOIN Modulos m ON m.Id=e.ModuloId
+						WHERE Matricula=@matricula	
+						AND  m.Nombre=@modulo
+						AND e.Estado=0
+						AND m.Estado=1)
+		BEGIN
+			UPDATE Estudiantes SET
+			Estado		=	1,
+			Nombres		=	@nombres,
+			Apellidos	=	@apellidos,
+			Matricula	=	@matricula,
+			Email		=	@email,
+			Direccion	=	@direccion,
+			CarreraId	=	@idCarrera,
+			ModuloId	=	@idModulo
+			WHERE Id=(SELECT e.Id FROM Estudiantes e
+						INNER JOIN Modulos m ON m.Id=e.ModuloId
+						WHERE Matricula=@matricula	
+						AND  m.Nombre=@modulo
+						AND e.Estado=0
+						AND m.Estado=1)
+			IF(ISNULL(@idCarrera,'')='')
+			BEGIN
+				SELECT Id=e.Id, Nombres, Apellidos, Matricula, 
+				Email, Direccion, Carrera='', Modulo=m.Nombre
+				FROM Estudiantes e
+				INNER JOIN Modulos m	ON	m.Id=e.ModuloId
+				WHERE e.Id=(SELECT e.Id FROM Estudiantes e
+							INNER JOIN Modulos m ON m.Id=e.ModuloId
+							WHERE Matricula=@matricula	
+							AND  m.Nombre=@modulo
+							AND e.Estado=1
+							AND m.Estado=1)
+				RETURN 0;
+			END
+			SELECT Id=e.Id, Nombres, Apellidos, Matricula, 
+			Email, Direccion, Carrera=c.Nombre, Modulo=m.Nombre
+			FROM Estudiantes e
+			INNER JOIN Modulos m	ON	m.Id=e.ModuloId
+			INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+			WHERE e.Id=(SELECT e.Id FROM Estudiantes e
+						INNER JOIN Modulos m ON m.Id=e.ModuloId
+						WHERE Matricula=@matricula	
+						AND  m.Nombre=@modulo
+						AND e.Estado=1
+						AND m.Estado=1)
+
 			RETURN 0;
 		END
 
@@ -104,6 +155,8 @@ BEGIN
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
 		INNER JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE e.Id=@id
+
+		RETURN 0;
 	END
 	IF(@i_accion = 'CC')
 	BEGIN
@@ -111,11 +164,13 @@ BEGIN
 		Email, Direccion, Carrera= CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE c.Nombre LIKE '%' + @i_carrera + '%'
 		AND m.Nombre=@i_modulo
 		AND e.Estado=1
 		AND m.Estado=1
+
+		RETURN 0;
 	END
 	IF(@i_accion = 'CE')
 	BEGIN
@@ -123,11 +178,13 @@ BEGIN
 		Email, Direccion, Carrera= CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE Email = @email
 		AND m.Nombre=@modulo
 		AND e.Estado=1
 		AND m.Estado=1
+
+		RETURN 0;
 	END
 	IF(@i_accion = 'CL')
 	BEGIN
@@ -135,10 +192,12 @@ BEGIN
 		Email, Direccion, Carrera= CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE m.Nombre = @modulo
 		AND e.Estado=1
 		AND m.Estado=1
+
+		RETURN 0;
 	END
 	IF(@i_accion = 'CM')
 	BEGIN
@@ -146,11 +205,13 @@ BEGIN
 		Email, Direccion, Carrera= CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE Matricula = @matricula
 		AND m.Nombre=@modulo
 		AND e.Estado=1
 		AND m.Estado=1
+
+		RETURN 0;
 	END
 	IF(@i_accion = 'CN')
 	BEGIN
@@ -160,12 +221,14 @@ BEGIN
 			Email, Direccion, Carrera= CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 			FROM Estudiantes e
 			INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-			INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+			LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 			WHERE	Nombres		= @nombres
 			AND		Apellidos	= @apellidos
 			AND m.Nombre=@modulo
 			AND e.Estado=1
 			AND m.Estado=1
+
+			RETURN 0;
 		END
 		IF(@nombres = '' AND @apellidos != '')
 		BEGIN
@@ -173,11 +236,13 @@ BEGIN
 			Email, Direccion, Carrera= CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 			FROM Estudiantes e
 			INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-			INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+			LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 			WHERE Apellidos LIKE '%' + @apellidos + '%'
 			AND m.Nombre=@modulo
 			AND e.Estado=1
 			AND m.Estado=1
+
+			RETURN 0;
 		END
 		ELSE IF(@nombres != '' AND @apellidos = '')
 		BEGIN
@@ -185,11 +250,13 @@ BEGIN
 			Email, Direccion, Carrera= CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 			FROM Estudiantes e
 			INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-			INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+			LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 			WHERE Nombres LIKE '%' + @nombres + '%'
 			AND m.Nombre=@modulo
 			AND e.Estado=1
 			AND m.Estado=1
+
+			RETURN 0;
 		END
 		ELSE
 		BEGIN
@@ -197,12 +264,14 @@ BEGIN
 			Email, Direccion, Carrera= CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 			FROM Estudiantes e
 			INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-			INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+			LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 			WHERE (Nombres LIKE '%' + @nombres + '%'
 			AND Apellidos LIKE '%' + @apellidos + '%')
 			AND m.Nombre=@modulo
 			AND e.Estado=1
 			AND m.Estado=1
+
+			RETURN 0;
 		END		
 	END
 	IF(@i_accion = 'CT')
@@ -211,9 +280,11 @@ BEGIN
 		Email, Direccion, Carrera = CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE e.Estado=1
 		AND m.Estado=1
+
+		RETURN 0;
 	END
 	IF(@i_accion = 'UP')
 	BEGIN
@@ -230,15 +301,15 @@ BEGIN
 		SELECT @idCarrera=Id FROM Carreras WHERE Nombre = @carrera	AND Estado=1
 		SELECT @idModulo=Id	FROM Modulos WHERE Nombre = @modulo		AND Estado=1
 		
-		IF(@idCarrera IS NULL AND ISNULL(@carrera, '')!='')
-		BEGIN
-			--La carrera del estudiante no es válida
-			INSERT INTO @Estudiantes (Id) VALUES (-1)
+		--IF(@idCarrera IS NULL AND ISNULL(@carrera, '')!='')
+		--BEGIN
+		--	--La carrera del estudiante no es válida
+		--	INSERT INTO @Estudiantes (Id) VALUES (-1)
 
-			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
-			FROM @Estudiantes
-			RETURN 0;
-		END
+		--	SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
+		--	FROM @Estudiantes
+		--	RETURN 0;
+		--END
 
 		IF(@idModulo IS NULL AND ISNULL(@modulo, '')!='')
 		BEGIN
@@ -266,18 +337,65 @@ BEGIN
 		Direccion	=	CASE	WHEN ISNULL(@direccion,'')='' THEN e.Direccion
 								ELSE @direccion
 								END,
-		CarreraId	=	ISNULL(@idCarrera, c.Id),
+		CarreraId	=	ISNULL((SELECT Id FROM Carreras WHERE Nombre=@carrera),''),
 		ModuloId	=	ISNULL(@idModulo, m.Id)
 		FROM Modulos m 
 		INNER JOIN Estudiantes e ON e.ModuloId=m.Id
-		INNER JOIN Carreras c ON c.Id=e.CarreraId
 		WHERE e.Id = @i_id
-		AND c.Nombre = CASE		WHEN ISNULL(@carrera,'')='' THEN c.Nombre
-								ELSE @carrera
-								END
 		AND m.Nombre = CASE		WHEN ISNULL(@modulo,'')='' THEN m.Nombre
 								ELSE @modulo
 								END
+
+		SELECT Id=e.Id, Nombres, Apellidos, Matricula, 
+		Email, Direccion, Carrera = CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
+		FROM Estudiantes e
+		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
+		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
+		WHERE e.Id=@i_id
+		AND e.Estado=1
+		AND m.Estado=1
+
+		RETURN 0;
+	END
+	IF(@i_accion = 'DE')
+	BEGIN
+		IF EXISTS(SELECT 1 FROM Estudiantes e INNER JOIN Modulos m ON m.Id=e.ModuloId 
+		WHERE e.Id=@i_id 
+		AND e.Estado=1
+		AND m.Estado=1)
+		BEGIN
+			UPDATE Estudiantes SET
+			Estado = 0
+			WHERE Id = (SELECT e.Id FROM Estudiantes e INNER JOIN Modulos m ON m.Id=e.ModuloId 
+			WHERE e.Id=@i_id 
+			AND e.Estado=1
+			AND m.Estado=1)			
+			
+			IF(ISNULL((SELECT CarreraId FROM Estudiantes WHERE Id=@i_id),'')='')
+			BEGIN
+				SELECT Id=e.Id, Nombres, Apellidos, Matricula, 
+				Email, Direccion, Carrera='', Modulo=m.Nombre
+				FROM Estudiantes e
+				INNER JOIN Modulos m	ON	m.Id=e.ModuloId
+				WHERE e.Id=@i_id
+				AND e.Estado=0
+				AND m.Estado=1
+				RETURN 0;
+			END
+
+			SELECT Id=e.Id, Nombres, Apellidos, Matricula, 
+			Email, Direccion, Carrera = CASE WHEN c.Estado=1 THEN c.Nombre ELSE NULL END, Modulo=m.Nombre
+			FROM Estudiantes e
+			INNER JOIN Modulos m	ON	m.Id=e.ModuloId
+			INNER JOIN Carreras c	ON	c.Id=e.CarreraId
+			WHERE e.Id=@i_id
+			AND e.Estado=0
+			AND m.Estado=0
+
+			RETURN 0;
+		END
+		
+		SELECT * FROM @Estudiantes
 		RETURN 0;
 	END
 END

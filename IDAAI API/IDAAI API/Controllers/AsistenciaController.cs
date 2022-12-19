@@ -220,5 +220,28 @@ namespace IDAAI_API.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        // api/asistencia/eliminarRegistroAsistencia
+        [HttpDelete("eliminarRegistroAsistencia")]
+        public async Task<ActionResult<AsistenciaDTO>> EliminarRegistroAsistencia(
+            [FromBody] EliminarModuloRequest request)
+        {
+            try
+            {
+                var result = await _context.RegistroAsistencia
+                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='DE', @i_idRegistroAsistencia='{request.Id}'").ToListAsync();
+
+                if (result.Count == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_10);
+                }
+                var asistenciaDTO = mapper.Map<AsistenciaDTO>(result[0]);
+                return Ok(asistenciaDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

@@ -38,6 +38,27 @@ BEGIN
 				SELECT * FROM @Carreras
 				RETURN 0;
 			END
+			IF EXISTS(SELECT 1 FROM Carreras c
+						INNER JOIN Modulos m ON m.Id=c.ModuloId
+						WHERE c.Nombre=@nombre 
+						AND c.Estado=0
+						AND m.Estado=1)
+			BEGIN
+				UPDATE Carreras SET
+				Nombre				= @nombre,
+				ModuloId			= @idModulo,
+				Estado = 1
+				WHERE Id=(SELECT Id FROM Carreras WHERE Nombre=@nombre AND Estado=0)
+
+				SELECT Id=c.id, Nombre=c.Nombre, Modulo=m.nombre 
+				FROM Carreras c
+				INNER JOIN Modulos m ON m.Id=c.ModuloId
+				WHERE c.Id=(SELECT Id FROM Carreras WHERE Nombre=@nombre AND Estado=1)
+				AND c.Estado=1
+				AND m.Estado=1
+
+				RETURN 0;
+			END			
 
 			INSERT INTO Carreras VALUES(@nombre, 1, @idModulo)
 
@@ -96,6 +117,24 @@ BEGIN
 		END
 		INSERT INTO @Carreras (Id) VALUES(0)
 
+		SELECT * FROM @Carreras
+		RETURN 0;
+	END
+	IF(@i_accion = 'DE')
+	BEGIN
+		IF EXISTS(SELECT 1 FROM Carreras WHERE id=@i_id AND Estado=1)
+		BEGIN
+			UPDATE Carreras SET	Estado=0
+			WHERE	Id=@i_id AND Estado=1
+			
+			SELECT Id=c.Id, Nombre=c.Nombre, Modulo=m.nombre 
+			FROM Carreras c
+			INNER JOIN Modulos m ON m.Id=c.ModuloId
+			WHERE c.Id=@i_id
+			AND m.Estado=1
+
+			RETURN 0;
+		END
 		SELECT * FROM @Carreras
 		RETURN 0;
 	END

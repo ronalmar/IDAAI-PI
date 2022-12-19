@@ -5,6 +5,9 @@ namespace IDAAI_API.Entidades.Operations.Requests
 {
     public class EditarUsuarioRequest
     {
+        [JsonProperty("Id")]
+        [Required]
+        public int Id { get; set; }
         [JsonProperty("Usuario")]
         [StringLength(maximumLength: 25)]
         public string Usuario { get; set; }

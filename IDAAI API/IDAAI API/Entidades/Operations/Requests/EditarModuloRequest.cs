@@ -17,5 +17,9 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [StringLength(maximumLength: 100)]
         public string Descripcion { get; set; }
 
+        [JsonProperty("PeriodoAcademico")]
+        [StringLength(maximumLength: 50)]
+        public string PeriodoAcademico { get; set; }
+
     }
 }

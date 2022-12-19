@@ -198,7 +198,10 @@ namespace IDAAI_API.Controllers
                 var result = await _context.Estudiantes
                     .FromSqlRaw($"EXEC sp_estudiante @i_accion='IN', @i_nombres='{request.Nombres}', @i_apellidos='{request.Apellidos}', @i_matricula='{request.Matricula}'" +
                                     $", @i_email='{request.Email}', @i_direccion='{request.Direccion}', @i_carrera='{request.Carrera}', @i_modulo='{request.Modulo}'").ToListAsync();
-                
+                if(result.Count < 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
                 if (result[0].Id == 0)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_07);
@@ -242,6 +245,29 @@ namespace IDAAI_API.Controllers
                 if (result[0].Id == -2)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_13);
+                }
+                var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
+                return Ok(estudianteDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/estudiante/eliminarEstudiante
+        [HttpDelete("eliminarEstudiante")]
+        public async Task<ActionResult<EstudianteDTO>> EliminarEstudiante(
+            [FromBody] EliminarModuloRequest request)
+        {
+            try
+            {
+                var result = await _context.Estudiantes
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='DE', @i_id='{request.Id}'").ToListAsync();
+
+                if (result.Count == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_20);
                 }
                 var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
                 return Ok(estudianteDTO);

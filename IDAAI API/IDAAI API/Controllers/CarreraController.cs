@@ -7,12 +7,14 @@ using IDAAI_API.Entidades.Operations.Consultas;
 using IDAAI_API.Entidades.Operations.Requests;
 using IDAAI_API.Services;
 using IDAAI_API.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace IDAAI_API.Controllers
 {
+    //[Authorize]
     [ApiController]
     [Route("api/carrera")]
 
@@ -140,7 +142,7 @@ namespace IDAAI_API.Controllers
 
         // api/carrera/editarCarrera
         [HttpPut("editarCarrera")]
-        public async Task<ActionResult<ModuloDTO>> EditarModulo(
+        public async Task<ActionResult<CarreraDTO>> EditarCarrera(
             [FromBody] EditarCarreraRequest request)
         {
             try
@@ -159,6 +161,29 @@ namespace IDAAI_API.Controllers
                 if (result[0].Id == -1)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_13);
+                }
+                var carreraDTO = mapper.Map<CarreraDTO>(result[0]);
+                return Ok(carreraDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/carrera/eliminarCarrera
+        [HttpDelete("eliminarCarrera")]
+        public async Task<ActionResult<CarreraDTO>> EliminarCarrera(
+            [FromBody] EliminarModuloRequest request)
+        {
+            try
+            {
+                var result = await _context.Carreras
+                    .FromSqlRaw($"EXEC sp_carrera @i_accion='DE', @i_id='{request.Id}'").ToListAsync();
+
+                if (result.Count == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_12);
                 }
                 var carreraDTO = mapper.Map<CarreraDTO>(result[0]);
                 return Ok(carreraDTO);

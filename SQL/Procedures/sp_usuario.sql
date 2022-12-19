@@ -37,6 +37,21 @@ BEGIN
 			SELECT Id, Usuario, Email FROM @TablaUsuario
 			RETURN 0;
 		END
+		IF EXISTS (SELECT 1 FROM Usuarios WHERE Usuario=@usuario AND Estado=0)
+		BEGIN
+			UPDATE Usuarios SET
+			Estado		= 1,
+			Usuario		= @usuario,
+			Password	= @i_password,
+			Email		= @email
+			WHERE Id=(SELECT 1 FROM Usuarios WHERE Usuario=@usuario AND Estado=0)
+
+			SELECT Id, Usuario, Email FROM Usuarios
+			WHERE Id=(SELECT Id FROM Usuarios WHERE Usuario=@usuario AND Estado=1)
+			AND Estado=1
+
+			RETURN 0;
+		END
 
 		INSERT INTO Usuarios (Usuario, Password, Email, Estado) VALUES (@usuario, @i_password, 
 		CASE	WHEN @email=''	THEN NULL
@@ -71,6 +86,21 @@ BEGIN
 		END
 		INSERT INTO @TablaUsuario (Id) VALUES (0)
 
+		SELECT Id, Usuario, Email FROM @TablaUsuario
+		RETURN 0;
+	END
+	IF(@i_accion = 'DE')
+	BEGIN
+		IF EXISTS(SELECT 1 FROM Usuarios WHERE Id=@i_id AND Estado=1)
+		BEGIN
+			UPDATE Usuarios SET
+			Estado = 0
+			WHERE Id=@i_id AND Estado=1
+
+			SELECT Id, Usuario, Email FROM Usuarios WHERE Id=@i_id
+
+			RETURN 0;
+		END
 		SELECT Id, Usuario, Email FROM @TablaUsuario
 		RETURN 0;
 	END

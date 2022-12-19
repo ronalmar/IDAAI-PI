@@ -28,6 +28,8 @@
         internal const string CODE_ERROR_VAL_16 = "VAL-016";
         internal const string CODE_ERROR_VAL_17 = "VAL-017";
         internal const string CODE_ERROR_VAL_18 = "VAL-018";
+        internal const string CODE_ERROR_VAL_19 = "VAL-019";
+        internal const string CODE_ERROR_VAL_20 = "VAL-020";
         // Mensajes de error
         internal const string ERROR_VAL_01 = "El campo {0} no puede ser Nulo o Vacío.";
         internal const string ERROR_VAL_02 = "La longitud del campo {0} no puede superar los {1} caracteres";
@@ -38,7 +40,7 @@
         internal const string ERROR_VAL_07 = "Ya existe un estudiante con la matrícula ingresada";
         internal const string ERROR_VAL_08 = "Hubo un problema en la ejecución de la instrucción en la base de datos";
         internal const string ERROR_VAL_09 = "No existe un estudiante con el Id ingresado";
-        internal const string ERROR_VAL_10 = "No existe un registro de asistencia con el Id ingresado";
+        internal const string ERROR_VAL_10 = "No existe el registro de asistencia con el Id ingresado";
         internal const string ERROR_VAL_11 = "No existe un estudiante con la matrícula ingresada";
         internal const string ERROR_VAL_12 = "No existe la carrera ingresada";
         internal const string ERROR_VAL_13 = "No existe el módulo ingresado";
@@ -47,6 +49,8 @@
         internal const string ERROR_VAL_16 = "Ya existe el usuario ingresado";
         internal const string ERROR_VAL_17 = "Ya existe la carrera ingresada";
         internal const string ERROR_VAL_18 = "No existe una carrera con el Id ingresado";
+        internal const string ERROR_VAL_19 = "No existe el usuario ingresado";
+        internal const string ERROR_VAL_20 = "No existe el estudiante ingresado";
 
     }
 }

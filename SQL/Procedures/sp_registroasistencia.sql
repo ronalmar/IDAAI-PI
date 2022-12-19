@@ -77,7 +77,7 @@ BEGIN
 		Email, Fecha=r.Fecha,EstadoAsistencia=ea.Estado, Carrera=c.Nombre, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m			ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c			ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c			ON	c.Id=e.CarreraId
 		INNER JOIN RegistroAsistencia r	ON	r.EstudianteId=e.Id
 		INNER JOIN EstadoAsistencia ea	ON	ea.Id=r.EstadoAsistenciaId
 		WHERE r.Id=@idInsertado		
@@ -110,7 +110,7 @@ BEGIN
 		Email, Fecha=r.Fecha,EstadoAsistencia=ea.Estado, Carrera=c.Nombre, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m			ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c			ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c			ON	c.Id=e.CarreraId
 		INNER JOIN RegistroAsistencia r	ON	r.EstudianteId=e.Id
 		INNER JOIN EstadoAsistencia ea	ON	ea.Id=r.EstadoAsistenciaId
 		WHERE r.Id=@idInsertado
@@ -130,7 +130,7 @@ BEGIN
 		Email, Fecha=r.Fecha,EstadoAsistencia=ea.Estado, Carrera=c.Nombre, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m			ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c			ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c			ON	c.Id=e.CarreraId
 		INNER JOIN RegistroAsistencia r	ON	r.EstudianteId=e.Id
 		INNER JOIN EstadoAsistencia ea	ON	ea.Id=r.EstadoAsistenciaId
 		WHERE r.Id=@i_idRegistroAsistencia
@@ -153,7 +153,7 @@ BEGIN
 		Email, Fecha=r.Fecha,EstadoAsistencia=ea.Estado, Carrera=c.Nombre, Modulo=m.Nombre
 		FROM Estudiantes e
 		INNER JOIN Modulos m			ON	m.Id=e.ModuloId
-		INNER JOIN Carreras c			ON	c.Id=e.CarreraId
+		LEFT JOIN Carreras c			ON	c.Id=e.CarreraId
 		INNER JOIN RegistroAsistencia r	ON	r.EstudianteId=e.Id
 		INNER JOIN EstadoAsistencia ea	ON	ea.Id=r.EstadoAsistenciaId
 		WHERE r.Id=@i_idRegistroAsistencia
@@ -290,6 +290,40 @@ BEGIN
 		WHERE r.Estado=1
 		AND e.Estado=1
 		AND m.Estado=1
+	END
+	IF(@i_accion='DE')
+	BEGIN
+		IF EXISTS(SELECT 1
+				FROM RegistroAsistencia r
+				INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
+				INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
+				LEFT JOIN Carreras c			ON c.Id=e.CarreraId
+				INNER JOIN Modulos m			ON m.Id=e.ModuloId
+				WHERE r.Id=@i_idRegistroAsistencia
+				AND r.Estado=1
+				AND e.Estado=1
+				AND m.Estado=1)
+		BEGIN
+			UPDATE RegistroAsistencia SET
+			Estado=0
+			WHERE Id=@i_idRegistroAsistencia
+
+			SELECT Id=r.Id, IdEstudiante=e.Id, Nombres=e.Nombres, Apellidos=e.Apellidos, 
+			Matricula=e.Matricula, Email=e.Email,
+			Fecha=r.Fecha, EstadoAsistencia=ea.Estado, Carrera=c.Nombre, Modulo=m.Nombre
+			FROM RegistroAsistencia r
+			INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
+			INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
+			LEFT JOIN Carreras c			ON c.Id=e.CarreraId
+			INNER JOIN Modulos m			ON m.Id=e.ModuloId
+			WHERE r.Estado=0
+			AND e.Estado=1
+			AND m.Estado=1
+
+			RETURN 0;
+		END
+		SELECT * FROM @RegistroAsistencia
+		RETURN 0;
 	END
 END
 GO
