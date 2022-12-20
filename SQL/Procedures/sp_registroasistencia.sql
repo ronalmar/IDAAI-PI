@@ -316,7 +316,8 @@ BEGIN
 			INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
 			LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 			INNER JOIN Modulos m			ON m.Id=e.ModuloId
-			WHERE r.Estado=0
+			WHERE r.Id=@i_idRegistroAsistencia
+			AND r.Estado=0
 			AND e.Estado=1
 			AND m.Estado=1
 

@@ -39,9 +39,9 @@ namespace IDAAI_API.Controllers
             secretKey = config.GetSection("settings").GetSection("secretkey").ToString();
         }
 
-        // api/usuario/login
-        [HttpPost("login")]
-        public async Task<ActionResult<RespuestaAutenticacion>> Login(
+        // api/usuario/loginUsuario
+        [HttpPost("loginUsuario")]
+        public async Task<ActionResult<RespuestaAutenticacion>> LoginUsuario(
             [FromBody] LoginRequest request)
         {
             try
@@ -64,9 +64,9 @@ namespace IDAAI_API.Controllers
             }
         }
 
-        // api/usuario/registro
-        [HttpPost("registro")]
-        public async Task<ActionResult<RespuestaAutenticacion>> Registro(
+        // api/usuario/registrarUsuario
+        [HttpPost("registrarUsuario")]
+        public async Task<ActionResult<RespuestaAutenticacion>> RegistrarUsuario(
             [FromBody] RegistroRequest request)
         {
             try
@@ -99,7 +99,7 @@ namespace IDAAI_API.Controllers
         }
 
         // api/usuario/editarUsuario
-        [HttpPost("editarUsuario")]
+        [HttpPut("editarUsuario")]
         public async Task<ActionResult<AutenticacionDTO>> EditarUsuario(
             [FromBody] EditarUsuarioRequest request)
             {

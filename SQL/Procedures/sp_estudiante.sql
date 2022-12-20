@@ -11,19 +11,20 @@ ALTER PROCEDURE sp_estudiante
 AS
 BEGIN
 	DECLARE 
-		@idCarrera		INT,
-		@idModulo		INT,
-		@nombres		VARCHAR(100),
-		@apellidos		VARCHAR(100),
-		@matricula		VARCHAR(10),
-		@email			VARCHAR(50),
-		@direccion		VARCHAR(100),
-		@carrera		VARCHAR(100),
-		@modulo			VARCHAR(50),
-		@nombresTrim	VARCHAR(100),
-		@apellidosTrim	VARCHAR(100),
-		@emailTrim		VARCHAR(50),
-		@direccionTrim	VARCHAR(100)
+		@idCarrera			INT,
+		@idModulo			INT,
+		@nombres			VARCHAR(100),
+		@apellidos			VARCHAR(100),
+		@matricula			VARCHAR(10),
+		@email				VARCHAR(50),
+		@direccion			VARCHAR(100),
+		@carrera			VARCHAR(100),
+		@modulo				VARCHAR(50),
+		@nombresTrim		VARCHAR(100),
+		@apellidosTrim		VARCHAR(100),
+		@emailTrim			VARCHAR(50),
+		@direccionTrim		VARCHAR(100),
+		@carreraIdAnterior	INT
 	
 	SET @nombresTrim		=	TRIM(@i_nombres)
 	SET @apellidosTrim		=	TRIM(@i_apellidos)
@@ -149,6 +150,16 @@ BEGIN
 		SELECT @nombres, @apellidos, @matricula, @email, @direccion, @idCarrera, @idModulo, 1
 
 		DECLARE @id INT = @@IDENTITY
+
+		IF(ISNULL(@idCarrera,'')='')
+			BEGIN
+				SELECT Id=e.Id, Nombres, Apellidos, Matricula, 
+				Email, Direccion, Carrera='', Modulo=m.Nombre
+				FROM Estudiantes e
+				INNER JOIN Modulos m	ON	m.Id=e.ModuloId
+				WHERE e.Id=@id
+				RETURN 0;
+			END
 		SELECT Id=e.Id, Nombres, Apellidos, Matricula, 
 		Email, Direccion, Carrera=c.Nombre, Modulo=m.Nombre
 		FROM Estudiantes e
@@ -320,6 +331,10 @@ BEGIN
 			FROM @Estudiantes
 			RETURN 0;
 		END
+		
+		SELECT @carreraIdAnterior=e.CarreraId FROM Estudiantes e
+		INNER JOIN Carreras c ON c.Id=e.CarreraId
+		WHERE e.Id=@i_id
 
 		UPDATE e SET 
 		Nombres		=	CASE	WHEN ISNULL(@nombres,'')='' THEN e.Nombres
@@ -337,7 +352,7 @@ BEGIN
 		Direccion	=	CASE	WHEN ISNULL(@direccion,'')='' THEN e.Direccion
 								ELSE @direccion
 								END,
-		CarreraId	=	ISNULL((SELECT Id FROM Carreras WHERE Nombre=@carrera),''),
+		CarreraId	=	ISNULL((SELECT Id FROM Carreras WHERE Nombre=@carrera),@carreraIdAnterior),
 		ModuloId	=	ISNULL(@idModulo, m.Id)
 		FROM Modulos m 
 		INNER JOIN Estudiantes e ON e.ModuloId=m.Id
@@ -390,7 +405,7 @@ BEGIN
 			INNER JOIN Carreras c	ON	c.Id=e.CarreraId
 			WHERE e.Id=@i_id
 			AND e.Estado=0
-			AND m.Estado=0
+			AND m.Estado=1
 
 			RETURN 0;
 		END
