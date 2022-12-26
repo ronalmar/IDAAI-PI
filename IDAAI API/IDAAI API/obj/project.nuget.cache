@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "gXu/RU1tDrBqPDXpfR933IOBQCFfY6M4BBsyycExDp7UN3fwkl7sK3oZO6NDDwbecEQpCL6/oNuLZvNIoJ0TkQ==",
+  "dgSpecHash": "JtmvBdFolE40HG/q5d7ChbsT8rDkXhfjXBU+aRSMYQ/riRh537FnmlP7p89oHeBUkQuI/SpoF3zl9hLdLfT9pQ==",
   "success": true,
   "projectFilePath": "D:\\Archivos\\Materia Integradora\\IDAAI\\Proyecto IDAAI\\IDAAI API\\IDAAI API\\IDAAI API.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,7 @@
     "C:\\Users\\alex9\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.0\\automapper.extensions.microsoft.dependencyinjection.12.0.0.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
+    "C:\\Users\\alex9\\.nuget\\packages\\csvhelper\\30.0.1\\csvhelper.30.0.1.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\dapper\\2.0.123\\dapper.2.0.123.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\alex9\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\7.0.0\\microsoft.aspnetcore.authentication.jwtbearer.7.0.0.nupkg.sha512",

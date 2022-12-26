@@ -12,6 +12,10 @@ namespace IDAAI_API.Services
             CreateMap<Asistencia, AsistenciaDTO>();
             CreateMap<Modulo, ModuloDTO>();
             CreateMap<Carrera, CarreraDTO>();
+            CreateMap<Inventario, InventarioDTO>();
+            CreateMap<Item, ItemDTO>();
+            CreateMap<PrestamoEstudiante, PrestamoEstudianteDTO>();
+            CreateMap<PrestamoModulo, PrestamoModuloDTO>();
         }
     }
 }

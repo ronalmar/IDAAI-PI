@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using IDAAI_API.Services;
 
 [assembly: ApiConventionType(typeof(DefaultApiConventions))]
 namespace IDAAI_API
@@ -76,6 +77,7 @@ namespace IDAAI_API
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddAutoMapper(typeof(Startup));
+            services.AddScoped<ICSVService, CSVService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

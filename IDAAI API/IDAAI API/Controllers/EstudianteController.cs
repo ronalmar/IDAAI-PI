@@ -16,6 +16,8 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using IDAAI_API.Entidades.Operations.Requests;
+using System.Xml.Linq;
+using System.Data.SqlTypes;
 
 namespace IDAAI_API.Controllers
 {
@@ -33,11 +35,13 @@ namespace IDAAI_API.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper mapper;
+        private readonly ICSVService csvService;
 
-        public EstudianteController(ApplicationDbContext context, IMapper mapper)
+        public EstudianteController(ApplicationDbContext context, IMapper mapper, ICSVService csvService)
         {
             _context = context;
             this.mapper = mapper;
+            this.csvService = csvService;
         }
 
         // api/estudiante/listarPorNombres
@@ -216,6 +220,79 @@ namespace IDAAI_API.Controllers
                 }
                 var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
                 return Ok(estudianteDTO);               
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/estudiante/registrarGrupoEstudiante
+        [HttpPost("registrarGrupoEstudiante")]
+        public async Task<ActionResult<EstudianteDTO>> RegistrarGrupoEstudiante(
+            [FromForm] IFormFileCollection ArchivoEstudiantes, [FromQuery] EstudianteModuloQuery query)
+        {
+            try
+            {
+                if (ArchivoEstudiantes.Count == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_38);
+                }
+
+                var datosArchivo = csvService.ReadCSV<GrupoEstudiante>(ArchivoEstudiantes[0].OpenReadStream());
+                List<GrupoEstudiante> grupoEstudiantes = new List<GrupoEstudiante>();
+                foreach(var estudiante in datosArchivo)
+                {
+                    if (estudiante.Student.Trim().Contains(","))
+                    {
+                        grupoEstudiantes.Add(estudiante);
+                    }
+                }
+
+                List<RegistrarEstudianteRequest> estudiantes= new List<RegistrarEstudianteRequest>();
+                foreach (var estudiante in grupoEstudiantes)
+                {
+                    estudiantes.Add(new RegistrarEstudianteRequest {
+                        Nombres = estudiante.Student.Split(",")[0].Trim(),
+                        Apellidos = estudiante.Student.Split(",")[1].Trim(),
+                        Matricula = estudiante.SISUserID,
+                        Email = estudiante.SISLoginID + "@espol.edu.ec",
+                        Modulo = query.Modulo
+                    });
+                }
+
+                XDocument xmlEstudiantes = new(
+                    new XElement("Estudiantes", estudiantes.Select(estudiante => 
+                        new XElement("Estudiante", 
+                            new XElement("Nombres", estudiante.Nombres),
+                            new XElement("Apellidos", estudiante.Apellidos),
+                            new XElement("Matricula", estudiante.Matricula),
+                            new XElement("Email", estudiante.Email),
+                            new XElement("Modulo", estudiante.Modulo),
+                            new XElement("Carrera", estudiante.Carrera),
+                            new XElement("Direccion", estudiante.Direccion))))
+                );
+                SqlXml xml = new(xmlEstudiantes.CreateReader());
+
+                var result = await _context.Estudiantes
+                   .FromSqlRaw($"EXEC sp_estudiante @i_accion='IG', @i_modulo='{query.Modulo}', @i_xmlEstudiantes='{xmlEstudiantes}'").ToListAsync();
+                if (result.Count < 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
+                if (result[0].Id == 0 && result.Count == 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_13);
+                }
+
+                var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                List<EstudianteDTO> listaEstudiantesDTO = new();
+                foreach (var estudiante in resultPaginado)
+                {
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                    listaEstudiantesDTO.Add(estudianteDTO);
+                }
+                return Ok(listaEstudiantesDTO);
             }
             catch (Exception e)
             {

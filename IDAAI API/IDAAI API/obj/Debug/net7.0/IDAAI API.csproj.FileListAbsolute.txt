@@ -1,3 +1,10 @@
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.csproj.AssemblyReference.cache
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.GeneratedMSBuildEditorConfig.editorconfig
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.AssemblyInfoInputs.cache
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.AssemblyInfo.cs
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.csproj.CoreCompileInputs.cache
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.MvcApplicationPartsAssemblyInfo.cs
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.MvcApplicationPartsAssemblyInfo.cache
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\appsettings.Development.json
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\appsettings.json
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\IDAAI API.exe
@@ -9,6 +16,7 @@ D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Deb
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Azure.Core.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Azure.Identity.dll
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\CsvHelper.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Dapper.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Humanizer.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
@@ -58,13 +66,6 @@ D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Deb
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
-D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.csproj.AssemblyReference.cache
-D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.GeneratedMSBuildEditorConfig.editorconfig
-D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.AssemblyInfoInputs.cache
-D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.AssemblyInfo.cs
-D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.csproj.CoreCompileInputs.cache
-D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.MvcApplicationPartsAssemblyInfo.cs
-D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\IDAAI API.MvcApplicationPartsAssemblyInfo.cache
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\staticwebassets\msbuild.IDAAI API.Microsoft.AspNetCore.StaticWebAssets.props
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\staticwebassets\msbuild.build.IDAAI API.props
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\obj\Debug\net7.0\staticwebassets\msbuild.buildMultiTargeting.IDAAI API.props

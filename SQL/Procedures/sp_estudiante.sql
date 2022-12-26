@@ -7,24 +7,36 @@ ALTER PROCEDURE sp_estudiante
 	@i_email			VARCHAR(50)			=NULL,
 	@i_direccion		VARCHAR(100)		=NULL,
 	@i_carrera			VARCHAR(100)		=NULL,
-	@i_modulo			VARCHAR(50)			=NULL
+	@i_modulo			VARCHAR(50)			=NULL,
+	@i_xmlEstudiantes	XML					=NULL
 AS
 BEGIN
 	DECLARE 
-		@idCarrera			INT,
-		@idModulo			INT,
-		@nombres			VARCHAR(100),
-		@apellidos			VARCHAR(100),
-		@matricula			VARCHAR(10),
-		@email				VARCHAR(50),
-		@direccion			VARCHAR(100),
-		@carrera			VARCHAR(100),
-		@modulo				VARCHAR(50),
-		@nombresTrim		VARCHAR(100),
-		@apellidosTrim		VARCHAR(100),
-		@emailTrim			VARCHAR(50),
-		@direccionTrim		VARCHAR(100),
-		@carreraIdAnterior	INT
+		@idCarrera				INT,
+		@idModulo				INT,
+		@nombres				VARCHAR(100),
+		@apellidos				VARCHAR(100),
+		@matricula				VARCHAR(10),
+		@email					VARCHAR(50),
+		@direccion				VARCHAR(100),
+		@carrera				VARCHAR(100),
+		@modulo					VARCHAR(50),
+		@nombresTrim			VARCHAR(100),
+		@apellidosTrim			VARCHAR(100),
+		@emailTrim				VARCHAR(50),
+		@direccionTrim			VARCHAR(100),
+		@carreraIdAnterior		INT,
+		@xmlPuntero				INT,
+		@nombresInsertar		VARCHAR(100),
+		@apellidosInsertar		VARCHAR(100),
+		@matriculaInsertar		VARCHAR(10),
+		@emailInsertar			VARCHAR(50),
+		@direccionInsertar		VARCHAR(100),
+		@carreraIdInsertar		INT,
+		@moduloInsertar			VARCHAR(50),
+		@moduloIdInsertar		INT,
+		@idInsertado			INT,
+		@codigoIdError			INT
 	
 	SET @nombresTrim		=	TRIM(@i_nombres)
 	SET @apellidosTrim		=	TRIM(@i_apellidos)
@@ -58,6 +70,131 @@ BEGIN
 				Modulo		VARCHAR(50)
 			)
 
+	DECLARE @EstudiantesXML TABLE(
+				Nombres		VARCHAR(100), 
+				Apellidos	VARCHAR(100),
+				Matricula	VARCHAR(10),
+				Email		VARCHAR(50),
+				Modulo		VARCHAR(50),
+				Carrera		VARCHAR(100),
+				Direccion	VARCHAR(10)
+			)
+
+	IF(@i_accion = 'IG')
+	BEGIN
+		EXEC SP_XML_PREPAREDOCUMENT	@xmlPuntero OUTPUT, @i_xmlEstudiantes	
+
+		SELECT * INTO #ESTUDIANTESXML FROM OPENXML(@xmlPuntero, 'Estudiantes/Estudiante', 2)
+		WITH(
+			Nombres			VARCHAR(100)		'Nombres',
+			Apellidos		VARCHAR(100)		'Apellidos',
+			Matricula		VARCHAR(10)			'Matricula',
+			Email			VARCHAR(50)			'Email',
+			Modulo			VARCHAR(50)			'Modulo',
+			Carrera			VARCHAR(100)		'Carrera',
+			Direccion		VARCHAR(100)		'Direccion'
+		)
+
+		INSERT INTO @EstudiantesXML
+		SELECT * FROM #ESTUDIANTESXML
+		
+		-- VALIDAR QUE EL MODULO EXISTA (ESTADO=1) Y NO SEA LABORATORIO ABIERTO (ID=1)
+		IF NOT EXISTS(SELECT 1 FROM Modulos WHERE Nombre=@modulo AND Id!=1 AND Estado=1)
+		BEGIN
+			INSERT INTO @Estudiantes (Id) VALUES (0)
+			SELECT * FROM @Estudiantes
+			RETURN 0;
+		END
+
+		SELECT @moduloInsertar=Nombre FROM Modulos 
+			WHERE Nombre=@modulo AND Id!=1 AND Estado=1
+		
+		SELECT @moduloIdInsertar=Id	FROM Modulos
+			WHERE Nombre=@modulo AND Id!=1 AND Estado=1
+		
+		SET @codigoIdError=0
+		WHILE(1=1)
+		BEGIN			
+			IF(SELECT COUNT(*) FROM @EstudiantesXML)=0
+				BREAK;
+
+			SELECT TOP(1) @nombresInsertar=Nombres FROM @EstudiantesXML
+			SELECT TOP(1) @apellidosInsertar=Apellidos FROM @EstudiantesXML
+			SELECT TOP(1) @matriculaInsertar=Matricula FROM @EstudiantesXML
+			SELECT TOP(1) @emailInsertar=Email FROM @EstudiantesXML
+			SELECT TOP(1) @direccionInsertar=Direccion FROM @EstudiantesXML
+			SELECT @carreraIdInsertar=
+				(SELECT Id FROM Carreras WHERE Nombre=(SELECT TOP(1)Carrera FROM @EstudiantesXML)
+											AND Estado=1)
+
+			-- VALIDAR QUE NO EXISTA UN ESTUDIANTE CON LA MATRICULA ITERADA
+			IF EXISTS(SELECT 1 FROM Estudiantes 
+				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML) AND Estado=1)
+			BEGIN
+				SET @codigoIdError=@codigoIdError-1;
+
+				INSERT INTO @Estudiantes (Id, Nombres, Apellidos, Matricula, Email) 
+				SELECT @codigoIdError, @nombresInsertar, @apellidosInsertar, @matriculaInsertar, @emailInsertar
+
+				DELETE TOP(1) FROM @EstudiantesXML
+				CONTINUE;
+			END
+			-- VALIDAR INGRESO LOGICO SI YA EXISTIA ANTES EN DB (UPDATE CUANDO ESTADO=0)
+			IF EXISTS(SELECT 1 FROM Estudiantes
+				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML) AND Estado=0)
+			BEGIN
+				UPDATE Estudiantes SET
+				Estado=1,
+				Nombres=UPPER(@nombresInsertar),
+				Apellidos=UPPER(@apellidosInsertar),
+				Matricula=@matriculaInsertar,
+				Email=LOWER(@emailInsertar),
+				Direccion=CASE ISNULL(@direccionInsertar,'')
+					WHEN '' THEN '' ELSE UPPER(@direccionInsertar) END,
+				ModuloId=(SELECT Id FROM Modulos WHERE Nombre=@modulo AND Id!=1 AND Estado=1),
+				CarreraId=CASE ISNULL(@carreraIdInsertar,'')
+					WHEN '' THEN 0 ELSE @carreraIdInsertar END
+				WHERE Matricula=@matriculaInsertar
+				AND Estado=0
+
+				SELECT @idInsertado=Id FROM Estudiantes 
+					WHERE Matricula=@matriculaInsertar AND Estado=1
+
+				INSERT INTO @Estudiantes (Id, Nombres, Apellidos, Matricula, 
+					Email, Direccion, Carrera, Modulo) 
+				SELECT 
+					ISNULL(@idInsertado, -99), @nombresInsertar, @apellidosInsertar, @matriculaInsertar, 
+					@emailInsertar, ISNULL(@direccionInsertar,''), ISNULL(@carreraIdInsertar,0), 
+					@moduloInsertar
+
+				DELETE TOP(1) FROM @EstudiantesXML
+				CONTINUE;
+			END
+
+			--INSERCION DE NUEVO ESTUDIANTE
+
+			INSERT INTO Estudiantes (Nombres, Apellidos, Matricula, Email, 
+				Direccion, CarreraId, ModuloId, Estado)
+			SELECT UPPER(@nombresInsertar), UPPER(@apellidosInsertar), @matriculaInsertar, 
+				LOWER(@emailInsertar), UPPER(ISNULL(@direccionInsertar,'')), ISNULL(@idCarrera, 0), 
+				@moduloIdInsertar, 1
+
+			SET @idInsertado=@@IDENTITY
+
+			INSERT INTO @Estudiantes (Id, Nombres, Apellidos, Matricula, 
+					Email, Direccion, Carrera, Modulo) 
+			SELECT 
+				ISNULL(@idInsertado, -99), @nombresInsertar, @apellidosInsertar, @matriculaInsertar, 
+				@emailInsertar, ISNULL(@direccionInsertar,''), ISNULL(@carreraIdInsertar,0), 
+				@moduloInsertar
+
+			DELETE TOP(1) FROM @EstudiantesXML
+		END
+
+		SELECT * FROM @Estudiantes
+		RETURN 0;
+	END
+
 	IF(@i_accion = 'IN')
 	BEGIN
 		IF EXISTS (SELECT 1 FROM Estudiantes e
@@ -67,7 +204,7 @@ BEGIN
 						AND e.Estado=1
 						AND m.Estado=1)
 		BEGIN
-			--Ya existe un estudiante con esa matricula
+			-- VALIDAR QUE NO EXISTA UN ESTUDIANTE CON LA MATRICULA INGRESADA
 			INSERT INTO @Estudiantes (Id) VALUES (0)
 
 			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo

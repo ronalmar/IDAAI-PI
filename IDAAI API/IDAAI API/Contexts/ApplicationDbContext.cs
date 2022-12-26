@@ -13,7 +13,11 @@ namespace IDAAI_API.Contexts
         public DbSet<Asistencia> RegistroAsistencia { get; set; }
         public DbSet<AutenticacionDTO> Autenticacion { get; set; }
         public DbSet<Modulo> Modulos { get; set; }
-
         public DbSet<Carrera> Carreras { get; set; }
+
+        public DbSet<Inventario> Inventario { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<PrestamoEstudiante> PrestamosPorEstudiantes { get; set; }
+        public DbSet<PrestamoModulo> PrestamosPorModulos { get; set; }
     }
 }
