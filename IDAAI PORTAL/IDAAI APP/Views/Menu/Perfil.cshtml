@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Perfil";
+}
+
+@{
+    Layout = "_LayoutMenu";
+}
+
+<div class="container-fluid my-5">
+    <div class="row pt-2 mb-5">
+        <div class="py-3 bg-primary border rounded-top rounded-3" align="center">
+            <h1 class="text-light">Información del usuario</h1>
+            <input type="hidden" id="usuarioId" value="@ViewBag.Id"/>
+        </div>
+        <div class="py-4 ml-5 d-flex justify-content-around bg-light border rounded-bottom rounded-3">
+            <div class="col-md-4 input-wrapper">
+                <label class="fw-bold mb-3" for="usuario">Usuario</label>
+                <h4 id="txtUsuario">@ViewBag.Usuario</h4>
+            </div>
+            <div class="col-md-6 input-wrapper">
+                <label class="fw-bold mb-3" for="email">Email</label>
+                <h4 id="txtEmail">@ViewBag.Email</h4>
+            </div>
+            <div class="col-md-2 mt-3">
+                <div class="col-md-12">
+                    <div class="col-md-12">
+                        <button class="btn btn-success" onClick="seleccionarDatosUsuario()" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" title="Editar usuario">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </div>
+
+    <!-- Modal Editar Usuario -->
+    <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Editar usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 mb-3 col-md-12 row">
+                    <div class="mb-2">
+                        <label class="fw-bold mb-2" for="modalUsuario">Usuario</label>
+                        <input type="text" class="form-control input-text" maxlength="25" id="modalUsuario" title="Nombre de usuario" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="fw-bold mb-2" for="modalEmail">Email</label>
+                        <input type="email" class="form-control input-text" maxlength="50" id="modalEmail" title="Email de usuario" />
+                    </div>
+                    <div class="mb-2 col-md-6">
+                        <label class="fw-bold mb-2" for="modalPasswordAnterior">Contraseña anterior</label>
+                        <input type="password" class="form-control input-text" maxlength="100" id="modalPasswordAnterior" title="Contraseña anterior del usuario" />
+                    </div>
+                     <div class="mb-2 col-md-6">
+                       <label class="fw-bold mb-2" for="modalPasswordNueva">Contraseña nueva</label>
+                        <input type="password" class="form-control input-text" maxlength="100" id="modalPasswordNueva" title="Contraseña nueva del usuario" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="editarUsuario()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+
+    var usuarioId = $("#usuarioId").val();
+
+    var txtUsuario = $("#txtUsuario").text();
+    var txtEmail = $("#txtEmail").text();
+
+    function seleccionarDatosUsuario(){
+        $("#modalUsuario").val(txtUsuario);
+        $("#modalEmail").val(txtEmail);
+
+        console.log(txtUsuario)
+        console.log(txtEmail)
+    }
+
+    function editarUsuario(){
+        console.log(`Editando usuario con ID ${usuarioId}`)
+        $("#modalEditarUsuario").modal("hide");
+    }
+
+</script>

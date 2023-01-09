@@ -1,0 +1,277 @@
+﻿@{
+    ViewData["Title"] = "Módulos";
+}
+
+@{
+    Layout = "_LayoutLaboratorioClases";
+}
+
+<div class="container-fluid">
+    <div class="row pt-4 pb-5">
+         <div class="pb-4" align="center">
+            <h4>Módulos</h4>
+            <input type="hidden" id="estado" />
+        </div>
+        <div class="col-md-3 input-wrapper">
+            <label class="fw-bold mb-2" for="nombre">Nombre</label>
+            <input type="text" class="form-control input-text" maxlength="100" id="nombre" title="Nombre del módulo" />
+        </div>
+        <div class="col-md-3 input-wrapper">
+            <label class="fw-bold mb-2" for="periodoAcademico">Periodo académico</label>
+            <input type="text" class="form-control input-text" maxlength="100" id="periodoAcademico" title="Periodo académico del módulo" />
+        </div>
+        <div class="col-md-6 mt-3">
+            <div class="col-md-3 form-group btn-group btn-group-lg">
+                <div class="">
+                    <button class="btn btn-primary" onclick="consultarModulos()" title="Consultar módulos">
+                        Consultar
+                         <i class="bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4 form-group btn-group btn-group-lg">
+                <div class="">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarModulo" title="Registrar nuevo módulo">
+                        Agregar
+                        <i class="bi-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div id="gridModulo" class="mt-5">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Módulo -->
+    <div class="modal fade" id="modalRegistrarModulo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Registrar módulo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 mb-3 col-md-12 row">
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalRegistrarNombre">Nombre*</label>
+                        <input type="text" class="form-control input-text" maxlength="50" id="modalRegistrarNombre" title="Nombre del  módulo" />
+                    </div>                    
+                    <div class="mb-2 col-md-12 row">
+                        <label class="fw-bold mb-2" for="modalRegistrarPeriodoAcademico">Periodo académico*</label>
+                        <div class="col-md-4">
+                            <input type="number" min="1900" max="2099" value="2022" class="form-control" id="modalRegistrarPeriodoAcademicoInicio" title="Periodo académico del  módulo" />
+                        </div>
+                         - 
+                        <div class="col-md-4">
+                            <input type="number" min="1900" max="2099" value="2023" class="form-control" id="modalRegistrarPeriodoAcademicoFin" title="Periodo académico del  módulo" />
+                        </div>
+                        <div class="mb-2 col-md-3">
+                            <div class="form-group">
+                                <select class="form-control" id="modalRegistrarPeriodo">
+                                    <option value="0">1S</option>
+                                    <option value="1">2S</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalRegistrarDescripcion">Descripción*</label>
+                        <input type="text" class="form-control input-text" maxlength="100" id="modalRegistrarDescripcion" title="Descripción del  módulo" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="registrarModulo()">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Módulo -->
+    <div class="modal fade" id="modalEditarModulo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Editar módulo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 mb-3 col-md-12 row">
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalEditarNombre">Nombre</label>
+                        <input type="text" class="form-control input-text" maxlength="50" id="modalEditarNombre" title="Nombre del  módulo" />
+                    </div>
+                    <div class="mb-2 col-md-12 row">
+                        <label class="fw-bold mb-2" for="modalEditarPeriodoAcademico">Periodo académico</label>
+                        <div class="col-md-4">
+                            <input type="number" min="1900" max="2099" class="form-control" id="modalEditarPeriodoAcademicoInicio" title="Periodo académico del  módulo" />
+                        </div>
+                         - 
+                        <div class="col-md-4">
+                            <input type="number" min="1900" max="2099" class="form-control" id="modalEditarPeriodoAcademicoFin" title="Periodo académico del  módulo" />
+                        </div>
+                        <div class="mb-2 col-md-3">
+                            <div class="form-group">
+                                <select class="form-control" id="modalEditarPeriodo">
+                                    <option value="1S">1S</option>
+                                    <option value="2S">2S</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalEditarDescripcion">Descripción</label>
+                        <input type="text" class="form-control input-text" maxlength="100" id="modalEditarDescripcion" title="Descripción del  módulo" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="editarModulo()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Eliminación -->
+    <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 col-md-12 row">
+                    <p>¿Está seguro de que desea eliminar el registro seleccionado?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="eliminarRegistro()">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+
+</style>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+
+    var idSeleccionado = 0;
+    var datosModulo = {
+        Id: null,
+        Nombre: null,
+        Descripcion: null,
+        PeriodoAcademico: null
+    }
+
+    var listaModulos = [
+        {
+            Id: 1,
+            Nombre: "LST",
+            Descripcion: "Laboratorio de sistemas telemáticos",
+            PeriodoAcademico: "2022-2023 1S"
+        },
+        {
+            Id: 2,
+            Nombre: "APPSMOV",
+            Descripcion: "Aplicaciones móviles",
+            PeriodoAcademico: "2021-2022 2S"
+        }
+    ]
+
+    $("#navBarModulos").addClass("active");
+
+    function consultarModulos() {
+        if ($("#tablaModulo").length > 0) {
+            $("#tablaModulo").remove();
+        }       
+
+        var tabla = $(`
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr class="table-dark">
+                      <th scope="col"></th>
+                      <th scope="col">Nombre</th>
+                      <th scope="col">Descripción</th>
+                      <th scope="col">Periodo Académico</th>
+                      <th scope="col">Acciones</th>
+                    </tr>
+              </thead>
+            </table>`);
+        tabla.attr({
+            id: "tablaModulo"
+        });
+
+        var tablaBody = $(`
+            <tbody>
+            </tbody>
+        `);
+
+        var contador = 0;
+        listaModulos.forEach(registro => {
+            contador++;
+            tablaBody.append(`
+                <tr>
+                    <th scope="row">${contador}</th>
+                    <td>${registro.Nombre}</td>
+                    <td>${registro.Descripcion}</td>
+                    <td>${registro.PeriodoAcademico}</td>
+                        <td><button onClick="seleccionarDatosFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalEditarModulo" id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar modulo'/><i class="bi bi-pencil-square"></i></button>
+                        <button onClick="seleccionarIdFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar modulo'/><i class="bi-trash"></i></button></td>
+                </tr>       
+            `);
+        });
+
+        tabla.append(tablaBody);
+
+        $("#gridModulo").append(tabla);
+    }
+
+    function seleccionarDatosFila(idModulo) {
+        listaModulos.forEach(modulo => {
+            if (modulo.Id == idModulo) {
+                datosModulo.Id = modulo.Id;
+                datosModulo.Nombre = modulo.Nombre;
+                datosModulo.Descripcion = modulo.Descripcion;
+                datosModulo.PeriodoAcademico = modulo.PeriodoAcademico
+            }
+        })
+       
+        var periodoAcademico = datosModulo.PeriodoAcademico.split(' ');
+        var periodo = periodoAcademico[1];
+        var periodoInicio = periodoAcademico[0].split('-')[0];
+        var periodoFin = periodoAcademico[0].split('-')[1];
+
+        $("#modalEditarNombre").val(datosModulo.Nombre);
+        $("#modalEditarDescripcion").val(datosModulo.Descripcion);
+        $("#modalEditarPeriodoAcademicoInicio").val(periodoInicio);
+        $("#modalEditarPeriodoAcademicoFin").val(periodoFin);
+        $("#modalEditarPeriodo").val(periodo);
+
+        idSeleccionado = datosModulo.Id;
+    }
+
+    function seleccionarIdFila(id){
+        idSeleccionado = id;
+    }
+
+    function editarModulo() {
+        console.log(`Editando módulo con ID ${idSeleccionado}`)
+        $("#modalEditarModulo").modal("hide");
+    }
+
+    function eliminarRegistro() {
+        console.log(`Eliminando módulo con ID ${idSeleccionado}`)
+        $("#modalConfirmarEliminacion").modal("hide");
+    }
+
+    function registrarModulo() {
+        console.log(`Registrando nuevo módulo`)
+        $("#modalRegistrarModulo").modal("hide");
+    }
+
+</script>

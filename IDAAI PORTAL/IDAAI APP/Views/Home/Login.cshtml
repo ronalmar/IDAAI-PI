@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="my-5">
+    <div class="mx-5 my-3 w-25">
+        <h1 class="mb-3">@ViewData["Title"]</h1>
+        <form>
+            <label class="fw-bold" for="user">Usuario:</label>
+            <input type="text" class="form-control mb-3" id="user" />
+
+            <label class="fw-bold" for="password">Contraseña:</label>
+            <input type="password" class="form-control mb-3" id="password" />
+
+            <button asp-controller="menu" asp-action="index" type="submit" class="btn btn-primary">Iniciar sesión</button>
+            <button asp-controller="home" asp-action="index" type="submit" class="btn btn-secondary">Cancelar</button>
+        </form>
+    </div>
+</div>

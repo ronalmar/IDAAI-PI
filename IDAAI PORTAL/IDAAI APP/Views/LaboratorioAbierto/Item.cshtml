@@ -1,0 +1,273 @@
+﻿@{
+    ViewData["Title"] = "Items";
+}
+
+@{
+    Layout = "_LayoutLaboratorioAbierto";
+}
+
+<div class="container-fluid">
+    <div class="row pt-4 pb-5">
+         <div class="pb-4" align="center">
+            <h4>Items</h4>
+            <input type="hidden" id="estado" />
+        </div>
+        <div class="col-md-4 input-wrapper">
+            <label class="fw-bold mb-2" for="rfid">Código RFID</label>
+            <input type="text" class="form-control input-text" maxlength="100" id="rfid" title="Código Rfid del item" />
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="fw-bold mb-2" for="Inventario">Inventario</label>
+                <select class="form-control" id="Inventario" title="Nombre del registro de inventario al que pertenece el item a buscar" asp-items="ViewBag.Inventario">
+                    <option value="0">Seleccione</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4 mt-3">
+            <div class="col-md-12 form-group btn-group btn-group-lg">
+                <div class="col-md-4">
+                    <button class="btn btn-primary" onclick="consultar()" title="Consultar items">
+                        Consultar
+                        <i class="bi-search"></i>
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarItem" title="Crear nuevo item">
+                        Agregar
+                    <i class="bi-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div id="gridItem" class="mt-5">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Item -->
+    <div class="modal fade" id="modalRegistrarItem" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Registrar nuevo item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 mb-3 col-md-12 row">
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalRegistrarRfid">Código RFID*</label>
+                        <input type="text" class="form-control input-text" maxlength="100" id="modalRegistrarRfid" title="Código RFID del nuevo item" />
+                    </div>
+                    <div class="mb-2 col-md-12">
+                        <div class="form-group">
+                            <label class="fw-bold mb-2" for="modalRegistrarInventario">Inventario*</label>
+                            <select class="form-control" id="modalRegistrarInventario" asp-items="ViewBag.Inventario" title="Registro de inventario al que pertenecerá el nuevo item">
+                                <option value="0">Seleccione</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="registrarItem()">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Item -->
+    <div class="modal fade" id="modalEditarItem" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Editar item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 mb-3 col-md-12 row">
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalEditarRfid">Código RFID</label>
+                        <input type="text" class="form-control input-text" maxlength="100" id="modalEditarRfid" title="Código RFID del item" />
+                    </div>
+                    <div class="mb-2 col-md-12">
+                        <div class="form-group">
+                            <label class="fw-bold mb-2" for="modalEditarInventario">Inventario*</label>
+                            <select class="form-control" id="modalEditarInventario" asp-items="ViewBag.Inventario" title="Registro de inventario al que pertenece el item">
+                                <option value="0">Seleccione</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="editarItem()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Eliminación -->
+    <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 col-md-12 row">
+                    <p>¿Está seguro de que desea eliminar el registro seleccionado?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="eliminarRegistro()">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+</style>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+
+    var idSeleccionado = 0;
+    var datosItem = {
+        Id: null,
+        Rfid: null,
+        EstadoItem: null,
+        Inventario: null
+    }
+
+    var listaItems = [
+        {
+            Id: 1,
+            Rfid: "51",
+            EstadoItem: "Disponible",
+            Inventario: "Placa"
+        },
+        {
+            Id: 2,
+            Rfid: "53",
+            EstadoItem: "Disponible",
+            Inventario: "Placa"
+        },
+         {
+            Id: 3,
+            Rfid: "55",
+            EstadoItem: "Prestado",
+            Inventario: "Cableado"
+        },
+         {
+            Id: 4,
+            Rfid: "57",
+            EstadoItem: "Prestado",
+            Inventario: "Placa"
+        },
+        {
+            Id: 5,
+            Rfid: "59",
+            EstadoItem: "Disponible",
+            Inventario: "Cableado"
+        },
+        {
+            Id: 6,
+            Rfid: "61",
+            EstadoItem: "Disponible",
+            Inventario: "Cableado"
+        },
+        {
+            Id: 7,
+            Rfid: "63",
+            EstadoItem: "Prestado",
+            Inventario: "Placa"
+        }
+    ]
+    
+    $("#navBarItems").addClass("active");
+
+    function consultar() {
+        if ($("#tablaItem").length > 0) {
+            $("#tablaItem").remove();
+        }       
+
+        var tabla = $(`
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr class="table-dark">
+                      <th scope="col"></th>
+                      <th scope="col">RFID</th>
+                      <th scope="col">Estado</th>
+                      <th scope="col">Inventario</th>
+                      <th scope="col">Acciones</th>
+                    </tr>
+              </thead>
+            </table>`);
+        tabla.attr({
+            id: "tablaItem"
+        });
+
+        var tablaBody = $(`
+            <tbody>
+            </tbody>
+        `);
+
+        var contador = 0;
+        listaItems.forEach(registro => {
+            contador++;
+            tablaBody.append(`
+                <tr>
+                    <th scope="row">${contador}</th>
+                    <td>${registro.Rfid}</td>
+                    <td>${registro.EstadoItem}</td>
+                    <td>${registro.Inventario}</td>
+                        <td><button onClick="seleccionarDatosFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalEditarItem" id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar item'/><i class="bi bi-pencil-square"></i></button>
+                        <button onClick="seleccionarIdFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar item'/><i class="bi-trash"></i></button></td>
+                </tr>       
+            `);
+        });
+
+        tabla.append(tablaBody);
+
+        $("#gridItem").append(tabla);
+    }
+
+    function seleccionarDatosFila(idItem) {
+        listaItems.forEach(item => {
+            if (item.Id == idItem) {
+                datosItem.Id = item.Id;
+                datosItem.Rfid = item.Rfid;
+                datosItem.EstadoItem = item.EstadoItem;
+                datosItem.Inventario = item.Inventario;
+            }
+        })
+
+        $("#modalEditarRfid").val(datosItem.Rfid);
+        $("#modalEditarEstadoItem").val(datosItem.EstadoItem);
+        $("#modalEditarInventario").val(datosItem.Inventario);
+
+        idSeleccionado = datosItem.Id;
+    }
+
+    function seleccionarIdFila(id){
+        idSeleccionado = id;
+    }
+
+    function editarItem() {
+        console.log(`Editando item con ID ${idSeleccionado}`)
+        $("#modalEditarItem").modal("hide");
+    }
+
+    function eliminarRegistro() {
+        console.log(`Eliminando item con ID ${idSeleccionado}`)
+        $("#modalConfirmarEliminacion").modal("hide");
+    }
+
+    function registrarItem() {
+        console.log(`Creando nuevo item`)
+        $("#modalRegistrarItem").modal("hide");
+    }
+
+</script>
