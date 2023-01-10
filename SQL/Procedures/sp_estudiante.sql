@@ -446,6 +446,21 @@ BEGIN
 			RETURN 0;
 		END
 
+		IF EXISTS (SELECT 1 FROM Estudiantes e
+						INNER JOIN Modulos m ON m.Id=e.ModuloId
+						WHERE Matricula=@matricula	
+						AND  m.Nombre=@modulo
+						AND e.Estado=1
+						AND m.Estado=1)
+		BEGIN
+			-- VALIDAR QUE NO EXISTA UN ESTUDIANTE CON LA MATRICULA INGRESADA
+			INSERT INTO @Estudiantes (Id) VALUES (-1)
+
+			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
+			FROM @Estudiantes
+			RETURN 0;
+		END
+
 		SELECT @idCarrera=Id FROM Carreras WHERE Nombre = @carrera	AND Estado=1
 		SELECT @idModulo=Id	FROM Modulos WHERE Nombre = @modulo		AND Estado=1
 		

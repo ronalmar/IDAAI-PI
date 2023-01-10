@@ -317,7 +317,7 @@ namespace IDAAI_API.Controllers
                 }
                 if (result[0].Id == -1)
                 {
-                    return BadRequest(Mensajes.ERROR_VAL_12);
+                    return BadRequest(Mensajes.ERROR_VAL_07);
                 }
                 if (result[0].Id == -2)
                 {

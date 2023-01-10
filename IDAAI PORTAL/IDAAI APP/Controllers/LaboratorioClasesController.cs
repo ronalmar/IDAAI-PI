@@ -1,4 +1,5 @@
-﻿using IDAAI_APP.Models;
+﻿using IDAAI_API.Entidades.Models;
+using IDAAI_APP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
@@ -8,6 +9,7 @@ namespace IDAAI_APP.Controllers
     public class LaboratorioClasesController : Controller
     {
         private readonly ILogger<LaboratorioClasesController> _logger;
+        private OperacionesController operaciones = new OperacionesController();
 
         public LaboratorioClasesController(ILogger<LaboratorioClasesController> logger)
         {
@@ -21,22 +23,23 @@ namespace IDAAI_APP.Controllers
         }
 
         [HttpGet]
-        public IActionResult Asistencia()
+        public async Task<IActionResult> Asistencia()
         {
-            List<SelectListItem> Modulos = new()
+            List<Modulo> listaModulos = await operaciones.GetModulos();
+            List<SelectListItem> Modulos = new();
+            foreach (var modulo in listaModulos)
             {
-                new SelectListItem() { Text = "LST", Value = "LST" },
-                new SelectListItem() { Text = "APPSMOV", Value = "APPSMOV" }
-            };
-            ViewBag.Modulos = Modulos;
+                Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
+            }
 
-            List<SelectListItem> Carreras = new()
+            List<Carrera> listaCarreras = await operaciones.GetCarreras();
+            List<SelectListItem> Carreras = new();
+            foreach (var carrera in listaCarreras)
             {
-                new SelectListItem() { Text = "Ing. Telemática", Value = "Ing. Telemática" },
-                new SelectListItem() { Text = "Ing. Ciencias Computacionales", Value = "Ing. Ciencias Computacionales" },
-                new SelectListItem() { Text = "Lic. Turismo", Value = "Lic. Turismo" },
-                new SelectListItem() { Text = "Ing. Comercial", Value = "Ing. Comercial" }
-            };
+                Carreras.Add(new SelectListItem() { Text = carrera.Nombre, Value = carrera.Nombre });
+            }
+
+            ViewBag.Modulos = Modulos;
             ViewBag.Carreras = Carreras;
             return View();
         }
@@ -48,58 +51,62 @@ namespace IDAAI_APP.Controllers
         }
 
         [HttpGet]
-        public IActionResult Item()
+        public async Task<IActionResult> Item()
         {
-            List<SelectListItem> Inventario = new()
+            List<Inventario> listaInventario = await operaciones.GetInventario();
+            List<SelectListItem> Inventario = new();
+            foreach (var inventario in listaInventario)
             {
-                new SelectListItem() { Text = "Placa", Value = "Placa" },
-                new SelectListItem() { Text = "Cableado", Value = "Cableado" }
-            };
+                Inventario.Add(new SelectListItem() { Text = inventario.Nombre, Value = inventario.Nombre });
+            }
             ViewBag.Inventario = Inventario;
             return View();
         }
 
         [HttpGet]
-        public IActionResult Prestamo()
+        public async Task<IActionResult> Prestamo()
         {
-            List<SelectListItem> Modulos = new()
+            List<Modulo> listaModulos = await operaciones.GetModulos();
+            List<SelectListItem> Modulos = new();
+            foreach (var modulo in listaModulos)
             {
-                new SelectListItem() { Text = "LST", Value = "LST" },
-                new SelectListItem() { Text = "APPSMOV", Value = "APPSMOV" }
-            };
+                Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
+            }
             ViewBag.Modulos = Modulos;
             return View();
         }
 
         [HttpGet]
-        public IActionResult Estudiante()
+        public  async Task<IActionResult> Estudiante()
         {
-            List<SelectListItem> Modulos = new()
+            List<Modulo> listaModulos = await operaciones.GetModulos();
+            List<SelectListItem> Modulos = new();
+            foreach (var modulo in listaModulos)
             {
-                new SelectListItem() { Text = "LST", Value = "LST" },
-                new SelectListItem() { Text = "APPSMOV", Value = "APPSMOV" }
-            };
-            ViewBag.Modulos = Modulos;
+                Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
+            }           
 
-            List<SelectListItem> Carreras = new()
+            List<Carrera> listaCarreras = await operaciones.GetCarreras();
+            List<SelectListItem> Carreras = new();
+            foreach (var carrera in listaCarreras)
             {
-                new SelectListItem() { Text = "Ing. Telemática", Value = "Ing. Telemática" },
-                new SelectListItem() { Text = "Ing. Ciencias Computacionales", Value = "Ing. Ciencias Computacionales" },
-                new SelectListItem() { Text = "Lic. Turismo", Value = "Lic. Turismo" },
-                new SelectListItem() { Text = "Ing. Comercial", Value = "Ing. Comercial" }
-            };
+                Carreras.Add(new SelectListItem() { Text = carrera.Nombre, Value = carrera.Nombre });
+            }
+
+            ViewBag.Modulos = Modulos;
             ViewBag.Carreras = Carreras;
             return View();
         }
 
         [HttpGet]
-        public IActionResult Carrera()
+        public async Task<IActionResult> Carrera()
         {
-            List<SelectListItem> Modulos = new()
+            List<Modulo> listaModulos = await operaciones.GetModulos();
+            List<SelectListItem> Modulos = new();
+            foreach (var modulo in listaModulos)
             {
-                new SelectListItem() { Text = "LST", Value = "LST" },
-                new SelectListItem() { Text = "APPSMOV", Value = "APPSMOV" }
-            };
+                Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
+            }
             ViewBag.Modulos = Modulos;
             return View();
         }

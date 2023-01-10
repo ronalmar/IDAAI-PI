@@ -210,6 +210,20 @@
 <script>
 
     var idSeleccionado = 0;
+    var query = {
+            Nombres: null,
+            Apellidos: null,
+            Matricula: null,
+            Email: null,
+            Carrera: null,
+            Modulo: null
+        }
+    var respuestaTotal = [];
+    var limit = 2;
+    var offset = 1;
+    var numeroPaginas;
+    var paginaActual;
+
     var datosEstudiante = {
         Id: null,
         Nombres: null,
@@ -221,126 +235,158 @@
         Modulo: null
     }
 
-    var listaEstudiante = [
-        {
-            Id: 1,
-            Nombres: "Alexander",
-            Apellidos: "Martinez",
-            Matricula: "201408764",
-            Email: "alexmf@gmail.es",
-            Direccion: "Av. Guayaquil",
-            Carrera: "Ing. Telemática",
-            Modulo: "LST"
-        },
-        {
-            Id: 2,
-            Nombres: "Dayana",
-            Apellidos: "Bustamante",
-            Matricula: "201787356",
-            Email: "dbustamante@gmail.es",
-            Direccion: "Av. Quito",
-            Carrera: "Lic. Turismo",
-            Modulo: "LST"
-        },
-        {
-            Id: 3,
-            Nombres: "Justhyn",
-            Apellidos: "Arcentales",
-            Matricula: "201987392",
-            Email: "jarcentales@gmail.es",
-            Direccion: "Av. Amazonas",
-            Carrera: "Ing. Comercial",
-            Modulo: "LST"
-        },
-        {
-            Id: 4,
-            Nombres: "Futo",
-            Apellidos: "Mansito",
-            Matricula: "202089321",
-            Email: "fmansito@gmail.es",
-            Direccion: "Futolandia",
-            Carrera: "Ing. Ciencias Computacionales",
-            Modulo: "LST"
-        },
-        {
-            Id: 5,
-            Nombres: "Oscar",
-            Apellidos: "Gilicidio",
-            Matricula: "201987362",
-            Email: "oscargilisimo@gmail.es",
-            Direccion: "San Francisco",
-            Carrera: "Ing. Ciencias Computacionales",
-            Modulo: "LST"
-        }
-    ]
-
     $("#navBarEstudiantes").addClass("active");
 
-    function consultarEstudiantes(){       
+    function consultarEstudiantes(){ 
+        
+        if ($("#nombres").val() == '' && $("#apellidos").val() == '' && $("#matricula").val() == '' &&
+            $("#email").val() == '' && $("#carrera").val() == 0 && $("#modulo").val() == 0) {
+            showToastError('Debe ingresar al menos un criterio de búsqueda');
+            return;
+        }
+
+        query.Nombres = $("#nombres").val() != '' ? $("#nombres").val() : null;
+        query.Apellidos = $("#apellidos").val() != '' ? $("#apellidos").val() : null;
+        query.Matricula = $("#matricula").val() != '' ? $("#matricula").val() : null;
+        query.Email = $("#email").val() != '' ? $("#email").val() : null;
+        query.Carrera = $("#carrera").val() != 0 ? $("#carrera").val() : null;
+        query.Modulo = $("#modulo").val() != 0 ? $("#modulo").val() : null;
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: '@Url.Action("ListarEstudiantes", "Operaciones")',
+            data: query,
+            success: function (response) {
+                if(response.length == 0 || response == null){
+                    showToastError("No se encontraron resultados");
+                    $("#tablaEstudiante").remove();
+                    $("#paginacion").remove();
+                    return;
+                }
+                respuestaTotal = response;
+                cargarPagina(offset, limit);
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                console.log("Consultando...")
+            },
+            complete: function () {
+                console.log("Realizado!")
+            }
+        });        
+    }
+
+    function cargarPagina(offset, limit){
+        var listaPaginada = [];
+        paginaActual = offset;
+        numeroPaginas = Math.ceil(respuestaTotal.length / limit);
+        var contador = 0;
+        respuestaTotal.forEach(registro => {
+            contador++;
+            if ((contador > ((limit * offset) - limit)) && (contador <= (offset * limit))) {
+                listaPaginada.push(registro);
+            }
+            if(contador == (offset * limit) || contador == respuestaTotal.length){
+                cargarTabla(listaPaginada, numeroPaginas)
+            }
+        })
+    }
+
+    function cargarTabla(listaDatos, numeroPaginas) {
+
         if ($("#tablaEstudiante").length > 0) {
             $("#tablaEstudiante").remove();
-        }       
+            $("#paginacion").remove();
+        }
 
         var tabla = $(`
-            <table class="table table-hover table-bordered">
-                <thead>
-                    <tr class="table-dark">
-                      <th scope="col"></th>
-                      <th scope="col">Nombres</th>
-                      <th scope="col">Apellidos</th>
-                      <th scope="col">Matricula</th>
-                      <th scope="col">Email</th>
-                      <th scope="col">Dirección</th>
-                      <th scope="col">Carrera</th>
-                      <th scope="col">Módulo</th>
-                      <th scope="col">Acciones</th>
-                    </tr>
-              </thead>
-            </table>`);
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr class="table-dark">
+                          <th scope="col">#</th>
+                          <th scope="col">Nombres</th>
+                          <th scope="col">Apellidos</th>
+                          <th scope="col">Matricula</th>
+                          <th scope="col">Email</th>
+                          <th scope="col">Dirección</th>
+                          <th scope="col">Carrera</th>
+                          <th scope="col">Módulo</th>
+                          <th scope="col">Acciones</th>
+                        </tr>
+                  </thead>
+                </table>`);
         tabla.attr({
             id: "tablaEstudiante"
         });
 
         var tablaBody = $(`
-            <tbody>
-            </tbody>
-        `);
+                <tbody>
+                </tbody>
+            `);
 
         var contador = 0;
-        listaEstudiante.forEach(registro => {
+        listaDatos.forEach(registro => {
             contador++;
             tablaBody.append(`
-                <tr>
-                    <th scope="row">${contador}</th>
-                    <td>${registro.Nombres}</td>
-                    <td>${registro.Apellidos}</td>
-                    <td>${registro.Matricula}</td>
-                    <td>${registro.Email}</td>
-                    <td>${registro.Direccion}</td>
-                    <td>${registro.Carrera}</td>
-                    <td>${registro.Modulo}</td>
-                        <td><button onClick="seleccionarDatosFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalEditarEstudiante" id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar estudiante'/><i class="bi bi-pencil-square"></i></button>
-                    <button onClick="seleccionarIdFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar estudiante'/><i class="bi-trash"></i></button></td>
-                </tr>       
-            `);
+                    <tr>
+                        <th scope="row">${contador}</th>
+                        <td>${registro.nombres}</td>
+                        <td>${registro.apellidos}</td>
+                        <td>${registro.matricula}</td>
+                        <td class="${registro.email ? '' : 'text-center'}">${registro.email && registro.email != '' ? registro.email : '-'}</td>
+                        <td class="${registro.direccion ? '' : 'text-center'}">${registro.direccion && registro.direccion != '' ? registro.direccion : '-'}</td>
+                        <td class="${registro.carrera ? '' : 'text-center'}">${registro.carrera && registro.carrera != '' ? registro.carrera : '-'}</td>
+                        <td>${registro.modulo}</td>
+                            <td><button onClick="seleccionarDatosFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalEditarEstudiante" id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar estudiante'/><i class="bi bi-pencil-square"></i></button>
+                        <button onClick="seleccionarIdFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar estudiante'/><i class="bi-trash"></i></button></td>
+                    </tr>
+                `);
         });
 
         tabla.append(tablaBody);
 
+        var pagination = $('<nav id="paginacion"><ul class="pagination"></ul></nav>');
+        for (var i = 0; i < numeroPaginas; i++) {
+            var pageNum = i + 1;
+            if (pageNum == 1) {
+                var liPrev = $(`<li class="page-item ${paginaActual == 1 ? 'disabled' : ''}"></li>`);
+                var a = $(`<a class="page-link" style="cursor: pointer;" onclick="cargarPagina(${paginaActual}-1, ${limit})"></a>`).text('Anterior');
+                liPrev.append(a);
+                pagination.find('ul').append(liPrev);
+            }
+            if (pageNum == 1 || pageNum == paginaActual || pageNum == numeroPaginas) {
+                var li = $(`<li class="page-item ${pageNum == paginaActual ? 'active' : ''}"></li>`);
+                var a = $(`<a class="page-link" style="cursor: pointer;" onclick="cargarPagina(${pageNum}, ${limit})"></a>`).text(pageNum);
+                li.append(a);
+            }
+            pagination.find('ul').append(li);
+            if (pageNum == numeroPaginas) {
+                var liNext = $(`<li class="page-item ${paginaActual == numeroPaginas ? 'disabled' : ''}"></li>`);
+                var a = $(`<a class="page-link" style="cursor: pointer;" onclick="cargarPagina(${paginaActual}+1, ${limit})"></a>`).text('Siguiente');
+                liNext.append(a);
+                pagination.find('ul').append(liNext);
+            }
+        }
+
         $("#gridEstudiante").append(tabla);
+        $("#gridEstudiante").append(pagination);
     }
 
     function seleccionarDatosFila(idEstudiante) {
-        listaEstudiante.forEach(estudiante => {
-            if (estudiante.Id == idEstudiante) {
-                datosEstudiante.Id = estudiante.Id;
-                datosEstudiante.Nombres = estudiante.Nombres;
-                datosEstudiante.Apellidos = estudiante.Apellidos;
-                datosEstudiante.Matricula = estudiante.Matricula;
-                datosEstudiante.Email = estudiante.Email;
-                datosEstudiante.Direccion = estudiante.Direccion;
-                datosEstudiante.Carrera = estudiante.Carrera;
-                datosEstudiante.Modulo = estudiante.Modulo;
+        respuestaTotal.forEach(estudiante => {
+            if (estudiante.id == idEstudiante) {
+                datosEstudiante.Id = estudiante.id;
+                datosEstudiante.Nombres = estudiante.nombres;
+                datosEstudiante.Apellidos = estudiante.apellidos;
+                datosEstudiante.Matricula = estudiante.matricula;
+                datosEstudiante.Email = estudiante.email;
+                datosEstudiante.Direccion = estudiante.direccion;
+                datosEstudiante.Carrera = estudiante.carrera;
+                datosEstudiante.Modulo = estudiante.modulo;
             }
         })
        
@@ -360,18 +406,118 @@
     }
 
     function editarEstudiante() {
-        console.log(`Editando estudiante con ID ${idSeleccionado}`)
-        $("#modalEditarEstudiante").modal("hide");
+        var request = {
+            Id: idSeleccionado,
+            Nombres: $("#modalEditarNombres").val(),
+            Apellidos: $("#modalEditarApellidos").val(),
+            Matricula: $("#modalEditarMatricula").val(),
+            Email:  $("#modalEditarEmail").val(),
+            Direccion:   $("#modalEditarDireccion").val(),
+            Carrera:   $("#modalEditarCarrera").val(),
+            Modulo:   $("#modalEditarModulo").val()
+        }
+
+        $.ajax({
+            cache: false,
+            type: "PUT",
+            url: '@Url.Action("EditarEstudiante", "Operaciones")',
+            data: request,
+            success: function (response) {
+                if ( response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                consultarEstudiantes();
+                $("#modalEditarEstudiante").modal("hide");
+                showToastOk('El estudiante se actualizó correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                console.log("Editando...")
+            },
+            complete: function () {
+                console.log("Realizado!")
+            }
+        });        
     }
 
     function eliminarRegistro() {
-        console.log(`Eliminando estudiante con ID ${idSeleccionado}`)
-        $("#modalConfirmarEliminacion").modal("hide");
+        var request = {
+            Id: idSeleccionado
+        }
+
+        $.ajax({
+            cache: false,
+            type: "DELETE",
+            url: '@Url.Action("EliminarEstudiante", "Operaciones")',
+            data: request,
+            success: function (response) {
+                if ( response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                consultarEstudiantes();
+                $("#modalConfirmarEliminacion").modal("hide");
+                showToastOk('Se eliminó el estudiante correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                $("#modalConfirmarEliminacion").modal("hide");
+                return false;
+            },
+            beforeSend: function () {
+                console.log("Editando...")
+            },
+            complete: function () {
+                console.log("Realizado!")
+            }
+        });
     }
 
     function registrarEstudiante(){
-        console.log(`Registrando nuevo estudiante`)
-        $("#modalRegistrarEstudiante").modal("hide");
+        if($("#modalModulo").val() == 0 || $("#modalNombres").val() == '' || $("#modalApellidos").val() == '' || $("#modalMatricula").val() == ''){
+            showToastError('Los campos: Módulo, Nombres, Apellidos y Matrícula son obligatorios');
+            return;
+        }
+
+        var request = {
+            Nombres: $("#modalNombres").val(),
+            Apellidos: $("#modalApellidos").val(),
+            Matricula: $("#modalMatricula").val(),
+            Email: $("#modalEmail").val(),
+            Direccion: $("#modalDireccion").val(),
+            Carrera: $("#modalCarrera").val(),
+            Modulo: $("#modalModulo").val()
+        }
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: '@Url.Action("RegistrarEstudiante", "Operaciones")',
+            data: request,
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                consultarEstudiantes();
+                $("#modalRegistrarEstudiante").modal("hide");
+                showToastOk('El estudiante se registró correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                console.log("Editando...")
+            },
+            complete: function () {
+                console.log("Realizado!")
+            }
+        });
     }
 
 </script>

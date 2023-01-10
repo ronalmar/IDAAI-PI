@@ -90,6 +90,7 @@ BEGIN
 	BEGIN
 		SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos 
 		WHERE Nombre LIKE '%' + @nombre + '%'
+		AND Id!=1
 		AND Estado=1
 		RETURN 0;
 	END
@@ -97,6 +98,7 @@ BEGIN
 	BEGIN
 		SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos 
 		WHERE PeriodoAcademico LIKE '%' + @periodoAcademico + '%'
+		AND Id!=1
 		AND Estado=1
 		RETURN 0;
 	END
@@ -104,6 +106,7 @@ BEGIN
 	BEGIN
 		SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos
 		WHERE Estado=1
+		AND Id!=1
 		RETURN 0;
 	END
 END
