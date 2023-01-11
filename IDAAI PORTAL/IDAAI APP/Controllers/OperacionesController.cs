@@ -18,6 +18,7 @@ namespace IDAAI_APP.Controllers
         private static readonly string portNumber = "44321";
         private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
         private readonly string pagineo = "&Pagina=1&RecordsPorPagina=100000";
+        private bool esLista = true;
         private string command;
         private StringContent stringContent;
 
@@ -32,7 +33,7 @@ namespace IDAAI_APP.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Estudiante>> ListarEstudiantes(EstudianteQuery query)
+        public async Task<List<Estudiante>> ListarEstudiante(EstudianteQuery query)
         {
             using (var client = new HttpClient())
             {
@@ -44,11 +45,14 @@ namespace IDAAI_APP.Controllers
                 if (!string.IsNullOrEmpty(query.Matricula))
                 {
                     command = $"api/estudiante/consultarPorMatricula?Matricula={query.Matricula}&Modulo={query.Modulo}{pagineo}";
+                    esLista = false;
                 }
                 else if (!string.IsNullOrEmpty(query.Email))
                 {
                     command = $"api/estudiante/consultarPorEmail?Email={query.Email}&Modulo={query.Modulo}{pagineo}";
+                    esLista = false;
                 }
+
                 else if (!string.IsNullOrEmpty(query.Nombres) || !string.IsNullOrEmpty(query.Apellidos))
                 {
                     command = $"api/estudiante/listarPorNombres?Nombres={query.Nombres}&Apellidos={query.Apellidos}&Modulo={query.Modulo}{pagineo}";
@@ -67,9 +71,17 @@ namespace IDAAI_APP.Controllers
                 if (res.IsSuccessStatusCode)
                 {
                     var response = res.Content.ReadAsStringAsync().Result;
+                    List<Estudiante> estudiantes = new();
 
-                    List<Estudiante> estudiantes = JsonConvert.DeserializeObject<List<Estudiante>>(response);
-
+                    if (esLista)
+                    {
+                        estudiantes = JsonConvert.DeserializeObject<List<Estudiante>>(response);
+                    }
+                    else
+                    {
+                        var estudiante = JsonConvert.DeserializeObject<Estudiante>(response);
+                        estudiantes.Add(estudiante);
+                    }
                     return estudiantes;
                 }
             }
@@ -170,7 +182,7 @@ namespace IDAAI_APP.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Modulo>> ListarModulos(ModuloQuery query)
+        public async Task<List<Modulo>> ListarModulo(ModuloQuery query)
         {
             using (var client = new HttpClient())
             {

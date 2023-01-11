@@ -450,6 +450,7 @@ BEGIN
 						INNER JOIN Modulos m ON m.Id=e.ModuloId
 						WHERE Matricula=@matricula	
 						AND  m.Nombre=@modulo
+						AND e.Id!=@i_id
 						AND e.Estado=1
 						AND m.Estado=1)
 		BEGIN
@@ -498,10 +499,10 @@ BEGIN
 		Matricula	=	CASE	WHEN ISNULL(@matricula,'')='' THEN e.Matricula
 								ELSE @matricula
 								END,
-		Email		=	CASE	WHEN ISNULL(@email,'')='' THEN e.Email
+		Email		=	CASE	WHEN ISNULL(@email,'-')='-' THEN e.Email
 								ELSE @email
 								END,
-		Direccion	=	CASE	WHEN ISNULL(@direccion,'')='' THEN e.Direccion
+		Direccion	=	CASE	WHEN ISNULL(@direccion,'-')='-' THEN e.Direccion
 								ELSE @direccion
 								END,
 		CarreraId	=	ISNULL((SELECT Id FROM Carreras WHERE Nombre=@carrera),@carreraIdAnterior),

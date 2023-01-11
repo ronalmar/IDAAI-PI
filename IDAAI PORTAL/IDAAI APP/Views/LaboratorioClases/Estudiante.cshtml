@@ -6,72 +6,75 @@
     Layout = "_LayoutLaboratorioClases";
 }
 
-<div class="container-fluid">
-    <div class="row pt-4 pb-5">
-         <div class="pb-4" align="center">
-            <h4>Estudiantes</h4>
+<div id="pantalla" class="container-fluid">
+    <div class="row pt-4 pb-5 px-4 shadow bg-light rounded">
+         <div class="pb-2 border-bottom" align="center">
+            <h4 class="fw-bold">Estudiantes</h4>
             <input type="hidden" id="estado" />
         </div>
-        <div class="col-md-2">
-            <div class="form-group">
-                <label class="fw-bold mb-2" for="modulo">Módulo</label>
-                <select class="form-control" id="modulo" title="Módulo del estudiante" asp-items="ViewBag.Modulos">
-                    <option value="0">Seleccione</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-2 input-wrapper">
-            <label class="fw-bold mb-2" for="nombres">Nombres</label>
-            <input type="text" class="form-control input-text" maxlength="100" id="nombres" title="Nombres del estudiante" />
-        </div>
-        <div class="col-md-2 input-wrapper">
-            <label class="fw-bold mb-2" for="apellidos">Apellidos</label>
-            <input type="text" class="form-control input-text" maxlength="100" id="apellidos" title="Apellidos del estudiante" />
-        </div>
-        <div class="col-md-2 input-wrapper">
-            <label class="fw-bold mb-2" for="matricula">Matrícula</label>
-            <input type="text" class="form-control input-text" maxlength="10" id="matricula" title="Matrícula del estudiante" />
-        </div>
-        <div class="col-md-2 input-wrapper">
-            <label class="fw-bold mb-2" for="email">Email</label>
-            <input type="text" class="form-control input-text" maxlength="50" id="email" title="Email del estudiante" />
-        </div>
-        <div class="col-md-2">
-            <div class="form-group">
-                <label class="fw-bold mb-2" for="carrera">Carrera</label>
-                <select class="form-control" id="carrera" title="Carrera del estudiante" asp-items="ViewBag.Carreras">
-                    <option value="0">Seleccione</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-12 mt-3">
-            <div class="col-md-4 form-group btn-group btn-group-lg">
-                <div class="col-md-4">
-                    <button class="btn btn-primary" onclick="consultarEstudiantes()" title="Consultar estudiantes">
-                        Consultar
-                         <i class="bi-search"></i>
-                    </button>
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarEstudiante" title="Registrar nuevo estudiante">Agregar
-                        <i class="bi-plus"></i>
-                    </button>
-                </div>
-                <div class="cl-md-4">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarEstudiante" title="Registrar grupo de estudiantes">
-                        Grupo
-                        <i class="bi-plus"></i>
-                    </button>
+        <div class="row pt-3">
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label class="fw-bold mb-2" for="modulo">Módulo</label>
+                    <select class="form-control" id="modulo" title="Módulo del estudiante" asp-items="ViewBag.Modulos">
+                        <option value="0">Seleccione</option>
+                    </select>
                 </div>
             </div>
-        </div>
-        <div class="col-md-12">
-            <div id="gridEstudiante" class="mt-5">
+            <div class="col-md-2 input-wrapper">
+                <label class="fw-bold mb-2" for="nombres">Nombres</label>
+                <input type="text" class="form-control input-text" maxlength="100" id="nombres" title="Nombres del estudiante" />
+            </div>
+            <div class="col-md-2 input-wrapper">
+                <label class="fw-bold mb-2" for="apellidos">Apellidos</label>
+                <input type="text" class="form-control input-text" maxlength="100" id="apellidos" title="Apellidos del estudiante" />
+            </div>
+            <div class="col-md-2 input-wrapper">
+                <label class="fw-bold mb-2" for="matricula">Matrícula</label>
+                <input type="text" class="form-control input-text" maxlength="10" id="matricula" title="Matrícula del estudiante" />
+            </div>
+            <div class="col-md-2 input-wrapper">
+                <label class="fw-bold mb-2" for="email">Email</label>
+                <input type="email" class="form-control input-text" maxlength="50" id="email" title="Email del estudiante" />
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label class="fw-bold mb-2" for="carrera">Carrera</label>
+                    <select class="form-control" id="carrera" title="Carrera del estudiante" asp-items="ViewBag.Carreras">
+                        <option value="0">Seleccione</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12 mt-3">
+                <div class=" d-grid gap-2 d-md-block">
+                    <div class="">
+                        <button class="btn btn-primary" onclick="consultar()" title="Consultar estudiantes">
+                            Consultar
+                             <i class="bi-search"></i>
+                        </button>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarEstudiante" title="Registrar nuevo estudiante">
+                            Agregar
+                            <i class="bi-plus"></i>
+                        </button>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarEstudiante" title="Registrar grupo de estudiantes">
+                            Grupo
+                            <i class="bi-plus"></i>
+                        </button>
+                        <button class="btn btn-secondary" onclick="location.reload(true)" title="Reiniciar pantalla">
+                            Limpiar
+                            <i class="bi-trash"></i>
+                        </button>
+                    </div>              
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div id="contenedorTabla" class="mt-5">
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Registrar Estudiante -->
+    <!-- Modal Registrar -->
     <div class="modal fade" id="modalRegistrarEstudiante" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -110,7 +113,7 @@
                     </div>
                     <div class="mb-2 col-md-6">
                         <label class="fw-bold mb-2" for="modalEmail">Email</label>
-                        <input type="text" class="form-control input-text" maxlength="50" id="modalEmail" title="Email del estudiante" />
+                        <input type="email" class="form-control input-text" maxlength="50" id="modalEmail" title="Email del estudiante" />
                     </div>
                     <div class="mb-2">
                         <label class="fw-bold mb-2" for="modalDireccion">Dirección</label>
@@ -120,21 +123,21 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" onclick="registrarEstudiante()">Registrar</button>
+                    <button type="button" class="btn btn-success" onclick="registrar()">Registrar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Editar Estudiante -->
-    <div class="modal fade" id="modalEditarEstudiante" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Modal Editar -->
+    <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Editar estudiante</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body px-4 mb-3 col-md-12 row">
+                <div class="modal-body px-4 mb-3 col-md-12 row">                    
                     <div class="mb-2 col-md-6">
                         <div class="form-group">
                             <label class="fw-bold mb-2" for="modalEditarModulo">Módulo</label>
@@ -165,7 +168,7 @@
                     </div>
                     <div class="mb-2 col-md-6">
                         <label class="fw-bold mb-2" for="modalEditarEmail">Email</label>
-                        <input type="text" class="form-control input-text" maxlength="50" id="modalEditarEmail" title="Email del estudiante" />
+                        <input type="email" class="form-control input-text" maxlength="50" id="modalEditarEmail" title="Email del estudiante" />
                     </div>
                     <div class="mb-2">
                         <label class="fw-bold mb-2" for="modalEditarDireccion">Dirección</label>
@@ -175,26 +178,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="editarEstudiante()">Guardar Cambios</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Confirmar Eliminación -->
-    <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4 col-md-12 row">
-                    <p>¿Está seguro de que desea eliminar el registro seleccionado?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="eliminarRegistro()">Confirmar</button>
+                    <button type="button" class="btn btn-primary" onclick="editar()">Guardar Cambios</button>
                 </div>
             </div>
         </div>
@@ -202,210 +186,61 @@
 
 </div>
 
-<style>
+<style>    
+
+
 
 </style>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
 
-    var idSeleccionado = 0;
-    var query = {
-            Nombres: null,
-            Apellidos: null,
-            Matricula: null,
-            Email: null,
-            Carrera: null,
-            Modulo: null
-        }
-    var respuestaTotal = [];
-    var limit = 2;
-    var offset = 1;
-    var numeroPaginas;
-    var paginaActual;
+    $().ready(function(){       
+         prepararPantalla(Pantalla.Estudiante);
+    })   
 
-    var datosEstudiante = {
-        Id: null,
-        Nombres: null,
-        Apellidos: null,
-        Matricula: null,
-        Email: null,
-        Direccion: null,
-        Carrera: null,
-        Modulo: null
-    }
-
-    $("#navBarEstudiantes").addClass("active");
-
-    function consultarEstudiantes(){ 
-        
+    function consultar(){        
         if ($("#nombres").val() == '' && $("#apellidos").val() == '' && $("#matricula").val() == '' &&
             $("#email").val() == '' && $("#carrera").val() == 0 && $("#modulo").val() == 0) {
             showToastError('Debe ingresar al menos un criterio de búsqueda');
             return;
         }
-
-        query.Nombres = $("#nombres").val() != '' ? $("#nombres").val() : null;
-        query.Apellidos = $("#apellidos").val() != '' ? $("#apellidos").val() : null;
-        query.Matricula = $("#matricula").val() != '' ? $("#matricula").val() : null;
-        query.Email = $("#email").val() != '' ? $("#email").val() : null;
-        query.Carrera = $("#carrera").val() != 0 ? $("#carrera").val() : null;
-        query.Modulo = $("#modulo").val() != 0 ? $("#modulo").val() : null;
+        if ($("#modulo").val() == 0) {
+            showToastError('El campo Módulo es obligatorio');
+            return;
+        }
 
         $.ajax({
             cache: false,
             type: "GET",
-            url: '@Url.Action("ListarEstudiantes", "Operaciones")',
-            data: query,
+            url: `@Url.Action("ListarEstudiante", "Operaciones")`,
+            data: obtenerQuery()[PantallaActual],
             success: function (response) {
                 if(response.length == 0 || response == null){
-                    showToastError("No se encontraron resultados");
-                    $("#tablaEstudiante").remove();
-                    $("#paginacion").remove();
+                    showToastError("No se encontraron resultados");                   
                     return;
                 }
-                respuestaTotal = response;
-                cargarPagina(offset, limit);
+                crearTabla(response, Info[PantallaActual]);
             },
             error: function (xhr) {
                 showToastError(xhr.responseText);
                 return false;
             },
             beforeSend: function () {
-                console.log("Consultando...")
+                mostrarCarga(true);
             },
             complete: function () {
-                console.log("Realizado!")
+                mostrarCarga(false);
             }
         });        
-    }
+    }   
 
-    function cargarPagina(offset, limit){
-        var listaPaginada = [];
-        paginaActual = offset;
-        numeroPaginas = Math.ceil(respuestaTotal.length / limit);
-        var contador = 0;
-        respuestaTotal.forEach(registro => {
-            contador++;
-            if ((contador > ((limit * offset) - limit)) && (contador <= (offset * limit))) {
-                listaPaginada.push(registro);
-            }
-            if(contador == (offset * limit) || contador == respuestaTotal.length){
-                cargarTabla(listaPaginada, numeroPaginas)
-            }
-        })
-    }
-
-    function cargarTabla(listaDatos, numeroPaginas) {
-
-        if ($("#tablaEstudiante").length > 0) {
-            $("#tablaEstudiante").remove();
-            $("#paginacion").remove();
+    function editar() {
+        if (!esEmail($("#modalEditarEmail").val())) {
+            showToastError("Debe ingresar un Email válido");
+            return;
         }
 
-        var tabla = $(`
-                <table class="table table-hover table-bordered">
-                    <thead>
-                        <tr class="table-dark">
-                          <th scope="col">#</th>
-                          <th scope="col">Nombres</th>
-                          <th scope="col">Apellidos</th>
-                          <th scope="col">Matricula</th>
-                          <th scope="col">Email</th>
-                          <th scope="col">Dirección</th>
-                          <th scope="col">Carrera</th>
-                          <th scope="col">Módulo</th>
-                          <th scope="col">Acciones</th>
-                        </tr>
-                  </thead>
-                </table>`);
-        tabla.attr({
-            id: "tablaEstudiante"
-        });
-
-        var tablaBody = $(`
-                <tbody>
-                </tbody>
-            `);
-
-        var contador = 0;
-        listaDatos.forEach(registro => {
-            contador++;
-            tablaBody.append(`
-                    <tr>
-                        <th scope="row">${contador}</th>
-                        <td>${registro.nombres}</td>
-                        <td>${registro.apellidos}</td>
-                        <td>${registro.matricula}</td>
-                        <td class="${registro.email ? '' : 'text-center'}">${registro.email && registro.email != '' ? registro.email : '-'}</td>
-                        <td class="${registro.direccion ? '' : 'text-center'}">${registro.direccion && registro.direccion != '' ? registro.direccion : '-'}</td>
-                        <td class="${registro.carrera ? '' : 'text-center'}">${registro.carrera && registro.carrera != '' ? registro.carrera : '-'}</td>
-                        <td>${registro.modulo}</td>
-                            <td><button onClick="seleccionarDatosFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalEditarEstudiante" id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar estudiante'/><i class="bi bi-pencil-square"></i></button>
-                        <button onClick="seleccionarIdFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar estudiante'/><i class="bi-trash"></i></button></td>
-                    </tr>
-                `);
-        });
-
-        tabla.append(tablaBody);
-
-        var pagination = $('<nav id="paginacion"><ul class="pagination"></ul></nav>');
-        for (var i = 0; i < numeroPaginas; i++) {
-            var pageNum = i + 1;
-            if (pageNum == 1) {
-                var liPrev = $(`<li class="page-item ${paginaActual == 1 ? 'disabled' : ''}"></li>`);
-                var a = $(`<a class="page-link" style="cursor: pointer;" onclick="cargarPagina(${paginaActual}-1, ${limit})"></a>`).text('Anterior');
-                liPrev.append(a);
-                pagination.find('ul').append(liPrev);
-            }
-            if (pageNum == 1 || pageNum == paginaActual || pageNum == numeroPaginas) {
-                var li = $(`<li class="page-item ${pageNum == paginaActual ? 'active' : ''}"></li>`);
-                var a = $(`<a class="page-link" style="cursor: pointer;" onclick="cargarPagina(${pageNum}, ${limit})"></a>`).text(pageNum);
-                li.append(a);
-            }
-            pagination.find('ul').append(li);
-            if (pageNum == numeroPaginas) {
-                var liNext = $(`<li class="page-item ${paginaActual == numeroPaginas ? 'disabled' : ''}"></li>`);
-                var a = $(`<a class="page-link" style="cursor: pointer;" onclick="cargarPagina(${paginaActual}+1, ${limit})"></a>`).text('Siguiente');
-                liNext.append(a);
-                pagination.find('ul').append(liNext);
-            }
-        }
-
-        $("#gridEstudiante").append(tabla);
-        $("#gridEstudiante").append(pagination);
-    }
-
-    function seleccionarDatosFila(idEstudiante) {
-        respuestaTotal.forEach(estudiante => {
-            if (estudiante.id == idEstudiante) {
-                datosEstudiante.Id = estudiante.id;
-                datosEstudiante.Nombres = estudiante.nombres;
-                datosEstudiante.Apellidos = estudiante.apellidos;
-                datosEstudiante.Matricula = estudiante.matricula;
-                datosEstudiante.Email = estudiante.email;
-                datosEstudiante.Direccion = estudiante.direccion;
-                datosEstudiante.Carrera = estudiante.carrera;
-                datosEstudiante.Modulo = estudiante.modulo;
-            }
-        })
-       
-        $("#modalEditarNombres").val(datosEstudiante.Nombres);
-        $("#modalEditarApellidos").val(datosEstudiante.Apellidos);
-        $("#modalEditarMatricula").val(datosEstudiante.Matricula);
-        $("#modalEditarEmail").val(datosEstudiante.Email);
-        $("#modalEditarDireccion").val(datosEstudiante.Direccion);
-        $("#modalEditarCarrera").val(datosEstudiante.Carrera);
-        $("#modalEditarModulo").val(datosEstudiante.Modulo);
-
-        idSeleccionado = datosEstudiante.Id;
-    }
-
-    function seleccionarIdFila(id){
-        idSeleccionado = id;
-    }
-
-    function editarEstudiante() {
         var request = {
             Id: idSeleccionado,
             Nombres: $("#modalEditarNombres").val(),
@@ -427,7 +262,7 @@
                     showToastError("Ha ocurrido un error");
                     return;
                 }
-                consultarEstudiantes();
+                consultar();
                 $("#modalEditarEstudiante").modal("hide");
                 showToastOk('El estudiante se actualizó correctamente');
             },
@@ -436,50 +271,21 @@
                 return false;
             },
             beforeSend: function () {
-                console.log("Editando...")
+                mostrarCarga(true);
             },
             complete: function () {
-                console.log("Realizado!")
+                mostrarCarga(false);
             }
         });        
     }
 
-    function eliminarRegistro() {
-        var request = {
-            Id: idSeleccionado
-        }
-
-        $.ajax({
-            cache: false,
-            type: "DELETE",
-            url: '@Url.Action("EliminarEstudiante", "Operaciones")',
-            data: request,
-            success: function (response) {
-                if ( response == null) {
-                    showToastError("Ha ocurrido un error");
-                    return;
-                }
-                consultarEstudiantes();
-                $("#modalConfirmarEliminacion").modal("hide");
-                showToastOk('Se eliminó el estudiante correctamente');
-            },
-            error: function (xhr) {
-                showToastError(xhr.responseText);
-                $("#modalConfirmarEliminacion").modal("hide");
-                return false;
-            },
-            beforeSend: function () {
-                console.log("Editando...")
-            },
-            complete: function () {
-                console.log("Realizado!")
-            }
-        });
-    }
-
-    function registrarEstudiante(){
+    function registrar(){
         if($("#modalModulo").val() == 0 || $("#modalNombres").val() == '' || $("#modalApellidos").val() == '' || $("#modalMatricula").val() == ''){
             showToastError('Los campos: Módulo, Nombres, Apellidos y Matrícula son obligatorios');
+            return;
+        }
+        if (!esEmail($("#modalEmail").val())) {
+            showToastError("Debe ingresar un Email válido");
             return;
         }
 
@@ -503,7 +309,7 @@
                     showToastError("Ha ocurrido un error");
                     return;
                 }
-                consultarEstudiantes();
+                consultar();
                 $("#modalRegistrarEstudiante").modal("hide");
                 showToastOk('El estudiante se registró correctamente');
             },
@@ -512,10 +318,10 @@
                 return false;
             },
             beforeSend: function () {
-                console.log("Editando...")
+                 mostrarCarga(true);
             },
             complete: function () {
-                console.log("Realizado!")
+                 mostrarCarga(false);
             }
         });
     }
