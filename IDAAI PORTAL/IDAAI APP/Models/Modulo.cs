@@ -1,4 +1,4 @@
-﻿namespace IDAAI_API.Entidades.Models
+﻿namespace IDAAI_APP.Models
 {
     public class Modulo
     {

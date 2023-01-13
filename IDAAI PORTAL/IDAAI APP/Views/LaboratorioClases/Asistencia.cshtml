@@ -6,64 +6,68 @@
     Layout = "_LayoutLaboratorioClases";
 }
 
-<div class="container-fluid">
-    <div class="row pt-4 pb-5">
-         <div class="pb-4" align="center">
-            <h4>Registros de Asistencia</h4>
+<div id ="pantalla" class="container-fluid">
+    <div class="row pt-4 pb-5 px-4 shadow bg-light rounded">
+        <div class="pb-2 border-bottom" align="center">
+            <h4 class="fw-bold">Registros de Asistencia</h4>
             <input type="hidden" id="estado" />
         </div>
-        <div class="col-md-2">
-            <div class="form-group">
-                <label class="fw-bold mb-2" for="modulo">Módulo</label>
-                <select class="form-control" id="modulo" title="Módulo del estudiante" asp-items="ViewBag.Modulos">
-                    <option value="0">Seleccione</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-2 input-wrapper">
-            <label class="fw-bold mb-2" for="nombres">Nombres</label>
-            <input type="text" class="form-control input-text" maxlength="100" id="nombres" title="Nombres del estudiante" />
-        </div>
-        <div class="col-md-2 input-wrapper">
-            <label class="fw-bold mb-2" for="apellidos">Apellidos</label>
-            <input type="text" class="form-control input-text" maxlength="100" id="apellidos" title="Apellidos del estudiante" />
-        </div>
-        <div class="col-md-2 input-wrapper">
-            <label class="fw-bold mb-2" for="matricula">Matrícula</label>
-            <input type="text" class="form-control input-text" maxlength="10" id="matricula" title="Matrícula del estudiante" />
-        </div>
-        <div class="col-md-2">
-            <div class="form-group">
-                <label class="fw-bold mb-2" for="carrera">Carrera</label>
-                <select class="form-control" id="carrera" title="Carrera del estudiante" asp-items="ViewBag.Carreras">
-                    <option value="0">Seleccione</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-2 mt-3">
-            <div class="form-group btn-group btn-group-lg">
-                <div class="">
-                    <button class="btn btn-primary" onclick="consultarAsistencia()" title="Consultar Registros de Asistencia">
-                         <i class="bi-search"></i>
-                    </button>
+        <div class="row pt-3">
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label class="fw-bold mb-2" for="modulo">Módulo</label>
+                    <select class="form-control" id="modulo" title="Módulo del estudiante" asp-items="ViewBag.Modulos">
+                        <option value="0">Seleccione</option>
+                    </select>
                 </div>
             </div>
-            <div class="form-group btn-group btn-group-lg">
-                <div class="">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarAsistencia" title="Crear Registro de Asistencia">
-                        <i class="bi-plus"></i>
-                    </button>
+            <div class="col-md-2 input-wrapper">
+                <label class="fw-bold mb-2" for="nombres">Nombres</label>
+                <input type="text" class="form-control input-text" maxlength="100" id="nombres" title="Nombres del estudiante" />
+            </div>
+            <div class="col-md-2 input-wrapper">
+                <label class="fw-bold mb-2" for="apellidos">Apellidos</label>
+                <input type="text" class="form-control input-text" maxlength="100" id="apellidos" title="Apellidos del estudiante" />
+            </div>
+            <div class="col-md-2 input-wrapper">
+                <label class="fw-bold mb-2" for="matricula">Matrícula</label>
+                <input type="text" class="form-control input-text" maxlength="10" id="matricula" title="Matrícula del estudiante" />
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label class="fw-bold mb-2" for="carrera">Carrera</label>
+                    <select class="form-control" id="carrera" title="Carrera del estudiante" asp-items="ViewBag.Carreras">
+                        <option value="0">Seleccione</option>
+                    </select>
                 </div>
             </div>
-        </div>
-        <div class="col-md-12">
-            <div id="gridAsistencia" class="mt-5">
+            <div class="col-md-12 mt-4">
+                <div class=" d-grid gap-2 d-md-block">
+                    <div class="">
+                        <button class="btn btn-primary" onclick="consultar()" title="Consultar Registros de Asistencia">
+                            Consultar
+                            <i class="bi-search"></i>
+                        </button>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrar" title="Crear Registro de Asistencia">
+                            Agregar
+                            <i class="bi-plus"></i>
+                        </button>
+                        <button class="btn btn-secondary" onclick="location.reload(true)" title="Reiniciar pantalla">
+                            Limpiar
+                            <i class="bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
+            <div class="col-md-12">
+                <div id="contenedorTabla" class="mt-5">
+                </div>
+            </div>
+        </div>        
     </div>
 
-    <!-- Modal Registrar Asistencia -->
-    <div class="modal fade" id="modalRegistrarAsistencia" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Modal Registrar -->
+    <div class="modal fade" id="modalRegistrar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -73,54 +77,35 @@
                 <div class="modal-body px-4 mb-3">
                     <div class="mb-2">
                         <div class="form-group">
-                            <label class="fw-bold mb-2" for="modalModulo">Módulo*</label>
-                            <select class="form-control" id="modalModulo" asp-items="ViewBag.Modulos" title="Nombre del módulo">
+                            <label class="fw-bold mb-2" for="modalRegistrarModulo">Módulo*</label>
+                            <select class="form-control" id="modalRegistrarModulo" asp-items="ViewBag.Modulos" title="Nombre del módulo">
                                 <option value="0">Seleccione</option>
                             </select>
                         </div>
                     </div>
                     <div class="mb-2">
-                        <label class="fw-bold mb-2" for="modalMatricula">Matrícula*</label>
-                        <input type="text" class="form-control input-text" maxlength="10" id="modalMatricula" title="Matrícula del estudiante" />
+                        <label class="fw-bold mb-2" for="modalRegistrarMatricula">Matrícula*</label>
+                        <input type="text" class="form-control input-text" maxlength="10" id="modalRegistrarMatricula" title="Matrícula del estudiante" />
                     </div>
                     <div class="mb-2">
                         <div class="form-group">
-                            <label class="fw-bold" for="modalFechaRegistro">Fecha*</label>
-                            <input type="date" id="modalFechaRegistro" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" title="Fecha registro de asistencia" required />
+                            <label class="fw-bold" for="modalRegistrarFecha">Fecha*</label>
+                            <input type="date" id="modalRegistrarFecha" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" title="Fecha registro de asistencia" required />
                         </div>
                     </div>
                     <div class="mb-2">
                         <div class="form-group">
-                            <label class="fw-bold mb-2" for="modalEstadoAsistencia">Estado asistencia*</label>
-                            <select class="form-control" id="modalEstadoAsistencia">
-                                <option value="0">Falta</option>
-                                <option value="1">Asistencia</option>
+                            <label class="fw-bold mb-2" for="modalRegistrarEsAsistencia">Estado asistencia*</label>
+                            <select class="form-control" id="modalRegistrarEsAsistencia">                              
+                                <option value="true">Asistencia</option>
+                                <option value="false">Falta</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" onclick="registrarAsistencia()">Registrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Confirmar Eliminación -->
-    <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4 col-md-12 row">
-                    <p>¿Está seguro de que desea eliminar el registro seleccionado?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="eliminarRegistro()">Confirmar</button>
+                    <button type="button" class="btn btn-success" onclick="registrar()">Registrar</button>
                 </div>
             </div>
         </div>
@@ -135,128 +120,158 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
 
-    var idSeleccionado = 0;
-    $("#navBarAsistencia").addClass("active");
+    $().ready(function () {
+        prepararPantalla(Pantalla.Asistencia);
+    })
 
-    function consultarAsistencia(){       
-        if ($("#tablaAsistencia").length > 0) {
-            $("#tablaAsistencia").remove();
+    function consultar(recarga = false) {
+        if ($("#nombres").val() == '' && $("#apellidos").val() == '' && $("#matricula").val() == '' && $("#carrera").val() == 0 && $("#modulo").val() == 0) {
+            showToastError('Debe ingresar al menos un criterio de búsqueda');
+            return;
+        }
+        if ($("#modulo").val() == 0) {
+            showToastError('El campo Módulo es obligatorio');
+            return;
         }
 
-        var listaAsistencia = [
-            {
-                Id: 1,
-                Nombres: "Alexander",
-                Apellidos: "Martinez",
-                Matricula: "201408764",
-                Email: "alexmf@gmail.es",
-                Fecha: "04/01/2023",
-                EstadoAsistencia: "Asistencia",
-                Carrera: "Ing. Telemática",
-                Modulo: "LST"
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: `@Url.Action("ListarAsistencia", "Operaciones")`,
+            data: obtenerQuery()[PantallaActual],
+            success: function (response) {
+                if (response.length == 0 || response == null) {
+                    showToastError("No se encontraron resultados");
+                }
+                crearTabla(response, Info[PantallaActual], recarga);
             },
-            {
-                Id: 2,
-                Nombres: "Dayana",
-                Apellidos: "Bustamante",
-                Matricula: "201787356",
-                Email: "dbustamante@gmail.es",
-                Fecha: "02/01/2023",
-                EstadoAsistencia: "Asistencia",
-                Carrera: "Lic. Turismo",
-                Modulo: "LST"
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
             },
-            {
-                Id: 3,
-                Nombres: "Justhyn",
-                Apellidos: "Arcentales",
-                Matricula: "201987392",
-                Email: "jarcentales@gmail.es",
-                Fecha: "03/01/2023",
-                EstadoAsistencia: "Falta",
-                Carrera: "Ing. Comercial",
-                Modulo: "LST"
+            beforeSend: function () {
+                mostrarCarga(true);
             },
-              {
-                Id: 4,
-                Nombres: "Futo",
-                Apellidos: "Mansito",
-                Matricula: "202089321",
-                Email: "fmansito@gmail.es",
-                Fecha: "29/12/2022",
-                EstadoAsistencia: "Asistencia",
-                Carrera: "Ing. Ciencias Computacionales",
-                Modulo: "LST"
+            complete: function () {
+                mostrarCarga(false);
             }
-        ]
-
-        var tabla = $(`
-            <table class="table table-hover table-bordered">
-                <thead>
-                    <tr class="table-dark">
-                      <th scope="col"></th>
-                      <th scope="col">Nombres</th>
-                      <th scope="col">Apellidos</th>
-                      <th scope="col">Matrícula</th>
-                      <th scope="col">Email</th>
-                      <th scope="col">Fecha</th>
-                      <th scope="col">Estado</th>
-                      <th scope="col">Carrera</th>
-                      <th scope="col">Módulo</th>
-                          <th scope="col">Acciones</th>
-                    </tr>
-              </thead>
-            </table>`);
-        tabla.attr({
-            id: "tablaAsistencia"
         });
+    }
 
-        var tablaBody = $(`
-            <tbody>
-            </tbody>
-        `);
+    function registrar() {
+        if ($("#modalRegistrarModulo").val() == 0 || $("#modalRegistrarFecha").val() == '' || $("#modalRegistrarEstadoAsistencia").val() == '' || $("#modalRegistrarMatricula").val() == '') {
+            showToastError('Los campos: Módulo, Matrícula, Fecha y Estado asistencia son obligatorios');
+            return;
+        }
+        if ($("#modalRegistrarMatricula").val().length < 9) {
+            showToastError("La matrícula debe ser válida");
+            return;
+        }
 
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: '@Url.Action("RegistrarAsistencia", "Operaciones")',
+            data: obtenerRegistrarRequest()[PantallaActual],
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                consultar(true);
+                $("#modalRegistrar").modal("hide");
+                showToastOk('El registro se creó correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
+        });
+    }
+
+    function editar(id) {
+        var esAsistencia = true;
         var contador = 0;
-        listaAsistencia.forEach(registro => {
-            contador++;
-            tablaBody.append(`
-                <tr>
-                    <th scope="row">${contador}</th>
-                    <td>${registro.Nombres}</td>
-                    <td>${registro.Apellidos}</td>
-                    <td>${registro.Matricula}</td>
-                    <td>${registro.Email}</td>
-                    <td>${registro.Fecha}</td>
-                    <td>${registro.EstadoAsistencia}</td>
-                    <td>${registro.Carrera}</td>
-                    <td>${registro.Modulo}</td>
-                    <td><button onClick="editarAsistencia(${registro.Id})" class='btn-sm btn-primary' type='button' title='Cambiar estado de asistencia'/><i class="bi bi-pencil-square"></i></button>
-                    <button onClick="seleccionarIdFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar registro de asistencia'/><i class="bi-trash"></i></button></td>
-                </tr>       
-            `);
+        respuestaTotal.forEach(registro => {
+            contador++
+            if(registro.id == id){
+                if(registro.estadoAsistencia == 'Asistencia'){
+                    esAsistencia = false;
+                }
+            }
+            if(contador == respuestaTotal.length){
+                var request = {
+                    id: id,
+                    esAsistencia: esAsistencia
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "PUT",
+                    url: '@Url.Action("EditarAsistencia", "Operaciones")',
+                    data: request,
+                    success: function (response) {
+                        if (response == null) {
+                            showToastError("Ha ocurrido un error");
+                            return;
+                        }
+                        consultar(true);
+                        $("#modalEditar").modal("hide");
+                        showToastOk('El registro se actualizó correctamente');
+                    },
+                    error: function (xhr) {
+                        showToastError(xhr.responseText);
+                        return false;
+                    },
+                    beforeSend: function () {
+                        mostrarCarga(true);
+                    },
+                    complete: function () {
+                        mostrarCarga(false);
+                    }
+                });
+
+            }
+        })             
+    }
+
+    function eliminar() {
+        var request = {
+            Id: idSeleccionado
+        }
+
+        $.ajax({
+            cache: false,
+            type: "DELETE",
+            url: `@Url.Action("EliminarAsistencia", "Operaciones")`,
+            data: request,
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                consultar(true);
+                $("#modalConfirmarEliminacion").modal("hide");
+                showToastOk('El registor fue eliminado correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                $("#modalConfirmarEliminacion").modal("hide");
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
         });
-
-        tabla.append(tablaBody);
-
-        $("#gridAsistencia").append(tabla);
-    }
-
-    function seleccionarIdFila(id){
-        idSeleccionado = id;
-    }
-
-    function editarAsistencia(id) {
-        console.log(`Editando asistencia de registro con ID ${id}`)
-    }
-
-    function eliminarRegistro() {
-        console.log(`Eliminando asistencia de registro con ID ${idSeleccionado}`)
-        $("#modalConfirmarEliminacion").modal("hide");
-    }
-
-    function registrarAsistencia() {
-        console.log(`Registrando nueva asistencia`)
-        $("#modalRegistrarAsistencia").modal("hide");
     }
 
 </script>

@@ -60,7 +60,7 @@ BEGIN
 				RETURN 0;
 			END			
 
-			INSERT INTO Carreras VALUES(@nombre, 1, @idModulo)
+			INSERT INTO Carreras VALUES(@nombre, @idModulo, 1)
 
 			SET @id=@@IDENTITY
 
@@ -151,17 +151,17 @@ BEGIN
 	END
 	IF(@i_accion='CN')
 	BEGIN
-		IF(ISNULL(@nombre,'')='')
-		BEGIN
-			SELECT Id=c.Id, Nombre=c.Nombre, Modulo=m.Nombre 
-			FROM Carreras c
-			INNER JOIN Modulos m ON m.Id=c.ModuloId
-			WHERE c.Nombre = @nombre
-			AND m.Nombre=@modulo
-			AND c.Estado=1
-			AND m.Estado=1
-			RETURN 0;
-		END
+		--IF(ISNULL(@nombre,'')='')
+		--BEGIN
+		--	SELECT Id=c.Id, Nombre=c.Nombre, Modulo=m.Nombre 
+		--	FROM Carreras c
+		--	INNER JOIN Modulos m ON m.Id=c.ModuloId
+		--	WHERE c.Nombre = @nombre
+		--	AND m.Nombre=@modulo
+		--	AND c.Estado=1
+		--	AND m.Estado=1
+		--	RETURN 0;
+		--END
 		SELECT Id=c.Id, Nombre=c.Nombre, Modulo=m.Nombre 
 		FROM Carreras c
 		INNER JOIN Modulos m ON m.Id=c.ModuloId

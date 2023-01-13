@@ -1,5 +1,4 @@
-﻿using IDAAI_API.Entidades.Models;
-using IDAAI_APP.Models;
+﻿using IDAAI_APP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
@@ -9,7 +8,7 @@ namespace IDAAI_APP.Controllers
     public class LaboratorioClasesController : Controller
     {
         private readonly ILogger<LaboratorioClasesController> _logger;
-        private OperacionesController operaciones = new OperacionesController();
+        private OperacionesController operaciones = new();
 
         public LaboratorioClasesController(ILogger<LaboratorioClasesController> logger)
         {

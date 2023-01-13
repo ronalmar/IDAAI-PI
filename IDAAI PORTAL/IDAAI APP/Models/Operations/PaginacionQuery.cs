@@ -1,4 +1,4 @@
-﻿namespace IDAAI_API.Entidades.Operations.Consultas
+﻿namespace IDAAI_APP.Models.Operations
 {
     public class PaginacionQuery
     {

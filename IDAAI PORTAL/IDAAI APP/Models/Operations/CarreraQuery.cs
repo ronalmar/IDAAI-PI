@@ -2,12 +2,13 @@
 
 namespace IDAAI_APP.Models.Operations
 {
-    public class ModuloQuery : PaginacionQuery
+    public class CarreraQuery : PaginacionQuery
     {
-        [StringLength(maximumLength: 50)]
+        [StringLength(maximumLength: 100)]
         public string Nombre { get; set; }
 
+        [Required]
         [StringLength(maximumLength: 50)]
-        public string PeriodoAcademico { get; set; }
+        public string Modulo { get; set; }
     }
 }

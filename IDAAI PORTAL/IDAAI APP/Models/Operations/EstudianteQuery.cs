@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using IDAAI_API.Entidades.Operations.Consultas;
 
-namespace IDAAI_API.Entidades.Operations.Estudiante
+namespace IDAAI_APP.Models.Operations
 {
     public class EstudianteQuery: PaginacionQuery
     {       
@@ -13,7 +12,6 @@ namespace IDAAI_API.Entidades.Operations.Estudiante
         [StringLength(maximumLength: 10)]
         public string Matricula { get; set; }
 
-        [EmailAddress]
         [StringLength(maximumLength: 50)]
         public string Email { get; set; }
 

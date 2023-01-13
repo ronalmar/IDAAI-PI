@@ -3,7 +3,7 @@ var offset = 1;
 var limit = 5;
 var respuestaTotal = [];
 var informacion = new Object();
-var paginaActual;
+var paginaActual = 0;
 var numeroPaginas;
 var idSeleccionado;
 
@@ -29,7 +29,19 @@ var Info = {
     Estudiante: {
         Titulos: ["Nombres", "Apellidos", "Matrícula", "Email", "Dirección", "Carrera", "Módulo"],
         Campos: ["nombres", "apellidos", "matricula", "email", "direccion", "carrera", "modulo"]
-    }   
+    },
+    Asistencia: {
+        Titulos: ["Nombres", "Apellidos", "Matrícula", "Fecha", "Estado", "Carrera", "Módulo"],
+        Campos: ["nombres", "apellidos", "matricula", "fecha", "estadoAsistencia", "carrera", "modulo"]
+    },
+    Carrera: {
+        Titulos: ["Nombre", "Módulo"],
+        Campos: ["nombre", "modulo"]
+    },
+    Modulo: {
+        Titulos: ["Nombre", "Descripción", "Periodo Académico"],
+        Campos: ["nombre", "descripcion", "periodoAcademico"]
+    }
 }
 var PantallaActual;
 var Datos = {
@@ -42,10 +54,24 @@ var Datos = {
         direccion: null,
         carrera: null,
         modulo: null
+    },
+    Carrera: {
+        id: null,
+        nombre: null,
+        modulo: null
+    },
+    Modulo: {
+        id: null,
+        nombre: null,
+        descripcion: null,
+        periodoAcademico: null
     }
 }
-var Campos = {
-    Estudiante: ["nombres", "apellidos", "matricula", "email", "direccion", "carrera", "modulo"]
+var CamposQuery = {
+    Estudiante: ["nombres", "apellidos", "matricula", "email", "direccion", "carrera", "modulo"],
+    Asistencia: ["nombres", "apellidos", "matricula", "direccion", "carrera", "modulo"],
+    Carrera: ["nombre", "modulo"],
+    Modulo: ["nombre", "periodoAcademico"]
 }
 var Query = {
     Estudiante: {
@@ -56,11 +82,79 @@ var Query = {
         direccion: null,
         carrera: null,
         modulo: null
+    },
+    Asistencia: {
+        nombres: null,
+        apellidos: null,
+        matricula: null,
+        direccion: null,
+        carrera: null,
+        modulo: null
+    },
+    Carrera: {
+        nombre: null,
+        modulo: null
+    },
+    Modulo: {
+        nombre: null,
+        periodoAcademico: null
     }
 }
-
-
-
+var CamposRequest = {
+    Estudiante: ["Nombres", "Apellidos", "Matricula", "Email", "Direccion", "Carrera", "Modulo"],
+    Asistencia: ["Matricula", "Fecha", "EsAsistencia", "Modulo"],
+    Carrera: ["Nombre", "Modulo"],
+    Modulo: ["Nombre", "Descripcion", "PeriodoAcademico"]
+}
+var RequestEditar = {
+    Estudiante: {
+        Id: null,
+        Nombres: null,
+        Apellidos: null,
+        Matricula: null,
+        Email: null,
+        Direccion: null,
+        Carrera: null,
+        Modulo: null
+    },
+    Carrera: {
+        Id: null,
+        Nombre: null,
+        Modulo: null
+    },
+    Modulo: {
+        Id: null,
+        Nombre: null,
+        Descripcion: null,
+        PeriodoAcademico: null
+    }
+}
+var RequestRegistrar = {
+    Estudiante: {
+        Nombres: null,
+        Apellidos: null,
+        Matricula: null,
+        Email: null,
+        Direccion: null,
+        Carrera: null,
+        Modulo: null
+    },
+    Asistencia: {
+        Matricula: null,
+        Fecha: null,
+        EsAsistencia: null,
+        Modulo: null
+    },
+    Carrera: {
+        Nombre: null,
+        Modulo: null
+    },
+    Modulo: {
+        Nombre: null,
+        Descripcion: null,
+        PeriodoAcademico: null
+    }
+}
 
 function prepararPantalla(pantalla) {
     PantallaActual = pantalla;
@@ -68,7 +162,7 @@ function prepararPantalla(pantalla) {
     $(`#navBar${PantallaActual}`).addClass("active");
 }
 
-function generarModalEliminacion(pantalla) {
+function generarModalEliminacion() {
     $("#pantalla").append(`
         <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -82,7 +176,7 @@ function generarModalEliminacion(pantalla) {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="eliminarRegistro(${pantalla})">Confirmar</button>
+                        <button type="button" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
                     </div>
                 </div>
             </div>
@@ -109,21 +203,47 @@ function formatearNombres(nombres) {
 }
 
 function obtenerQuery(){
-    Campos[PantallaActual].forEach(campo => {
+    CamposQuery[PantallaActual].forEach(campo => {
         Query[PantallaActual][campo] = $(`#${campo}`).val() != '' && $(`#${campo}`).val() != "0" ? $(`#${campo}`).val() : null;
     })
     return Query;
 }
 
-function crearTabla(listaDatos, info) {
+function obtenerEditarRequest() {
+    CamposRequest[PantallaActual].forEach(campo => {
+        RequestEditar[PantallaActual][campo] = $(`#modalEditar${campo}`).val();
+    })
+    RequestEditar[PantallaActual].Id = idSeleccionado;
+    return RequestEditar;
+}
+
+function obtenerRegistrarRequest() {
+    CamposRequest[PantallaActual].forEach(campo => {
+        RequestRegistrar[PantallaActual][campo] = $(`#modalRegistrar${campo}`).val();
+        console.log(RequestRegistrar[PantallaActual][campo])
+    })
+    return RequestRegistrar;
+}
+
+function crearTabla(listaDatos, info, recarga) {
     limpiarTabla();
     respuestaTotal = listaDatos;
     informacion = info;
-    cargarPagina(offset, limit);
+    if (recarga == true) {
+        cargarPagina(paginaActual, limit);
+    } else {
+        cargarPagina(offset, limit);
+    }    
 }
 
 function cargarPagina(offset, limit) {
     var listaPaginada = [];
+    if (offset == 0) {
+        return
+    }
+    if (paginaActual <= 1) {
+        paginaActual = 1;
+    }
     paginaActual = offset;
     numeroPaginas = Math.ceil(respuestaTotal.length / limit);
     var contador = 0;
@@ -134,8 +254,8 @@ function cargarPagina(offset, limit) {
             if ((contador > ((limit * offset) - limit)) && (contador <= (offset * limit))) {
                 listaPaginada.push(registro);
             }
-            if (contador == (offset * limit) || contador == respuestaTotal.length) {
-                cargarTabla(listaPaginada, numeroPaginas)
+            if (contador == (offset * limit) || contador == respuestaTotal.length) {                
+                cargarTabla(listaPaginada, numeroPaginas)    
                 romperFor = true;
             }
         }       
@@ -152,6 +272,10 @@ function cargarTabla(listaDatos, numeroPaginas) {
         $("#tabla").remove();
         $("#paginacion").remove();
     }
+    if (listaDatos.length == 0) {
+        cargarPagina(paginaActual - 1, limit)
+        return;
+    }
     var tabla = $(`
                 <table class="table table-hover table-bordered">
                     <thead>
@@ -160,7 +284,7 @@ function cargarTabla(listaDatos, numeroPaginas) {
                                 ${informacion.Titulos.map(titulo => {
                                     return `<th scope="col">${titulo}</th>`
                                 }).join('')}
-                          <th scope="col" style="min-width: 90px">Acciones</th>
+                          <th scope="col" style="min-width: 90px; width: 90px">Acciones</th>
                         </tr>
                   </thead>
                 </table>`);
@@ -182,8 +306,8 @@ function cargarTabla(listaDatos, numeroPaginas) {
                         ${informacion.Campos.map(campo => {
                             return `<td class="${registro[campo] ? '' : 'text-center'}">${!registro[campo] || registro[campo] == '' ? '-' : campo == 'nombres' || campo == 'apellidos' ? formatearNombres(registro[campo]) : registro[campo]}</td >`
                         }).join('')}                       
-                        <td><button ${PantallaActual == 'Asistencia' || PantallaActual == 'Prestamo' ? `onClick="editar(${registro.Id})"` : `onClick="seleccionarDatosFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalEditar"`} id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar estudiante'/><i class="bi bi-pencil-square"></i></button>
-                        <button onClick="seleccionarIdFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar estudiante'/><i class="bi-trash"></i></button></td>
+                        <td><button ${PantallaActual == 'Asistencia' || PantallaActual == 'Prestamo' ? `onClick="editar(${registro.id})"` : `onClick="seleccionarDatosFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalEditar"`} id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar registro'/><i class="bi bi-pencil-square"></i></button>
+                        <button onClick="seleccionarIdFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar registro'/><i class="bi-trash"></i></button></td>
                     </tr>
                 `);
     });
@@ -237,37 +361,11 @@ function seleccionarIdFila(id) {
     idSeleccionado = id;
 }
 
-function eliminarRegistro(pantalla) {
-    var request = {
-        Id: idSeleccionado
+function esNumero(n) {
+    if (typeof (n) === 'number' || n instanceof Number) {
+        return true
     }
-
-    $.ajax({
-        cache: false,
-        type: "DELETE",
-        url: `@Url.Action(Eliminar${pantalla}, "Operaciones")`,
-        data: request,
-        success: function (response) {
-            if (response == null) {
-                showToastError("Ha ocurrido un error");
-                return;
-            }
-            consultar();
-            $("#modalConfirmarEliminacion").modal("hide");
-            showToastOk('Se eliminó el registro correctamente');
-        },
-        error: function (xhr) {
-            showToastError(xhr.responseText);
-            $("#modalConfirmarEliminacion").modal("hide");
-            return false;
-        },
-        beforeSend: function () {
-            mostrarCarga(true);
-        },
-        complete: function () {
-            mostrarCarga(false);
-        }
-    });
+    return false
 }
 
 function esEmail(email) {

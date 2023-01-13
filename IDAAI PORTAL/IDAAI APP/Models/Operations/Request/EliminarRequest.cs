@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
-namespace IDAAI_API.Entidades.Operations.Requests
+namespace IDAAI_APP.Models.Operations.Request
 {
     public class EliminarRequest
     {

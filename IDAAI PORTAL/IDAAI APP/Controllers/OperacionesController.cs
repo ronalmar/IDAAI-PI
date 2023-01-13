@@ -1,7 +1,6 @@
-﻿using IDAAI_API.Entidades.Models;
-using IDAAI_API.Entidades.Operations.Estudiante;
-using IDAAI_API.Entidades.Operations.Requests;
-using IDAAI_APP.Models;
+﻿using IDAAI_APP.Models;
+using IDAAI_APP.Models.Operations;
+using IDAAI_APP.Models.Operations.Request;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -52,7 +51,6 @@ namespace IDAAI_APP.Controllers
                     command = $"api/estudiante/consultarPorEmail?Email={query.Email}&Modulo={query.Modulo}{pagineo}";
                     esLista = false;
                 }
-
                 else if (!string.IsNullOrEmpty(query.Nombres) || !string.IsNullOrEmpty(query.Apellidos))
                 {
                     command = $"api/estudiante/listarPorNombres?Nombres={query.Nombres}&Apellidos={query.Apellidos}&Modulo={query.Modulo}{pagineo}";
@@ -80,6 +78,10 @@ namespace IDAAI_APP.Controllers
                     else
                     {
                         var estudiante = JsonConvert.DeserializeObject<Estudiante>(response);
+                        if (estudiante is null)
+                        {
+                            return estudiantes;
+                        }
                         estudiantes.Add(estudiante);
                     }
                     return estudiantes;
@@ -89,7 +91,7 @@ namespace IDAAI_APP.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RegistrarEstudiante(RegistrarEstudianteRequest request)
+        public async Task<IActionResult> RegistrarEstudiante(EstudianteRegistrarRequest request)
         {
             string response;
             string error;
@@ -118,7 +120,7 @@ namespace IDAAI_APP.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> EditarEstudiante(EditarEstudianteRequest request)
+        public async Task<IActionResult> EditarEstudiante(EstudianteEditarRequest request)
         {
             string response;
             string error;
@@ -182,6 +184,291 @@ namespace IDAAI_APP.Controllers
         }
 
         [HttpGet]
+        public async Task<List<Asistencia>> ListarAsistencia(AsistenciaQuery query)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                if (!string.IsNullOrEmpty(query.Matricula))
+                {
+                    command = $"api/asistencia/consultarPorMatricula?Matricula={query.Matricula}&Modulo={query.Modulo}{pagineo}";
+                    esLista = false;
+                }
+                else if (!string.IsNullOrEmpty(query.Nombres) || !string.IsNullOrEmpty(query.Apellidos))
+                {
+                    command = $"api/asistencia/listarPorNombres?Nombres={query.Nombres}&Apellidos={query.Apellidos}&Modulo={query.Modulo}{pagineo}";
+                }
+                else if (!string.IsNullOrEmpty(query.Carrera))
+                {
+                    command = $"api/asistencia/listarPorCarrera?Carrera={query.Carrera}&Modulo={query.Modulo}{pagineo}";
+                }
+                else
+                {
+                    command = $"api/asistencia/listarPorModulo?Modulo={query.Modulo}{pagineo}";
+                }
+
+                HttpResponseMessage res = await client.GetAsync(command);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    var response = res.Content.ReadAsStringAsync().Result;
+                    List<Asistencia> listaAsistencia = new();
+
+                    if (esLista)
+                    {
+                        listaAsistencia = JsonConvert.DeserializeObject<List<Asistencia>>(response);
+                    }
+                    else
+                    {
+                        var asistencia = JsonConvert.DeserializeObject<Asistencia>(response);
+                        if(asistencia is null)
+                        {
+                            return listaAsistencia;
+                        }
+                        listaAsistencia.Add(asistencia);
+                    }
+                    return listaAsistencia;
+                }
+            }
+            return null;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegistrarAsistencia(AsistenciaRegistrarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/asistencia/registrarRegistroAsistencia";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PostAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> EditarAsistencia(AsistenciaEditarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/asistencia/editarRegistroAsistencia";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PutAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> EliminarAsistencia(EliminarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/asistencia/eliminarRegistroAsistencia";
+
+                var deleteRequest = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(apiUrl + command),
+                    Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType)
+                };
+
+                HttpResponseMessage res = await client.SendAsync(deleteRequest);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
+        }
+
+        [HttpGet]
+        public async Task<List<Carrera>> ListarCarrera(CarreraQuery query)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                if (!string.IsNullOrEmpty(query.Nombre))
+                {
+                    command = $"api/carrera/listarPorNombre?Nombre={query.Nombre}&Modulo={query.Modulo}{pagineo}";
+                }
+                else
+                {
+                    command = $"api/carrera/listarPorNombre?Modulo={query.Modulo}{pagineo}";
+                }
+
+                HttpResponseMessage res = await client.GetAsync(command);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    var response = res.Content.ReadAsStringAsync().Result;
+                    List<Carrera> carreras = new();
+
+                    if (esLista)
+                    {
+                        carreras = JsonConvert.DeserializeObject<List<Carrera>>(response);
+                    }
+                    else
+                    {
+                        var carrera = JsonConvert.DeserializeObject<Carrera>(response);
+                        if (carrera is null)
+                        {
+                            return carreras;
+                        }
+                        carreras.Add(carrera);
+                    }
+                    return carreras;
+                }
+            }
+            return null;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegistrarCarrera(CarreraRegistrarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/carrera/registrarCarrera";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PostAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> EditarCarrera(CarreraEditarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/carrera/editarCarrera";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PutAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> EliminarCarrera(EliminarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/carrera/eliminarCarrera";
+
+                var deleteRequest = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(apiUrl + command),
+                    Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType)
+                };
+
+                HttpResponseMessage res = await client.SendAsync(deleteRequest);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
+        }
+
+        [HttpGet]
         public async Task<List<Modulo>> ListarModulo(ModuloQuery query)
         {
             using (var client = new HttpClient())
@@ -217,6 +504,99 @@ namespace IDAAI_APP.Controllers
                 }
             }
             return null;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegistrarModulo(ModuloRegistrarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/modulo/registrarModulo";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PostAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> EditarModulo(ModuloEditarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/modulo/editarModulo";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PutAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> EliminarModulo(EliminarRequest request)
+        {
+            string response;
+            string error;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                command = $"api/modulo/eliminarModulo";
+
+                var deleteRequest = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(apiUrl + command),
+                    Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType)
+                };
+
+                HttpResponseMessage res = await client.SendAsync(deleteRequest);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                error = res.Content.ReadAsStringAsync().Result;
+            }
+            return BadRequest(error);
         }
 
         [HttpGet]
