@@ -223,7 +223,7 @@ BEGIN
 			SELECT Id=it.Id, Rfid=it.Rfid, EstadoItem=ei.Descripcion, Inventario=i.Nombre FROM Items it
 			INNER JOIN Inventario i		ON i.Id=it.InventarioId
 			INNER JOIN EstadoItem ei	ON ei.Id=it.EstadoItemId
-			WHERE it.Rfid=@i_rfid
+			WHERE it.Rfid LIKE '%' + @i_rfid + '%'
 			AND i.Nombre LIKE '%' + @inventario + '%'
 			AND it.Estado=1
 			AND i.Estado=1

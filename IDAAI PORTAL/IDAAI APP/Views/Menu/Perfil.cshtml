@@ -50,13 +50,17 @@
                         <label class="fw-bold mb-2" for="modalEmail">Email</label>
                         <input type="email" class="form-control input-text" maxlength="50" id="modalEmail" title="Email de usuario" />
                     </div>
-                    <div class="mb-2 col-md-6">
+                    <div class="mb-2 col-md-12">
                         <label class="fw-bold mb-2" for="modalPasswordAnterior">Contraseña anterior</label>
                         <input type="password" class="form-control input-text" maxlength="100" id="modalPasswordAnterior" title="Contraseña anterior del usuario" />
                     </div>
-                     <div class="mb-2 col-md-6">
+                     <div class="mb-2 col-md-12">
                        <label class="fw-bold mb-2" for="modalPasswordNueva">Contraseña nueva</label>
                         <input type="password" class="form-control input-text" maxlength="100" id="modalPasswordNueva" title="Contraseña nueva del usuario" />
+                    </div>
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalPasswordNuevaConfirmar">Confirmar Contraseña nueva</label>
+                        <input type="password" class="form-control input-text" maxlength="100" id="modalPasswordNuevaConfirmar" title="Contraseña nueva del usuario" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -79,14 +83,58 @@
     function seleccionarDatosUsuario(){
         $("#modalUsuario").val(txtUsuario);
         $("#modalEmail").val(txtEmail);
-
-        console.log(txtUsuario)
-        console.log(txtEmail)
     }
 
     function editarUsuario(){
-        console.log(`Editando usuario con ID ${usuarioId}`)
-        $("#modalEditarUsuario").modal("hide");
+        if ($("#modalPasswordNueva").val() != '' && $("#modalPasswordAnterior").val() == '') {
+            showToastError('Debe ingresar la contraseña anterior')
+            return
+        }
+
+        if ($("#modalPasswordNueva").val() == '' && $("#modalPasswordAnterior").val() != '') {
+            showToastError('Debe ingresar la contraseña nueva')
+            return
+        }
+
+        if ($("#modalPasswordNueva").val() != $("#modalPasswordNuevaConfirmar").val()) {
+            showToastError('La contraseña nueva no coincide')
+            return
+        }
+
+        var request = {
+            Id: $("#usuarioId").val(),
+            Usuario: $("#modalUsuario").val(),
+            PasswordAnterior: $("#modalPasswordAnterior").val(),
+            Password: $("#modalPasswordNueva").val(),
+            Email: $("#modalEmail").val()
+        }
+
+        $.ajax({
+            cache: false,
+            type: "PUT",
+            url: '@Url.Action("EditarUsuario", "Operaciones")',
+            data: request,
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                $("#modalEditarUsuario").modal("hide");
+                showToastOk('El usuario se actualizó correctamente');
+                window.location.href = response.redirectToUrl;
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
+        });
+        
     }
 
 </script>

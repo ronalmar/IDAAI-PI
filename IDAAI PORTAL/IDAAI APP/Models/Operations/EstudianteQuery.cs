@@ -21,4 +21,10 @@ namespace IDAAI_APP.Models.Operations
         [StringLength(maximumLength: 50)]
         public string Modulo { get; set; }
     }
+    public class EstudianteGrupoQuery : PaginacionQuery
+    {
+        [Required]
+        [StringLength(maximumLength: 50)]
+        public string Modulo { get; set; }
+    }
 }

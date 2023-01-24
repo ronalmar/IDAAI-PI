@@ -41,6 +41,18 @@ var Info = {
     Modulo: {
         Titulos: ["Nombre", "Descripción", "Periodo Académico"],
         Campos: ["nombre", "descripcion", "periodoAcademico"]
+    },
+    Inventario: {
+        Titulos: ["Nombre", "Descripción", "Cantidad Disponible", "Cantidad Total"],
+        Campos: ["nombre", "descripcion", "cantidadDisponible", "cantidadTotal"]
+    },
+    Item: {
+        Titulos: ["Código RFID", "Estado", "Inventario"],
+        Campos: ["rfid", "estadoItem", "inventario"]
+    },
+    Prestamo: {
+        Titulos: ["Código RFID", "Inventario", "Fecha Prestado", "Fecha Devuelto", "Estado", "Módulo"],
+        Campos: ["item", "inventario", "fechaPrestado", "fechaDevuelto", "estadoDevolucion", "modulo"]
     }
 }
 var PantallaActual;
@@ -65,13 +77,38 @@ var Datos = {
         nombre: null,
         descripcion: null,
         periodoAcademico: null
+    },
+    Inventario: {
+        id: null,
+        nombre: null,
+        descripcion: null,
+        cantidadDisponible: null,
+        cantidadTotal: null
+    },
+    Item: {
+        id: null,
+        rfid: null,
+        estadoItem: null,
+        inventario: null
+    },
+    Prestamo: {
+        id: null,
+        item: null,
+        inventario: null,
+        fechaPrestado: null,
+        fechaDevuelto: null,
+        estadoDevolucion: null,
+        modulo: null
     }
 }
 var CamposQuery = {
     Estudiante: ["nombres", "apellidos", "matricula", "email", "direccion", "carrera", "modulo"],
     Asistencia: ["nombres", "apellidos", "matricula", "direccion", "carrera", "modulo"],
     Carrera: ["nombre", "modulo"],
-    Modulo: ["nombre", "periodoAcademico"]
+    Modulo: ["nombre", "periodoAcademico"],
+    Inventario: ["nombre"],
+    Item: ["rfid", "inventario"],
+    Prestamo: ["modulo", "matricula"]
 }
 var Query = {
     Estudiante: {
@@ -98,13 +135,27 @@ var Query = {
     Modulo: {
         nombre: null,
         periodoAcademico: null
+    },
+    Inventario: {
+        nombre: null
+    },
+    Item: {
+        rfid: null,
+        inventario: null
+    },
+    Prestamo: {
+        modulo: null,
+        matricula: null
     }
 }
 var CamposRequest = {
     Estudiante: ["Nombres", "Apellidos", "Matricula", "Email", "Direccion", "Carrera", "Modulo"],
     Asistencia: ["Matricula", "Fecha", "EsAsistencia", "Modulo"],
     Carrera: ["Nombre", "Modulo"],
-    Modulo: ["Nombre", "Descripcion", "PeriodoAcademico"]
+    Modulo: ["Nombre", "Descripcion", "PeriodoAcademico"],
+    Inventario: ["Nombre", "Descripcion", "CantidadDisponible", "CantidadTotal"],
+    Item: ["Rfid", "Inventario", "EstaDisponible"],
+    Prestamo: ["Rfid", "Modulo", "Matricula"]
 }
 var RequestEditar = {
     Estudiante: {
@@ -127,6 +178,19 @@ var RequestEditar = {
         Nombre: null,
         Descripcion: null,
         PeriodoAcademico: null
+    },
+    Inventario: {
+        Id: null,
+        Nombre: null,
+        Descripcion: null,
+        CantidadDisponible: null,
+        CantidadTotal: null
+    },
+    Item: {
+        Id: null,
+        Rfid: null,
+        EstaDisponible: null,
+        Inventario: null
     }
 }
 var RequestRegistrar = {
@@ -153,6 +217,20 @@ var RequestRegistrar = {
         Nombre: null,
         Descripcion: null,
         PeriodoAcademico: null
+    },
+    Inventario: {
+        Nombre: null,
+        Descripcion: null,
+        CantidadTotal: null
+    },
+    Item: {
+        Rfid: null,
+        Inventario: null
+    },
+    Prestamo: {
+        Rfid: null,
+        Modulo: null,
+        Matricula: null
     }
 }
 
@@ -220,7 +298,6 @@ function obtenerEditarRequest() {
 function obtenerRegistrarRequest() {
     CamposRequest[PantallaActual].forEach(campo => {
         RequestRegistrar[PantallaActual][campo] = $(`#modalRegistrar${campo}`).val();
-        console.log(RequestRegistrar[PantallaActual][campo])
     })
     return RequestRegistrar;
 }
@@ -342,6 +419,19 @@ function cargarTabla(listaDatos, numeroPaginas) {
 }
 
 function seleccionarDatosFila(id) {
+    if (PantallaActual == Pantalla.Modulo) {
+        respuestaTotal.forEach(registro => {
+            if (registro.id == id) {
+                var periodoAcademico = registro.periodoAcademico.split(/-| /)
+                $("#modalEditarPeriodoAcademicoInicio").val(periodoAcademico[0])
+                $("#modalEditarPeriodoAcademicoFin").val(periodoAcademico[1])
+                $("#modalEditarPeriodo").val(periodoAcademico[2])
+            }
+        })
+        idSeleccionado = id;
+        return;
+    }
+
     respuestaTotal.forEach(registro => {
         if (registro.id == id) {
             Info[PantallaActual][campos].forEach(campo => {

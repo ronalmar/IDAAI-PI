@@ -169,7 +169,7 @@ BEGIN
 		FROM RegistroAsistencia r
 		INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
 		INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
-		INNER JOIN Carreras c			ON c.Id=e.CarreraId
+		LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 		INNER JOIN Modulos m			ON m.Id=e.ModuloId
 		WHERE c.Nombre LIKE '%' + @carrera + '%'
 		AND m.Nombre=@modulo
@@ -185,7 +185,7 @@ BEGIN
 		FROM RegistroAsistencia r
 		INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
 		INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
-		INNER JOIN Carreras c			ON c.Id=e.CarreraId
+		LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 		INNER JOIN Modulos m			ON m.Id=e.ModuloId
 		WHERE m.Nombre=@modulo
 		AND r.Estado=1
@@ -200,7 +200,7 @@ BEGIN
 		FROM RegistroAsistencia r
 		INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
 		INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
-		INNER JOIN Carreras c			ON c.Id=e.CarreraId
+		LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 		INNER JOIN Modulos m			ON m.Id=e.ModuloId
 		WHERE e.Matricula=@matricula
 		AND m.Nombre=@modulo
@@ -218,7 +218,7 @@ BEGIN
 			FROM RegistroAsistencia r
 			INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
 			INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
-			INNER JOIN Carreras c			ON c.Id=e.CarreraId
+			LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 			INNER JOIN Modulos m			ON m.Id=e.ModuloId
 			WHERE	Nombres		= @nombres
 			AND		Apellidos	= @apellidos
@@ -235,7 +235,7 @@ BEGIN
 			FROM RegistroAsistencia r
 			INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
 			INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
-			INNER JOIN Carreras c			ON c.Id=e.CarreraId
+			LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 			INNER JOIN Modulos m			ON m.Id=e.ModuloId
 			WHERE Apellidos LIKE '%' + @apellidos + '%'
 			AND m.Nombre=@modulo
@@ -251,7 +251,7 @@ BEGIN
 			FROM RegistroAsistencia r
 			INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
 			INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
-			INNER JOIN Carreras c			ON c.Id=e.CarreraId
+			LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 			INNER JOIN Modulos m			ON m.Id=e.ModuloId
 			WHERE Nombres LIKE '%' + @nombres + '%'
 			AND m.Nombre=@modulo
@@ -267,7 +267,7 @@ BEGIN
 			FROM RegistroAsistencia r
 			INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
 			INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
-			INNER JOIN Carreras c			ON c.Id=e.CarreraId
+			LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 			INNER JOIN Modulos m			ON m.Id=e.ModuloId
 			WHERE (Nombres LIKE '%' + @nombres + '%'
 			AND Apellidos LIKE '%' + @apellidos + '%')
@@ -285,7 +285,7 @@ BEGIN
 		FROM RegistroAsistencia r
 		INNER JOIN Estudiantes e		ON e.Id=r.EstudianteId
 		INNER JOIN EstadoAsistencia ea	ON ea.Id=r.EstadoAsistenciaId
-		INNER JOIN Carreras c			ON c.Id=e.CarreraId
+		LEFT JOIN Carreras c			ON c.Id=e.CarreraId
 		INNER JOIN Modulos m			ON m.Id=e.ModuloId
 		WHERE r.Estado=1
 		AND e.Estado=1

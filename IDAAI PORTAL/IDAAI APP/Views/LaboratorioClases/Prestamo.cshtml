@@ -6,44 +6,52 @@
     Layout = "_LayoutLaboratorioClases";
 }
 
-<div class="container-fluid">
-    <div class="row pt-4 pb-5">
-         <div class="pb-4" align="center">
-            <h4>Préstamo de Items</h4>
+<div id="pantalla" class="container-fluid">
+    <div class="row pt-4 pb-5 px-4 shadow bg-light rounded">
+         <div class="pb-2 border-bottom" align="center">
+            <h4 class="fw-bold">Préstamo de Items</h4>
             <input type="hidden" id="estado" />
         </div>
-        <div class="col-md-4">
-            <div class="form-group">
-                <label class="fw-bold mb-2" for="modulo">Módulo</label>
-                <select class="form-control" id="modulo" title="Módulo a consultar" asp-items="ViewBag.Modulos">
-                    <option value="0">Seleccione</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-4 mt-3">
-            <div class="col-md-12 form-group btn-group btn-group-lg">
-                <div class="col-md-4">
-                    <button class="btn btn-primary" onclick="consultar()" title="Consultar registros de préstamos de items">
-                        Consultar
-                        <i class="bi-search"></i>
-                    </button>
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarPrestamo" title="Crear nuevo registro de préstamo de item">
-                        Agregar
-                    <i class="bi-plus"></i>
-                    </button>
+        <div class="row pt-3">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="fw-bold mb-2" for="modulo">Módulo</label>
+                    <select class="form-control" id="modulo" title="Módulo a consultar" asp-items="ViewBag.Modulos">
+                        <option value="0">Seleccione</option>
+                    </select>
                 </div>
             </div>
-        </div>
-        <div class="col-md-12">
-            <div id="gridPrestamo" class="mt-5">
+            <div class="col-md-8 mt-4">
+                <div class=" d-grid gap-2 d-md-block">
+                    <div class="">
+                        <button class="btn btn-primary" onclick="consultar()" title="Consultar registros de préstamos de items">
+                            Consultar
+                            <i class="bi-search"></i>
+                        </button>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrar" title="Crear nuevo registro de préstamo de item">
+                            Agregar
+                            <i class="bi-plus"></i>
+                        </button>
+                        @*<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrar" title="Crear grupo de registros de préstamo de items">
+                            Grupo
+                            <i class="bi-plus"></i>
+                        </button>*@
+                        <button class="btn btn-secondary" onclick="location.reload(true)" title="Reiniciar pantalla">
+                            Limpiar
+                            <i class="bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
+            <div class="col-md-12">
+                <div id="contenedorTabla" class="mt-5">
+                </div>
+            </div>
+        </div>        
     </div>
 
-    <!-- Modal Registrar Prestamo -->
-    <div class="modal fade" id="modalRegistrarPrestamo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Modal Registrar -->
+    <div class="modal fade" id="modalRegistrar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -52,8 +60,8 @@
                 </div>
                 <div class="modal-body px-4 mb-3 col-md-12 row">
                     <div class="mb-2 col-md-12">
-                        <label class="fw-bold mb-2" for="modalRegistrarItem">Código RFID*</label>
-                        <input type="text" class="form-control input-text" maxlength="100" id="modalRegistrarItem" title="Código RFID del item para el nuevo registro de préstamo" />
+                        <label class="fw-bold mb-2" for="modalRegistrarRfid">Código RFID*</label>
+                        <input type="text" class="form-control input-text" maxlength="100" id="modalRegistrarRfid" title="Código RFID del item para el nuevo registro de préstamo" />
                     </div>
                     <div class="mb-2 col-md-12">
                         <div class="form-group">
@@ -66,26 +74,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" onclick="registrarPrestamo()">Registrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Confirmar Eliminación -->
-    <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4 col-md-12 row">
-                    <p>¿Está seguro de que desea eliminar el registro seleccionado?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="eliminarRegistro()">Confirmar</button>
+                    <button type="button" class="btn btn-success" onclick="registrar()">Registrar</button>
                 </div>
             </div>
         </div>
@@ -99,126 +88,135 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
 
-    var idSeleccionado = 0;
-    var datosPrestamo = {
-        Id: null,
-        FechaPrestado: null,
-        FechaDevuelto: null,
-        Inventario: null,
-        Item: null,
-        Modulo: null,
-        EstadoDevolucion: null
-    }
+    $().ready(function () {
+        prepararPantalla(Pantalla.Prestamo)
+    })
 
-    var listaPrestamos = [
-        {
-            Id: 1,
-            FechaPrestado: new Date('Jul 12 2022').toISOString().split('T')[0],
-            FechaDevuelto: '-',
-            Inventario: "Placa",
-            Item: "51",
-            Modulo: "LST",
-            EstadoDevolucion: "Prestado"
-        },
-        {
-            Id: 2,
-            FechaPrestado: new Date('Dec 24 2022').toISOString().split('T')[0],
-            FechaDevuelto: new Date().toISOString().split('T')[0],
-            Inventario: "Placa",
-            Item: "53",
-            Modulo: "LST",
-            EstadoDevolucion: "Devuelto"
-        },
-        {
-            Id: 3,
-            FechaPrestado: new Date('Nov 10 2022').toISOString().split('T')[0],
-            FechaDevuelto: new Date('Dec 02 2022').toISOString().split('T')[0],
-            Inventario: "Cableado",
-            Item: "55",
-            Modulo: "LST",
-            EstadoDevolucion: "Devuelto"
-        },
-        {
-            Id: 4,
-            FechaPrestado: new Date().toISOString().split('T')[0],
-            FechaDevuelto: '-',
-            Inventario: "Placa",
-            Item: "61",
-            Modulo: "LST",
-            EstadoDevolucion: "Prestado"
+    function consultar(recarga = false) {
+        if ($("#modulo").val() == 0) {
+            showToastError('Debe ingresar el módulo a consultar');
+            return;
         }
-    ]
-    
-    $("#navBarPrestamos").addClass("active");
 
-    function consultar() {
-        if ($("#tablaPrestamo").length > 0) {
-            $("#tablaPrestamo").remove();
-        }       
-
-        var tabla = $(`
-            <table class="table table-hover table-bordered">
-                <thead>
-                    <tr class="table-dark">
-                      <th scope="col"></th>
-                      <th scope="col">Fecha prestado</th>
-                      <th scope="col">Fecha devuelto</th>
-                      <th scope="col">Inventario</th>
-                      <th scope="col">Item</th>
-                      <th scope="col">Módulo</th>
-                      <th scope="col">Estado</th>
-                      <th scope="col">Acciones</th>
-                    </tr>
-              </thead>
-            </table>`);
-        tabla.attr({
-            id: "tablaPrestamo"
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: `@Url.Action("ListarPrestamo", "Operaciones")`,
+            data: obtenerQuery()[PantallaActual],
+            success: function (response) {
+                if (response.length == 0 || response == null) {
+                    showToastError("No se encontraron resultados");
+                }
+                crearTabla(response, Info[PantallaActual], recarga);
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
         });
+    }
 
-        var tablaBody = $(`
-            <tbody>
-            </tbody>
-        `);
+    function registrar() {
+        if ($("#modalRegistrarModulo").val() == 0 || $("#modalRegistrarRfid").val() == '') {
+            showToastError('Los campos: Código RFID y Módulo son obligatorios');
+            return;
+        }
 
-        var contador = 0;
-        listaPrestamos.forEach(registro => {
-            contador++;
-            tablaBody.append(`
-                <tr>
-                    <th scope="row">${contador}</th>
-                    <td>${registro.FechaPrestado}</td>
-                    <td>${registro.FechaDevuelto}</td>
-                    <td>${registro.Inventario}</td>
-                    <td>${registro.Item}</td>
-                    <td>${registro.Modulo}</td>
-                    <td>${registro.EstadoDevolucion}</td>
-                        <td><button onClick="devolverPrestamo(${registro.Id})" class='btn-sm btn-primary' type='button' title='Editar registro de préstamo de item'/><i class="bi bi-pencil-square"></i></button>
-                        <button onClick="seleccionarIdFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar registro de préstamo de item'/><i class="bi-trash"></i></button></td>
-                </tr>       
-            `);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: '@Url.Action("RegistrarPrestamo", "Operaciones")',
+            data: obtenerRegistrarRequest()[PantallaActual],
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                consultar(true);
+                $("#modalRegistrar").modal("hide");
+                showToastOk('El registro se creó correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
         });
-
-        tabla.append(tablaBody);
-
-        $("#gridPrestamo").append(tabla);
     }
 
-    function seleccionarIdFila(id){
-        idSeleccionado = id;
+    function editar(id) {
+        var request = {
+            Id: id
+        }
+        $.ajax({
+            cache: false,
+            type: "PUT",
+            url: '@Url.Action("EditarPrestamo", "Operaciones")',
+            data: request,
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                consultar(true);
+                $("#modalEditar").modal("hide");
+                showToastOk('El registro se actualizó correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
+        });
     }
 
-    function devolverPrestamo(id) {
-        console.log(`Devolviendo registro de préstamo de item con ID ${id}`)
-    }
+    function eliminar() {
+        var request = {
+            Id: idSeleccionado
+        }
 
-    function eliminarRegistro() {
-        console.log(`Eliminando registro de préstamo de item con ID ${idSeleccionado}`)
-        $("#modalConfirmarEliminacion").modal("hide");
-    }
-
-    function registrarPrestamo() {
-        console.log(`Creando nuevo registro de préstamo de item`)
-        $("#modalRegistrarPrestamo").modal("hide");
-    }
+        $.ajax({
+            cache: false,
+            type: "DELETE",
+            url: `@Url.Action("EliminarPrestamo", "Operaciones")`,
+            data: request,
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                consultar(true);
+                $("#modalConfirmarEliminacion").modal("hide");
+                showToastOk('El registor fue eliminado correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                $("#modalConfirmarEliminacion").modal("hide");
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
+        });
+    }    
 
 </script>

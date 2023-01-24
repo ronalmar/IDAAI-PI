@@ -1,4 +1,5 @@
 ﻿using IDAAI_APP.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
@@ -9,6 +10,7 @@ namespace IDAAI_APP.Controllers
     public class MenuController : Controller
     {
         private readonly ILogger<MenuController> _logger;
+        private OperacionesController operaciones = new();
 
         public MenuController(ILogger<MenuController> logger)
         {
@@ -21,23 +23,25 @@ namespace IDAAI_APP.Controllers
             CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
             TextInfo textInfo = cultureInfo.TextInfo;
 
-            string usuario = "ronalmar";
+            var usuario = HttpContext.User.Identity.Name;
 
             ViewBag.Usuario = textInfo.ToTitleCase(usuario);
             return View();
         }
 
         [HttpGet]
-        public IActionResult Perfil()
+        public async Task<IActionResult> Perfil()
         {
             CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
             TextInfo textInfo = cultureInfo.TextInfo;
 
-            string usuario = "ronalmar";
+            var user = HttpContext.User.Identity.Name;
 
-            ViewBag.Usuario = textInfo.ToTitleCase(usuario);
-            ViewBag.Email = "ronalmar@espol.edu.ec";
-            ViewBag.Id = 1;
+            var datosUsuario = await operaciones.ObtenerUsuario(user);
+
+            ViewBag.Usuario = textInfo.ToTitleCase(datosUsuario.Usuario);
+            ViewBag.Email = datosUsuario.Email;
+            ViewBag.Id = datosUsuario.Id;
             return View();
         }
 

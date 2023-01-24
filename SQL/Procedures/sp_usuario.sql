@@ -2,6 +2,7 @@ ALTER PROCEDURE sp_usuario
 	@i_accion			CHAR(2)				=NULL,
 	@i_usuario			VARCHAR(25)			=NULL,
 	@i_password			VARCHAR(300)		=NULL,
+	@i_passwordAnterior	VARCHAR(300)		=NULL,
 	@i_email			VARCHAR(50)			=NULL,
 	@i_id				INT					=NULL
 AS
@@ -68,9 +69,17 @@ BEGIN
 	BEGIN
 		IF EXISTS (SELECT 1 FROM Usuarios WHERE Id=@i_id AND Estado=1)
 		BEGIN
-			IF EXISTS(SELECT 1 FROM Usuarios WHERE Usuario=@usuario AND Estado=1)
+			IF EXISTS(SELECT 1 FROM Usuarios WHERE Usuario=@usuario AND Id!=@i_id AND Estado=1)
 			BEGIN
 				INSERT INTO @TablaUsuario (Id) VALUES (-1)
+
+				SELECT Id, Usuario, Email FROM @TablaUsuario
+				RETURN 0;
+			END
+			IF ISNULL(@i_passwordAnterior,'')!='' AND NOT EXISTS(SELECT 1 FROM Usuarios WHERE Id=@i_id AND Password=@i_passwordAnterior 
+				AND Estado=1)
+			BEGIN
+				INSERT INTO @TablaUsuario (Id) VALUES (-2)
 
 				SELECT Id, Usuario, Email FROM @TablaUsuario
 				RETURN 0;
@@ -103,6 +112,10 @@ BEGIN
 		END
 		SELECT Id, Usuario, Email FROM @TablaUsuario
 		RETURN 0;
+	END
+	IF(@i_accion = 'OU')
+	BEGIN
+		SELECT TOP 1 Id, Usuario, Email FROM Usuarios WHERE Usuario = @i_usuario AND Estado = 1
 	END
 END
 GO

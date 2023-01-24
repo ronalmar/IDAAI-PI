@@ -48,6 +48,8 @@
         internal const string CODE_ERROR_VAL_36 = "VAL-036";
         internal const string CODE_ERROR_VAL_37 = "VAL-037";
         internal const string CODE_ERROR_VAL_38 = "VAL-038";
+        internal const string CODE_ERROR_VAL_39 = "VAL-039";
+        internal const string CODE_ERROR_VAL_40 = "VAL-040";
         // Mensajes de error
         internal const string ERROR_VAL_01 = "El campo {0} no puede ser Nulo o Vacío.";
         internal const string ERROR_VAL_02 = "La longitud del campo {0} no puede superar los {1} caracteres";
@@ -87,6 +89,8 @@
         internal const string ERROR_VAL_36 = "El item se debe encontrar prestado a un módulo";
         internal const string ERROR_VAL_37 = "No existe un prestamo de item con el id ingresado";
         internal const string ERROR_VAL_38 = "Debe cargar un archivo CSV";
+        internal const string ERROR_VAL_39 = "No existe ningún usuario con el nombre ingresado";
+        internal const string ERROR_VAL_40 = "La contraseña ingresada es incorrecta";
 
     }
 }

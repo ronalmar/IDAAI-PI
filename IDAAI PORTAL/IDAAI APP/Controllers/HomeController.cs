@@ -1,4 +1,5 @@
 ﻿using IDAAI_APP.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -13,18 +14,28 @@ namespace IDAAI_APP.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult Cancelar()
+        {
+            return Json(new { redirectToUrl = Url.Action("Index", "Home") });
+        }
+
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Registro()
         {
@@ -35,7 +46,7 @@ namespace IDAAI_APP.Controllers
         public IActionResult IniciarSesion(LoginUser loginUser)
         {
             // Proceso de Iniciar Sesion
-            return RedirectToAction("Index");
+            return View("Index");
         }       
 
         [HttpPost]

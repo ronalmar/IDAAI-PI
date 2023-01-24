@@ -1,0 +1,262 @@
+﻿@{
+    ViewData["Title"] = "Asistencia";
+}
+
+@{
+    Layout = "_LayoutLaboratorioAbierto";
+}
+
+<div class="container-fluid">
+    <div class="row pt-4 pb-5">
+         <div class="pb-4" align="center">
+            <h4>Registros de Asistencia</h4>
+            <input type="hidden" id="estado" />
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="fw-bold mb-2" for="modulo">Módulo</label>
+                <select class="form-control" id="modulo" title="Módulo del estudiante" asp-items="ViewBag.Modulos">
+                    <option value="0">Seleccione</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2 input-wrapper">
+            <label class="fw-bold mb-2" for="nombres">Nombres</label>
+            <input type="text" class="form-control input-text" maxlength="100" id="nombres" title="Nombres del estudiante" />
+        </div>
+        <div class="col-md-2 input-wrapper">
+            <label class="fw-bold mb-2" for="apellidos">Apellidos</label>
+            <input type="text" class="form-control input-text" maxlength="100" id="apellidos" title="Apellidos del estudiante" />
+        </div>
+        <div class="col-md-2 input-wrapper">
+            <label class="fw-bold mb-2" for="matricula">Matrícula</label>
+            <input type="text" class="form-control input-text" maxlength="10" id="matricula" title="Matrícula del estudiante" />
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="fw-bold mb-2" for="carrera">Carrera</label>
+                <select class="form-control" id="carrera" title="Carrera del estudiante" asp-items="ViewBag.Carreras">
+                    <option value="0">Seleccione</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2 mt-3">
+            <div class="form-group btn-group btn-group-lg">
+                <div class="">
+                    <button class="btn btn-primary" onclick="consultarAsistencia()" title="Consultar Registros de Asistencia">
+                         <i class="bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group btn-group btn-group-lg">
+                <div class="">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarAsistencia" title="Crear Registro de Asistencia">
+                        <i class="bi-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div id="gridAsistencia" class="mt-5">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Asistencia -->
+    <div class="modal fade" id="modalRegistrarAsistencia" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Crear registro de asistencia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 mb-3">
+                    <div class="mb-2">
+                        <div class="form-group">
+                            <label class="fw-bold mb-2" for="modalModulo">Módulo*</label>
+                            <select class="form-control" id="modalModulo" asp-items="ViewBag.Modulos" title="Nombre del módulo">
+                                <option value="0">Seleccione</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="fw-bold mb-2" for="modalMatricula">Matrícula*</label>
+                        <input type="text" class="form-control input-text" maxlength="10" id="modalMatricula" title="Matrícula del estudiante" />
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-group">
+                            <label class="fw-bold" for="modalFechaRegistro">Fecha*</label>
+                            <input type="date" id="modalFechaRegistro" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" title="Fecha registro de asistencia" required />
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-group">
+                            <label class="fw-bold mb-2" for="modalEstadoAsistencia">Estado asistencia*</label>
+                            <select class="form-control" id="modalEstadoAsistencia">
+                                <option value="0">Falta</option>
+                                <option value="1">Asistencia</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="registrarAsistencia()">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Eliminación -->
+    <div class="modal fade" id="modalConfirmarEliminacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 col-md-12 row">
+                    <p>¿Está seguro de que desea eliminar el registro seleccionado?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="eliminarRegistro()">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+
+</style>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+
+    var idSeleccionado = 0;
+    $("#navBarAsistencia").addClass("active");
+
+    function consultarAsistencia(){       
+        if ($("#tablaAsistencia").length > 0) {
+            $("#tablaAsistencia").remove();
+        }
+
+        var listaAsistencia = [
+            {
+                Id: 1,
+                Nombres: "Alexander",
+                Apellidos: "Martinez",
+                Matricula: "201408764",
+                Email: "alexmf@gmail.es",
+                Fecha: "04/01/2023",
+                EstadoAsistencia: "Asistencia",
+                Carrera: "Ing. Telemática",
+                Modulo: "LST"
+            },
+            {
+                Id: 2,
+                Nombres: "Dayana",
+                Apellidos: "Bustamante",
+                Matricula: "201787356",
+                Email: "dbustamante@gmail.es",
+                Fecha: "02/01/2023",
+                EstadoAsistencia: "Asistencia",
+                Carrera: "Lic. Turismo",
+                Modulo: "LST"
+            },
+            {
+                Id: 3,
+                Nombres: "Justhyn",
+                Apellidos: "Arcentales",
+                Matricula: "201987392",
+                Email: "jarcentales@gmail.es",
+                Fecha: "03/01/2023",
+                EstadoAsistencia: "Falta",
+                Carrera: "Ing. Comercial",
+                Modulo: "LST"
+            },
+              {
+                Id: 4,
+                Nombres: "Futo",
+                Apellidos: "Mansito",
+                Matricula: "202089321",
+                Email: "fmansito@gmail.es",
+                Fecha: "29/12/2022",
+                EstadoAsistencia: "Asistencia",
+                Carrera: "Ing. Ciencias Computacionales",
+                Modulo: "LST"
+            }
+        ]
+
+        var tabla = $(`
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr class="table-dark">
+                      <th scope="col"></th>
+                      <th scope="col">Nombres</th>
+                      <th scope="col">Apellidos</th>
+                      <th scope="col">Matrícula</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Estado</th>
+                      <th scope="col">Carrera</th>
+                      <th scope="col">Módulo</th>
+                          <th scope="col">Acciones</th>
+                    </tr>
+              </thead>
+            </table>`);
+        tabla.attr({
+            id: "tablaAsistencia"
+        });
+
+        var tablaBody = $(`
+            <tbody>
+            </tbody>
+        `);
+
+        var contador = 0;
+        listaAsistencia.forEach(registro => {
+            contador++;
+            tablaBody.append(`
+                <tr>
+                    <th scope="row">${contador}</th>
+                    <td>${registro.Nombres}</td>
+                    <td>${registro.Apellidos}</td>
+                    <td>${registro.Matricula}</td>
+                    <td>${registro.Email}</td>
+                    <td>${registro.Fecha}</td>
+                    <td>${registro.EstadoAsistencia}</td>
+                    <td>${registro.Carrera}</td>
+                    <td>${registro.Modulo}</td>
+                        <td><button onClick="editarAsistencia(${registro.Id})" class='btn-sm btn-primary' type='button' title='Cambiar estado de asistencia'/><i class="bi bi-pencil-square"></i></button>
+                    <button onClick="seleccionarIdFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar registro de asistencia'/><i class="bi-trash"></i></button></td>
+                </tr>       
+            `);
+        });
+
+        tabla.append(tablaBody);
+
+        $("#gridAsistencia").append(tabla);
+    }
+
+    function seleccionarIdFila(id){
+        idSeleccionado = id;
+    }
+
+    function editarAsistencia(id) {
+        console.log(`Editando asistencia de registro con ID ${id}`)
+    }
+
+    function eliminarRegistro() {
+        console.log(`Eliminando asistencia de registro con ID ${idSeleccionado}`)
+        $("#modalConfirmarEliminacion").modal("hide");
+    }
+
+    function registrarAsistencia() {
+        console.log(`Registrando nueva asistencia`)
+        $("#modalRegistrarAsistencia").modal("hide");
+    }
+
+</script>

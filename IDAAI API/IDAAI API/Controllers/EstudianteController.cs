@@ -230,16 +230,18 @@ namespace IDAAI_API.Controllers
         // api/estudiante/registrarGrupoEstudiante
         [HttpPost("registrarGrupoEstudiante")]
         public async Task<ActionResult<EstudianteDTO>> RegistrarGrupoEstudiante(
-            [FromForm] IFormFileCollection ArchivoEstudiantes, [FromQuery] EstudianteModuloQuery query)
+            [FromForm] IFormFile Archivo, [FromQuery] EstudianteModuloQuery query)
         {
             try
             {
-                if (ArchivoEstudiantes.Count == 0)
+                IFormFile file = Request.Form.Files.FirstOrDefault();
+
+                if (Archivo == null)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_38);
                 }
 
-                var datosArchivo = csvService.ReadCSV<GrupoEstudiante>(ArchivoEstudiantes[0].OpenReadStream());
+                var datosArchivo = csvService.ReadCSV<GrupoEstudiante>(Archivo.OpenReadStream());
                 List<GrupoEstudiante> grupoEstudiantes = new List<GrupoEstudiante>();
                 foreach(var estudiante in datosArchivo)
                 {

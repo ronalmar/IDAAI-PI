@@ -261,8 +261,12 @@
             Descripcion: $("#modalEditarDescripcion").val(),
             PeriodoAcademico: $("#modalEditarPeriodoAcademicoInicio").val() + '-' + $("#modalEditarPeriodoAcademicoFin").val() + ' ' + $("#modalEditarPeriodo").val()
         }
-        console.log(request)
-        return
+
+        if (parseInt($("#modalEditarPeriodoAcademicoFin").val()) - parseInt($("#modalEditarPeriodoAcademicoInicio").val()) != 1) {
+            showToastError('Debe ingresar un periodo académico válido');
+            return;
+        }
+
         $.ajax({
             cache: false,
             type: "PUT",
@@ -321,121 +325,6 @@
                 mostrarCarga(false);
             }
         });
-    }
-
-
-    //var idSeleccionado = 0;
-    //var datosModulo = {
-    //    Id: null,
-    //    Nombre: null,
-    //    Descripcion: null,
-    //    PeriodoAcademico: null
-    //}
-
-    //var listaModulos = [
-    //    {
-    //        Id: 1,
-    //        Nombre: "LST",
-    //        Descripcion: "Laboratorio de sistemas telemáticos",
-    //        PeriodoAcademico: "2022-2023 1S"
-    //    },
-    //    {
-    //        Id: 2,
-    //        Nombre: "APPSMOV",
-    //        Descripcion: "Aplicaciones móviles",
-    //        PeriodoAcademico: "2021-2022 2S"
-    //    }
-    //]
-
-    //$("#navBarModulos").addClass("active");
-
-    //function consultarModulos() {
-    //    if ($("#tablaModulo").length > 0) {
-    //        $("#tablaModulo").remove();
-    //    }       
-
-    //    var tabla = $(`
-    //        <table class="table table-hover table-bordered">
-    //            <thead>
-    //                <tr class="table-dark">
-    //                  <th scope="col"></th>
-    //                  <th scope="col">Nombre</th>
-    //                  <th scope="col">Descripción</th>
-    //                  <th scope="col">Periodo Académico</th>
-    //                  <th scope="col">Acciones</th>
-    //                </tr>
-    //          </thead>
-    //        </table>`);
-    //    tabla.attr({
-    //        id: "tablaModulo"
-    //    });
-
-    //    var tablaBody = $(`
-    //        <tbody>
-    //        </tbody>
-    //    `);
-
-    //    var contador = 0;
-    //    listaModulos.forEach(registro => {
-    //        contador++;
-    //        tablaBody.append(`
-    //            <tr>
-    //                <th scope="row">${contador}</th>
-    //                <td>${registro.Nombre}</td>
-    //                <td>${registro.Descripcion}</td>
-    //                <td>${registro.PeriodoAcademico}</td>
-    //                    <td><button onClick="seleccionarDatosFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalEditarModulo" id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar modulo'/><i class="bi bi-pencil-square"></i></button>
-    //                    <button onClick="seleccionarIdFila(${registro.Id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar modulo'/><i class="bi-trash"></i></button></td>
-    //            </tr>       
-    //        `);
-    //    });
-
-    //    tabla.append(tablaBody);
-
-    //    $("#gridModulo").append(tabla);
-    //}
-
-    //function seleccionarDatosFila(idModulo) {
-    //    listaModulos.forEach(modulo => {
-    //        if (modulo.Id == idModulo) {
-    //            datosModulo.Id = modulo.Id;
-    //            datosModulo.Nombre = modulo.Nombre;
-    //            datosModulo.Descripcion = modulo.Descripcion;
-    //            datosModulo.PeriodoAcademico = modulo.PeriodoAcademico
-    //        }
-    //    })
-       
-    //    var periodoAcademico = datosModulo.PeriodoAcademico.split(' ');
-    //    var periodo = periodoAcademico[1];
-    //    var periodoInicio = periodoAcademico[0].split('-')[0];
-    //    var periodoFin = periodoAcademico[0].split('-')[1];
-
-    //    $("#modalEditarNombre").val(datosModulo.Nombre);
-    //    $("#modalEditarDescripcion").val(datosModulo.Descripcion);
-    //    $("#modalEditarPeriodoAcademicoInicio").val(periodoInicio);
-    //    $("#modalEditarPeriodoAcademicoFin").val(periodoFin);
-    //    $("#modalEditarPeriodo").val(periodo);
-
-    //    idSeleccionado = datosModulo.Id;
-    //}
-
-    //function seleccionarIdFila(id){
-    //    idSeleccionado = id;
-    //}
-
-    //function editarModulo() {
-    //    console.log(`Editando módulo con ID ${idSeleccionado}`)
-    //    $("#modalEditarModulo").modal("hide");
-    //}
-
-    //function eliminarRegistro() {
-    //    console.log(`Eliminando módulo con ID ${idSeleccionado}`)
-    //    $("#modalConfirmarEliminacion").modal("hide");
-    //}
-
-    //function registrarModulo() {
-    //    console.log(`Registrando nuevo módulo`)
-    //    $("#modalRegistrarModulo").modal("hide");
-    //}
+    }   
 
 </script>

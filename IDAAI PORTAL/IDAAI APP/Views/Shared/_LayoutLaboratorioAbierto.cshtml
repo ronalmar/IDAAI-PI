@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" type="text/css" href="~/lib/datatables/datatables.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="~/lib/jquery-toast-plugin-master/dist/jquery.toast.min.css" asp-append-version="true" />
 </head>
-<body>
+<body class="">
     <header>
         <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -24,22 +25,19 @@
                             <a class="nav-link" id="navBarAsistencia" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Asistencia">Asistencia</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" id="navBarPrestamo" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Prestamo">Préstamo de Items</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="navBarEstudiante" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Estudiante">Estudiantes</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" id="navBarInventario" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Inventario">Inventario</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="navBarItems" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Item">Items</a>
+                            <a class="nav-link" id="navBarItem" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Item">Items</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="navBarPrestamos" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Prestamo">Préstamo de Items</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="navBarEstudiantes" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Estudiante">Estudiantes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="navBarCarreras" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Carrera">Carreras</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="navBarModulos" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Modulo">Módulos</a>
+                            <a class="nav-link" id="navBarCarrera" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Carrera">Carreras</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -48,7 +46,7 @@
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" asp-controller="Menu" asp-action="Perfil">Editar perfil</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" asp-controller="Home" asp-action="Index">Cerrar sesión</a>
+                                <a class="dropdown-item" asp-controller="Operaciones" asp-action="Logout">Cerrar sesión</a>
                             </div>
                         </li>
                     </ul>
@@ -60,6 +58,11 @@
         <main role="main" class="pb-3 my-3">
             @RenderBody()
         </main>
+        <div id="cargando" class="d-flex justify-content-center invisible" tabindex="-1">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">
@@ -69,6 +72,7 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-toast-plugin-master/dist/jquery.toast.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/datatables/datatables.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

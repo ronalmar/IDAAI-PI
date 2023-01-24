@@ -1,4 +1,6 @@
-﻿@{
+﻿
+
+@{
     ViewData["Title"] = "Menu";
 }
 
@@ -9,6 +11,6 @@
 <div class="text-center my-5">
     <p class="fw-bold">Bienvenido @ViewBag.Usuario</p>
     <p class="">Seleccione el tipo de Laboratorio:</p>
-    <a asp-controller="LaboratorioAbierto" asp-action="Index" type="submit" class="btn btn-primary w-50 my-2 py-5">Laboratorio Abierto</a>
-    <a asp-controller="LaboratorioClases" asp-action="Index" type="submit" class="btn btn-primary w-50 my-2 py-5">Laboratorio de Clases</a>
+    <a asp-controller="LaboratorioAbierto" asp-action="Index" type="submit" class="btn btn-primary btn-lg w-50 my-2 py-5 rounded">Laboratorio Abierto</a>
+    <a asp-controller="LaboratorioClases" asp-action="Index" type="submit" class="btn btn-primary btn-lg w-50 my-2 py-5 rounded">Laboratorio de Clases</a>
 </div>

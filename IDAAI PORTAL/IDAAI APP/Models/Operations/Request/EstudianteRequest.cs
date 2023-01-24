@@ -31,6 +31,23 @@ namespace IDAAI_APP.Models.Operations.Request
         public string Modulo { get; set; }
     }
 
+    public class EstudianteGrupoRegistrarRequest
+    {
+        [Required]
+        [StringLength(maximumLength: 50)]
+        public string Modulo { get; set; }
+
+        [Required]
+        public IFormFileCollection Archivo { get; set; }
+    }
+
+    public class SeleccionarModuloRequest
+    {
+        [Required]
+        [StringLength(maximumLength: 50)]
+        public string Modulo { get; set; }
+    }
+
     public class EstudianteEditarRequest
     {
         [Required]

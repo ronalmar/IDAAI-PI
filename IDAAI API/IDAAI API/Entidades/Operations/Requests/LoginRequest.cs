@@ -12,4 +12,5 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [StringLength(maximumLength: 25)]
         public string Password { get; set; }
     }
+
 }

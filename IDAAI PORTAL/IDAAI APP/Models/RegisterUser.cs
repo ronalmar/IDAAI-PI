@@ -1,8 +1,7 @@
 ﻿namespace IDAAI_APP.Models
 {
-    public class RegisterUser
+    public class RegisterUser: LoginUser
     {
-        public string User { get; set; }
-        public string Password { get; set; }
+        public string Email { get; set; }
     }
 }
