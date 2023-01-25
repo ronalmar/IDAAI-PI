@@ -6,5 +6,6 @@
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public string PeriodoAcademico { get; set; }
+        public string DiasClase { get; set; }
     }
 }

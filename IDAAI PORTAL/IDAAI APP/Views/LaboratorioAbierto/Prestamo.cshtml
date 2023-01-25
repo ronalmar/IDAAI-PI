@@ -99,6 +99,10 @@
                 if (response.length == 0 || response == null) {
                     showToastError("No se encontraron resultados");
                 }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
                 crearTabla(response, Info[PantallaActual], recarga);
             },
             error: function (xhr) {
@@ -135,6 +139,10 @@
                     showToastError("Ha ocurrido un error");
                     return;
                 }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
                 consultar(true);
                 $("#modalRegistrar").modal("hide");
                 showToastOk('El registro se creó correctamente');
@@ -165,6 +173,10 @@
                 if (response == null) {
                     showToastError("Ha ocurrido un error");
                     return;
+                }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
                 }
                 consultar(true);
                 $("#modalEditar").modal("hide");
@@ -197,6 +209,10 @@
                 if (response == null) {
                     showToastError("Ha ocurrido un error");
                     return;
+                }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
                 }
                 consultar(true);
                 $("#modalConfirmarEliminacion").modal("hide");

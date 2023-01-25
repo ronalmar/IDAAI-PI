@@ -87,7 +87,7 @@ BEGIN
 			UPDATE Usuarios SET
 			Usuario			=	CASE WHEN ISNULL(@usuario, '')='' THEN Usuario ELSE @usuario END,
 			Password		=	CASE WHEN ISNULL(@i_password, '')='' THEN Password ELSE @i_password END,
-			Email			=	CASE WHEN ISNULL(@email, '')='' THEN Email ELSE @email END
+			Email			=	CASE WHEN ISNULL(@email, '')='' THEN @email ELSE @email END
 			WHERE Id=@i_id
 			SELECT Id, Usuario, Email FROM Usuarios WHERE Id=@i_id AND Estado=1
 

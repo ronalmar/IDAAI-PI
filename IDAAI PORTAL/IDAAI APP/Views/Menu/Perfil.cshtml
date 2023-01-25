@@ -82,10 +82,22 @@
 
     function seleccionarDatosUsuario(){
         $("#modalUsuario").val(txtUsuario);
-        $("#modalEmail").val(txtEmail);
+        if(txtEmail != '-'){
+            $("#modalEmail").val(txtEmail);
+        }        
     }
 
     function editarUsuario(){
+        if($("#modalUsuario").val() == ''){
+            showToastError('Debe ingresar un usuario')
+            return
+        }
+
+        if (!esEmail($("#modalEmail").val())) {
+            showToastError('Debe ingresar un email válido')
+            return
+        }
+
         if ($("#modalPasswordNueva").val() != '' && $("#modalPasswordAnterior").val() == '') {
             showToastError('Debe ingresar la contraseña anterior')
             return

@@ -17,6 +17,10 @@ namespace IDAAI_APP.Models.Operations.Request
         [JsonProperty("PeriodoAcademico")]
         [StringLength(maximumLength: 50)]
         public string PeriodoAcademico { get; set; }
+
+        [JsonProperty("DiasClase")]
+        [StringLength(maximumLength: 10)]
+        public string DiasClase { get; set; }
     }
 
     public class ModuloEditarRequest
@@ -36,5 +40,9 @@ namespace IDAAI_APP.Models.Operations.Request
         [JsonProperty("PeriodoAcademico")]
         [StringLength(maximumLength: 50)]
         public string PeriodoAcademico { get; set; }
+
+        [JsonProperty("DiasClase")]
+        [StringLength(maximumLength: 10)]
+        public string DiasClase { get; set; }
     }
 }

@@ -100,6 +100,39 @@
                         <label class="fw-bold mb-2" for="modalRegistrarDescripcion">Descripción*</label>
                         <input type="text" class="form-control input-text" maxlength="100" id="modalRegistrarDescripcion" title="Descripción del  módulo" />
                     </div>
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalRegistrarDiasClase">Días de Clase</label>
+                    </div>
+                    <div class="mb-2 col-md-12" id="modalRegistrarDiasClase">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalRegistrarLunes" value="L">
+                            <label class="form-check-label" for="modalRegistrarLunes">Lunes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalRegistrarMartes" value="M">
+                            <label class="form-check-label" for="modalRegistrarMartes">Martes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalRegistrarMiercoles" value="X">
+                            <label class="form-check-label" for="modalRegistrarMiercoles">Miércoles</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalRegistrarJueves" value="J">
+                            <label class="form-check-label" for="modalRegistrarJueves">Jueves</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalRegistrarViernes" value="V">
+                            <label class="form-check-label" for="modalRegistrarViernes">Viernes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalRegistrarSabado" value="S">
+                            <label class="form-check-label" for="modalRegistrarSabado">Sábado</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalRegistrarDomingo" value="D">
+                            <label class="form-check-label" for="modalRegistrarDomingo">Domingo</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -143,6 +176,39 @@
                     <div class="mb-2 col-md-12">
                         <label class="fw-bold mb-2" for="modalEditarDescripcion">Descripción</label>
                         <input type="text" class="form-control input-text" maxlength="100" id="modalEditarDescripcion" title="Descripción del  módulo" />
+                    </div>
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalEditarDiasClase">Días de Clase</label>
+                    </div>
+                    <div class="mb-2 col-md-12" id="modalEditarDiasClase">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalEditarLunes" value="L">
+                            <label class="form-check-label" for="modalEditarLunes">Lunes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalEditarMartes" value="M">
+                            <label class="form-check-label" for="modalEditarMartes">Martes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalEditarMiercoles" value="X">
+                            <label class="form-check-label" for="modalEditarMiercoles">Miércoles</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalEditarJueves" value="J">
+                            <label class="form-check-label" for="modalEditarJueves">Jueves</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalEditarViernes" value="V">
+                            <label class="form-check-label" for="modalEditarViernes">Viernes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalEditarSabado" value="S">
+                            <label class="form-check-label" for="modalEditarSabado">Sábado</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="modalEditarDomingo" value="D">
+                            <label class="form-check-label" for="modalEditarDomingo">Domingo</label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -196,6 +262,10 @@
                 if (response.length == 0 || response == null) {
                     showToastError("No se encontraron resultados");
                 }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
                 crearTabla(response, Info[PantallaActual], recarga);
             },
             error: function (xhr) {
@@ -221,10 +291,35 @@
             return;
         }
 
+        var diasClase = "";
+
+        if ($("#modalRegistrarLunes").is(":checked")) {
+            diasClase = diasClase + "L"
+        }
+        if ($("#modalRegistrarMartes").is(":checked")) {
+            diasClase = diasClase + "M"
+        }
+        if ($("#modalRegistrarMiercoles").is(":checked")) {
+            diasClase = diasClase + "X"
+        }
+        if ($("#modalRegistrarJueves").is(":checked")) {
+            diasClase = diasClase + "J"
+        }
+        if ($("#modalRegistrarViernes").is(":checked")) {
+            diasClase = diasClase + "V"
+        }
+        if ($("#modalRegistrarSabado").is(":checked")) {
+            diasClase = diasClase + "S"
+        }
+        if ($("#modalRegistrarDomingo").is(":checked")) {
+            diasClase = diasClase + "D"
+        }
+
         var request = {
             Nombre: $("#modalRegistrarNombre").val(),
             Descripcion: $("#modalRegistrarDescripcion").val(),
-            PeriodoAcademico: $("#modalRegistrarPeriodoAcademicoInicio").val() + '-' + $("#modalRegistrarPeriodoAcademicoFin").val() + ' ' + $("#modalRegistrarPeriodo").val()
+            PeriodoAcademico: $("#modalRegistrarPeriodoAcademicoInicio").val() + '-' + $("#modalRegistrarPeriodoAcademicoFin").val() + ' ' + $("#modalRegistrarPeriodo").val(),
+            DiasClase: diasClase
         }
 
         $.ajax({
@@ -236,6 +331,10 @@
                 if (response == null) {
                     showToastError("Ha ocurrido un error");
                     return;
+                }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
                 }
                 consultar(true);
                 $("#modalRegistrar").modal("hide");
@@ -255,11 +354,36 @@
     }
 
     function editar() {
+        var diasClase = "";
+
+        if($("#modalEditarLunes").is(":checked")){
+            diasClase = diasClase + "L"
+        }
+        if ($("#modalEditarMartes").is(":checked")) {
+            diasClase = diasClase + "M"
+        }
+        if ($("#modalEditarMiercoles").is(":checked")) {
+            diasClase = diasClase + "X"
+        }
+        if ($("#modalEditarJueves").is(":checked")) {
+            diasClase = diasClase + "J"
+        }
+        if ($("#modalEditarViernes").is(":checked")) {
+            diasClase = diasClase + "V"
+        }
+        if ($("#modalEditarSabado").is(":checked")) {
+            diasClase = diasClase + "S"
+        }
+        if ($("#modalEditarDomingo").is(":checked")) {
+            diasClase = diasClase + "D"
+        }
+
         var request = {
             Id: idSeleccionado,
             Nombre: $("#modalEditarNombre").val(),
             Descripcion: $("#modalEditarDescripcion").val(),
-            PeriodoAcademico: $("#modalEditarPeriodoAcademicoInicio").val() + '-' + $("#modalEditarPeriodoAcademicoFin").val() + ' ' + $("#modalEditarPeriodo").val()
+            PeriodoAcademico: $("#modalEditarPeriodoAcademicoInicio").val() + '-' + $("#modalEditarPeriodoAcademicoFin").val() + ' ' + $("#modalEditarPeriodo").val(),
+            DiasClase: diasClase
         }
 
         if (parseInt($("#modalEditarPeriodoAcademicoFin").val()) - parseInt($("#modalEditarPeriodoAcademicoInicio").val()) != 1) {
@@ -276,6 +400,10 @@
                 if (response == null) {
                     showToastError("Ha ocurrido un error");
                     return;
+                }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
                 }
                 consultar(true);
                 $("#modalEditar").modal("hide");
@@ -308,6 +436,10 @@
                 if (response == null) {
                     showToastError("Ha ocurrido un error");
                     return;
+                }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
                 }
                 consultar(true);
                 $("#modalConfirmarEliminacion").modal("hide");

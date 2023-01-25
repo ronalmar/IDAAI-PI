@@ -19,7 +19,7 @@ using IDAAI_API.Entidades.Operations.Requests;
 
 namespace IDAAI_API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/item")]
 

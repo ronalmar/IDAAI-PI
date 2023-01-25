@@ -251,10 +251,18 @@
                 if(response.length == 0 || response == null){
                     showToastError("No se encontraron resultados"); 
                 }
+                if(response.redirectToUrl){
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
                 crearTabla(response, Info[PantallaActual], recarga);
             },
             error: function (xhr) {
-                showToastError(xhr.responseText);
+                if(xhr.status == 401){
+                    showToastError('Error en autorización del API')
+                }else{
+                    showToastError('Ha ocurrido un error')
+                }
                 return false;
             },
             beforeSend: function () {
@@ -289,6 +297,10 @@
                 if (response == null) {
                     showToastError("Ha ocurrido un error");
                     return;
+                }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
                 }
                 consultar(true);
                 $("#modalRegistrar").modal("hide");
@@ -330,6 +342,10 @@
                     showToastError("Ha ocurrido un error");
                     return;
                 }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
                 consultar(true);
                 $("#modalRegistrarGrupo").modal("hide");
                 showToastOk('El registro se creó correctamente');
@@ -363,6 +379,10 @@
                     showToastError("Ha ocurrido un error");
                     return;
                 }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
                 consultar(true);
                 $("#modalEditar").modal("hide");
                 showToastOk('El registro se actualizó correctamente');
@@ -395,9 +415,13 @@
                     showToastError("Ha ocurrido un error");
                     return;
                 }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
                 consultar(true);
                 $("#modalConfirmarEliminacion").modal("hide");
-                showToastOk('El registor fue eliminado correctamente');
+                showToastOk('El registro fue eliminado correctamente');
             },
             error: function (xhr) {
                 showToastError(xhr.responseText);

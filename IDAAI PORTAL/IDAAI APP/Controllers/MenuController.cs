@@ -37,10 +37,11 @@ namespace IDAAI_APP.Controllers
 
             var user = HttpContext.User.Identity.Name;
 
-            var datosUsuario = await operaciones.ObtenerUsuario(user);
+            var result = await operaciones.ObtenerUsuario(user) as OkObjectResult;
+            var datosUsuario = result.Value as Usuario_;
 
             ViewBag.Usuario = textInfo.ToTitleCase(datosUsuario.Usuario);
-            ViewBag.Email = datosUsuario.Email;
+            ViewBag.Email = datosUsuario.Email is null || datosUsuario.Email == "" ? "-" : datosUsuario.Email;
             ViewBag.Id = datosUsuario.Id;
             return View();
         }

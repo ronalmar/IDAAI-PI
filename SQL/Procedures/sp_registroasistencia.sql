@@ -47,7 +47,7 @@ BEGIN
 				EstadoAsistencia	VARCHAR(25),
 				Carrera				VARCHAR(100),
 				Modulo				VARCHAR(50)
-			)
+			)	
 
 	IF(@i_accion='IA')
 	BEGIN
@@ -320,10 +320,126 @@ BEGIN
 			AND r.Estado=0
 			AND e.Estado=1
 			AND m.Estado=1
-
 			RETURN 0;
 		END
 		SELECT * FROM @RegistroAsistencia
+		RETURN 0;
+	END
+
+	IF(@i_accion = 'JB')
+	BEGIN
+		DECLARE @Modulos Table(
+				Id					INT,
+				Nombre				VARCHAR(50),
+				Descripcion			VARCHAR(100),
+				PeriodoAcademico	VARCHAR(50),
+				DiasClase			VARCHAR(10)
+		)
+
+		DECLARE @Estudiantes Table(
+				Id					INT,
+				Matricula			VARCHAR(10)
+		)
+
+		DECLARE @moduloActual			VARCHAR(50)
+		DECLARE @diasModuloActual		VARCHAR(10)
+		DECLARE @fechaActual			DATETIME
+		DECLARE @diaActual				VARCHAR(100)
+		DECLARE @matriculaActual		VARCHAR(10)
+		DECLARE @idEstudianteActual		INT
+		DECLARE @fechaUltimaAsistencia	DATETIME
+		
+		SET @fechaActual = GETDATE()
+		SET @diaActual	= DATENAME(WEEKDAY,@fechaActual)
+
+		INSERT INTO @Modulos
+		SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos WHERE Estado = 1 AND Id!=1
+
+		WHILE(1=1)
+		BEGIN
+		IF(SELECT COUNT(*) FROM @Modulos)=0
+			BREAK;
+		--
+		--SELECT * FROM @Modulos
+		--
+		SELECT TOP(1) @moduloActual=Nombre FROM @Modulos
+		SELECT TOP(1) @diasModuloActual=DiasClase FROM @Modulos
+		--
+		--SELECT @moduloActual as ModuloActual
+		--
+		INSERT INTO @Estudiantes
+		SELECT e.Id, Matricula FROM Estudiantes e
+		INNER JOIN Modulos m ON m.Id=e.ModuloId
+		WHERE m.Nombre=@moduloActual
+		AND e.Estado=1 
+		AND m.Estado=1
+		--
+		--SELECT * FROM @Estudiantes
+		--
+		IF((ISNULL(@diasModuloActual,'')!='') AND ((SELECT COUNT(*) FROM @Estudiantes) > 0))
+		BEGIN
+			WHILE(1=1)
+			BEGIN
+			IF(SELECT COUNT(*) FROM @Estudiantes)=0
+				BREAK;
+			--			
+			--SELECT @diasModuloActual
+			--SELECT @diaActual
+			--
+			SELECT TOP(1) @matriculaActual=Matricula FROM @Estudiantes
+			SELECT TOP(1) @idEstudianteActual=Id FROM @Estudiantes
+
+			IF(@diaActual = 'Miércoles' OR @diaActual = 'Miercoles')
+			BEGIN
+				IF(CHARINDEX('X',@diasModuloActual) > 0)
+				BEGIN
+					SELECT TOP(1) @fechaUltimaAsistencia=Fecha FROM RegistroAsistencia 
+					WHERE EstudianteId=@idEstudianteActual AND Estado=1 ORDER BY Fecha DESC
+					IF NOT EXISTS(SELECT Fecha FROM RegistroAsistencia 
+					WHERE EstudianteId=@idEstudianteActual AND Estado=1) 
+					OR NOT((DAY(@fechaUltimaAsistencia) = DAY(@fechaActual)) AND
+						(MONTH(@fechaUltimaAsistencia) = MONTH(@fechaActual) AND
+						(YEAR(@fechaUltimaAsistencia) = YEAR(@fechaActual))))
+					BEGIN
+						INSERT INTO RegistroAsistencia (Fecha, EstudianteId, EstadoAsistenciaId, Estado)
+						SELECT @fechaActual, @idEstudianteActual, 2, 1
+					END	
+				END
+			END
+			ELSE
+			BEGIN
+				--SELECT 'NO'
+				IF(CHARINDEX(LEFT(@diaActual,1),@diasModuloActual) > 0)
+				BEGIN
+					--SELECT 'PRE SI'
+					SELECT TOP(1) @fechaUltimaAsistencia=Fecha FROM RegistroAsistencia 
+					WHERE EstudianteId=@idEstudianteActual AND Estado=1 ORDER BY Fecha DESC
+					--
+					--SELECT @fechaUltimaAsistencia
+					--SELECT Fecha FROM RegistroAsistencia 
+					--WHERE EstudianteId=@idEstudianteActual AND Estado=1 ORDER BY Fecha DESC
+					--
+					IF NOT EXISTS(SELECT Fecha FROM RegistroAsistencia 
+					WHERE EstudianteId=@idEstudianteActual AND Estado=1) 
+					OR NOT((DAY(@fechaUltimaAsistencia) = DAY(@fechaActual)) AND
+						(MONTH(@fechaUltimaAsistencia) = MONTH(@fechaActual) AND
+						(YEAR(@fechaUltimaAsistencia) = YEAR(@fechaActual))))
+					BEGIN
+						--SELECT 'SI'
+						INSERT INTO RegistroAsistencia (Fecha, EstudianteId, EstadoAsistenciaId, Estado)
+						SELECT @fechaActual, @idEstudianteActual, 2, 1
+					END					
+				END
+			END
+
+			DELETE TOP(1) FROM @Estudiantes
+			END
+		END
+
+		DELETE FROM @Estudiantes
+		DELETE TOP(1) FROM @Modulos
+		END
+
 		RETURN 0;
 	END
 END

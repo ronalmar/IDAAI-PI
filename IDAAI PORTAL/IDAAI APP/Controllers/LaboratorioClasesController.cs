@@ -24,14 +24,17 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public async Task<IActionResult> Asistencia()
         {
-            List<Modulo> listaModulos = await operaciones.GetModulos();
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
             {
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
 
-            List<Carrera> listaCarreras = await operaciones.GetCarreras();
+            var result2 = await operaciones.GetCarreras(claims) as OkObjectResult;
+            var listaCarreras = result2.Value as List<Carrera>;
             List<SelectListItem> Carreras = new();
             foreach (var carrera in listaCarreras)
             {
@@ -52,7 +55,9 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public async Task<IActionResult> Item()
         {
-            List<Inventario> listaInventario = await operaciones.GetInventario();
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetInventario(claims) as OkObjectResult;
+            var listaInventario = result.Value as List<Inventario>;
             List<SelectListItem> Inventario = new();
             foreach (var inventario in listaInventario)
             {
@@ -65,7 +70,9 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public async Task<IActionResult> Prestamo()
         {
-            List<Modulo> listaModulos = await operaciones.GetModulos();
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
             {
@@ -78,14 +85,17 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public  async Task<IActionResult> Estudiante()
         {
-            List<Modulo> listaModulos = await operaciones.GetModulos();
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
             {
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }           
 
-            List<Carrera> listaCarreras = await operaciones.GetCarreras();
+            var result2 = await operaciones.GetCarreras(claims) as OkObjectResult;
+            var listaCarreras = result2.Value as List<Carrera>;
             List<SelectListItem> Carreras = new();
             foreach (var carrera in listaCarreras)
             {
@@ -100,7 +110,9 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public async Task<IActionResult> Carrera()
         {
-            List<Modulo> listaModulos = await operaciones.GetModulos();
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
             {

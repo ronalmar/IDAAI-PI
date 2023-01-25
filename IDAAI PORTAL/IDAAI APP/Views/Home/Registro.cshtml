@@ -77,8 +77,9 @@
             return
         }
 
-        if ($("#password").val().length) {
-
+        if ($("#password").val().length < 8) {
+            showToastError('La contraseña debe tener al menos 8 dígitos')
+            return
         }
 
         var request = {
@@ -96,7 +97,7 @@
                     showToastError("Ha ocurrido un error");
                     return;
                 }
-                showToastOk('Se inició sesión correctamente');
+                showToastOk('Se registró la cuenta correctamente');
                 window.location.href = response.redirectToUrl;
             },
             error: function (xhr) {

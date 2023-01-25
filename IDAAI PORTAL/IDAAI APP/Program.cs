@@ -1,4 +1,5 @@
 using IDAAI_APP.Controllers;
+using IDAAI_APP.Middleware;
 using IDAAI_APP.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+//app.UseMiddleware<TokenQueryParameterMiddleware>();
 
 app.UseAuthentication();
 

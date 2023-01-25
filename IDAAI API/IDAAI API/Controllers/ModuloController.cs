@@ -14,7 +14,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace IDAAI_API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/modulo")]
 
@@ -117,7 +117,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='IN', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='IN', @i_nombre='{request.Nombre}', @i_diasClase='{request.DiasClase}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}'").ToListAsync();
 
                 if (result.Count == 0)
                 {
@@ -140,7 +140,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='UP', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}', @i_id='{request.Id}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='UP', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}', @i_diasClase='{request.DiasClase}', @i_id='{request.Id}'").ToListAsync();
 
                 if (result.Count == 0)
                 {

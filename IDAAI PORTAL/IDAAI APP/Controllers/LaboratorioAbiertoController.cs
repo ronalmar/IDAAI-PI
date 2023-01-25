@@ -25,8 +25,9 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public async Task<IActionResult> Asistencia()
         {
-
-            List<Carrera> listaCarreras = await operaciones.GetCarreras();
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetCarreras(claims) as OkObjectResult;
+            var listaCarreras = result.Value as List<Carrera>;
             List<SelectListItem> Carreras = new();
             foreach (var carrera in listaCarreras)
             {
@@ -46,7 +47,9 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public async Task<IActionResult> Item()
         {
-            List<Inventario> listaInventario = await operaciones.GetInventario();
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetInventario(claims) as OkObjectResult;
+            var listaInventario = result.Value as List<Inventario>;
             List<SelectListItem> Inventario = new();
             foreach (var inventario in listaInventario)
             {
@@ -65,7 +68,9 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public async Task<IActionResult> Estudiante()
         {
-            List<Carrera> listaCarreras = await operaciones.GetCarreras();
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetCarreras(claims) as OkObjectResult;
+            var listaCarreras = result.Value as List<Carrera>;
             List<SelectListItem> Carreras = new();
             foreach (var carrera in listaCarreras)
             {

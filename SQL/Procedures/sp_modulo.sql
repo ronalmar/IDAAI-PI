@@ -3,7 +3,8 @@ ALTER PROC sp_modulo
 		@i_nombre				VARCHAR(50)			=	NULL,
 		@i_descripcion			VARCHAR(100)		=	NULL,
 		@i_periodoAcademico		VARCHAR(50)			=	NULL,
-		@i_id					INT					=	NULL
+		@i_id					INT					=	NULL,
+		@i_diasClase			VARCHAR(10)			=	NULL
 AS
 BEGIN
 	DECLARE 
@@ -11,8 +12,9 @@ BEGIN
 	@descripcion				VARCHAR(100),
 	@descripcionTrim			VARCHAR(100),
 	@periodoAcademico			VARCHAR(50),
-	@periodoAcademicoTrim	VARCHAR(50),
-	@idInsertado				INT
+	@periodoAcademicoTrim		VARCHAR(50),
+	@idInsertado				INT,
+	@diasClase					VARCHAR(10)
 
 	SET @nombre				=	TRIM(UPPER(@i_nombre))
 	SET @descripcionTrim	=	TRIM(@i_descripcion)
@@ -22,6 +24,7 @@ BEGIN
 		END
 	SET @periodoAcademicoTrim	=	TRIM(@i_periodoAcademico)
 	SET @periodoAcademico		=	UPPER(@periodoAcademicoTrim)
+	SET @diasClase				=	TRIM(UPPER(@i_diasClase))
 
 	IF(@i_accion = 'IN')
 	BEGIN
@@ -33,24 +36,25 @@ BEGIN
 				Nombre				= @nombre,
 				Descripcion			= @descripcion,
 				PeriodoAcademico	= @periodoAcademico,
+				DiasClase			= @diasClase,
 				Estado = 1
 				WHERE Id=(SELECT Id FROM Modulos WHERE Nombre=@nombre AND Estado=0)
 
-				SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos 
+				SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos 
 				WHERE Id=(SELECT Id FROM Modulos WHERE Nombre=@nombre AND Estado=1)
 				RETURN 0;
 			END
 
-			INSERT INTO Modulos VALUES (@nombre, @descripcion, @periodoAcademico, 1)
+			INSERT INTO Modulos VALUES (@nombre, @descripcion, @periodoAcademico, @diasClase, 1)
 
 			SET @idInsertado=@@IDENTITY
-			SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos 
+			SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos 
 			WHERE Id=@idInsertado
 			AND Estado=1
 
 			RETURN 0;
 		END
-		SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos WHERE Id=0
+		SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos WHERE Id=0
 		RETURN 0;
 	END
 	IF(@i_accion = 'UP')
@@ -64,14 +68,15 @@ BEGIN
 			Descripcion		=	CASE	WHEN @descripcion!=''	THEN	 @descripcion
 								ELSE	Descripcion		END,
 			PeriodoAcademico=	CASE	WHEN @periodoAcademico!=''	THEN	@periodoAcademico
-								ELSE	PeriodoAcademico	END
+								ELSE	PeriodoAcademico	END,
+			DiasClase		=	CASE WHEN ISNULL(@diasClase,'')='' THEN @diasClase ELSE @diasClase END
 			WHERE Id=@i_id
-			SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos 
+			SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos 
 			WHERE Id=@i_id AND Estado=1
 
 			RETURN 0;
 		END
-		SELECT Id, Nombre, Descripcion FROM Modulos WHERE Id=0
+		SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos WHERE Id=0
 		RETURN 0;
 	END
 	IF(@i_accion = 'DE')
@@ -80,15 +85,15 @@ BEGIN
 		BEGIN
 			UPDATE Modulos SET	Estado=0
 			WHERE	Id=@i_id AND Estado=1
-			SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos WHERE Id=@i_id
+			SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos WHERE Id=@i_id
 			RETURN 0;
 		END
-		SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos WHERE Id=0
+		SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos WHERE Id=0
 		RETURN 0;
 	END
 	IF(@i_accion = 'CN')
 	BEGIN
-		SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos 
+		SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos 
 		WHERE Nombre LIKE '%' + @nombre + '%'
 		AND Id!=1
 		AND Estado=1
@@ -96,7 +101,7 @@ BEGIN
 	END
 	IF(@i_accion = 'CP')
 	BEGIN
-		SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos 
+		SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos 
 		WHERE PeriodoAcademico LIKE '%' + @periodoAcademico + '%'
 		AND Id!=1
 		AND Estado=1
@@ -104,7 +109,7 @@ BEGIN
 	END
 	IF(@i_accion = 'CT')
 	BEGIN
-		SELECT Id, Nombre, Descripcion, PeriodoAcademico FROM Modulos
+		SELECT Id, Nombre, Descripcion, PeriodoAcademico, DiasClase FROM Modulos
 		WHERE Estado=1
 		AND Id!=1
 		RETURN 0;

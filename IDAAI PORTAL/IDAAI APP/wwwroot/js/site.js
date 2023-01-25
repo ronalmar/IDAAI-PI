@@ -39,8 +39,8 @@ var Info = {
         Campos: ["nombre", "modulo"]
     },
     Modulo: {
-        Titulos: ["Nombre", "Descripción", "Periodo Académico"],
-        Campos: ["nombre", "descripcion", "periodoAcademico"]
+        Titulos: ["Nombre", "Descripción", "Periodo Académico", "Días de Clase"],
+        Campos: ["nombre", "descripcion", "periodoAcademico", "diasClase"]
     },
     Inventario: {
         Titulos: ["Nombre", "Descripción", "Cantidad Disponible", "Cantidad Total"],
@@ -76,7 +76,8 @@ var Datos = {
         id: null,
         nombre: null,
         descripcion: null,
-        periodoAcademico: null
+        periodoAcademico: null,
+        diasClase: null
     },
     Inventario: {
         id: null,
@@ -152,7 +153,7 @@ var CamposRequest = {
     Estudiante: ["Nombres", "Apellidos", "Matricula", "Email", "Direccion", "Carrera", "Modulo"],
     Asistencia: ["Matricula", "Fecha", "EsAsistencia", "Modulo"],
     Carrera: ["Nombre", "Modulo"],
-    Modulo: ["Nombre", "Descripcion", "PeriodoAcademico"],
+    Modulo: ["Nombre", "Descripcion", "PeriodoAcademico", "DiasClase"],
     Inventario: ["Nombre", "Descripcion", "CantidadDisponible", "CantidadTotal"],
     Item: ["Rfid", "Inventario", "EstaDisponible"],
     Prestamo: ["Rfid", "Modulo", "Matricula"]
@@ -177,7 +178,8 @@ var RequestEditar = {
         Id: null,
         Nombre: null,
         Descripcion: null,
-        PeriodoAcademico: null
+        PeriodoAcademico: null,
+        DiasClase: null
     },
     Inventario: {
         Id: null,
@@ -216,7 +218,8 @@ var RequestRegistrar = {
     Modulo: {
         Nombre: null,
         Descripcion: null,
-        PeriodoAcademico: null
+        PeriodoAcademico: null,
+        DiasClase: null
     },
     Inventario: {
         Nombre: null,
@@ -426,6 +429,41 @@ function seleccionarDatosFila(id) {
                 $("#modalEditarPeriodoAcademicoInicio").val(periodoAcademico[0])
                 $("#modalEditarPeriodoAcademicoFin").val(periodoAcademico[1])
                 $("#modalEditarPeriodo").val(periodoAcademico[2])
+                $("#modalEditarNombre").val(registro.nombre)
+                $("#modalEditarDescripcion").val(registro.descripcion)
+
+                if (!registro.diasClase) {
+                    $("#modalEditarLunes").prop('checked', false);
+                    $("#modalEditarMartes").prop('checked', false);
+                    $("#modalEditarMiercoles").prop('checked', false);
+                    $("#modalEditarJueves").prop('checked', false);
+                    $("#modalEditarViernes").prop('checked', false);
+                    $("#modalEditarSabado").prop('checked', false);
+                    $("#modalEditarDomingo").prop('checked', false);
+                    return
+                }
+
+                if (registro.diasClase.includes('L')) {
+                    $("#modalEditarLunes").prop('checked', true);
+                }
+                if (registro.diasClase.includes('M')) {
+                    $("#modalEditarMartes").prop('checked', true);
+                }
+                if (registro.diasClase.includes('X')) {
+                    $("#modalEditarMiercoles").prop('checked', true);
+                }
+                if (registro.diasClase.includes('J')) {
+                    $("#modalEditarJueves").prop('checked', true);
+                }
+                if (registro.diasClase.includes('V')) {
+                    $("#modalEditarViernes").prop('checked', true);
+                }
+                if (registro.diasClase.includes('S')) {
+                    $("#modalEditarSabado").prop('checked', true);
+                }
+                if (registro.diasClase.includes('D')) {
+                    $("#modalEditarDomingo").prop('checked', true);
+                }
             }
         })
         idSeleccionado = id;

@@ -21,7 +21,7 @@ using System.Data.SqlTypes;
 
 namespace IDAAI_API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/estudiante")]
 
