@@ -3,7 +3,7 @@
 }
 
 @{
-    Layout = "_LayoutLaboratorioClases";
+    Layout = "_Layout";
 }
 
 <div id="pantalla" class="container-fluid">
@@ -120,6 +120,9 @@
 
     $().ready(function () {
         prepararPantalla(Pantalla.Carrera);
+        if ($("#moduloActual").val() && $("#moduloActual").val() != '0') {
+            consultar()
+        }
     })
 
     function consultar(recarga = false) {
@@ -255,7 +258,7 @@
                 }
                 consultar(true);
                 $("#modalConfirmarEliminacion").modal("hide");
-                showToastOk('El registor fue eliminado correctamente');
+                showToastOk('El registro fue eliminado correctamente');
             },
             error: function (xhr) {
                 showToastError(xhr.responseText);

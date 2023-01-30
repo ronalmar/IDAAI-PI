@@ -26,6 +26,18 @@ namespace IDAAI_APP.Controllers
             var usuario = HttpContext.User.Identity.Name;
 
             ViewBag.Usuario = textInfo.ToTitleCase(usuario);
+            ViewBag.Opcion = "Menu";
+            ViewBag.PantallaControl = "Menu";
+
+            return View();
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult AsistenciaEstudiante()
+        {
+            ViewBag.Opcion = "AsistenciaEstudiante";
+            ViewBag.PantallaControl = "Menu";
             return View();
         }
 
@@ -37,12 +49,21 @@ namespace IDAAI_APP.Controllers
 
             var user = HttpContext.User.Identity.Name;
 
-            var result = await operaciones.ObtenerUsuario(user) as OkObjectResult;
+            var claims = HttpContext.User.Claims.ToList();
+
+            var result = await operaciones.ObtenerUsuario(user, claims) as OkObjectResult;
+            if(result is null)
+            {
+                return RedirectToAction("Logout", "Operaciones");
+            }
             var datosUsuario = result.Value as Usuario_;
 
             ViewBag.Usuario = textInfo.ToTitleCase(datosUsuario.Usuario);
             ViewBag.Email = datosUsuario.Email is null || datosUsuario.Email == "" ? "-" : datosUsuario.Email;
             ViewBag.Id = datosUsuario.Id;
+            ViewBag.Opcion = "Perfil";
+            ViewBag.PantallaControl = "Menu";
+
             return View();
         }
 

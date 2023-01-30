@@ -52,6 +52,14 @@
                                 <a class="dropdown-item" asp-controller="Operaciones" asp-action="Logout">Cerrar sesión</a>
                             </div>
                         </li>
+                        <li class="nav-item">
+                            <label class="nav-link fw-bold" for="moduloActual">Módulo Actual:</label>
+                        </li>
+                        <li class="nav-item active">
+                            <select onchange="actualizarModuloActual()" class="nav-link dropdown-toggle" style="color: black;" id="moduloActual" title="Módulo Actual" asp-items="ViewBag.Modulos">
+                                <option value="0">Seleccione</option>
+                            </select>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -63,7 +71,7 @@
         </main>
         <div id="cargando" class="d-flex justify-content-center invisible" tabindex="-1">
             <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">Cargando...</span>
             </div>
         </div>
     </div>
@@ -78,6 +86,87 @@
     <script src="~/lib/jquery-toast-plugin-master/dist/jquery.toast.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/datatables/datatables.js" asp-append-version="true"></script>
+    <script>
+
+        $(document).ready(function () {
+        })
+
+        function obtenerModuloActual() {
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: `@Url.Action("ObtenerModuloActual", "Operaciones")`,
+                data: null,
+                success: function (response) {
+                    if (response.length == 0 || response == null) {
+                        showToastError("No se encontraron resultados");
+                    }
+                    if (response.redirectToUrl) {
+                        window.location.href = response.redirectToUrl;
+                        return
+                    }
+                    if ((response.moduloActual == null) || (response.moduloActual == '')) {
+                        $("#moduloActual").val("0")
+                        return
+                    }
+                    $("#moduloActual").val(response.moduloActual)
+                },
+                error: function (xhr) {
+                    if (xhr.status == 401) {
+                        showToastError('Error en autorización del API')
+                    } else {
+                        showToastError('Ha ocurrido un error')
+                    }
+                    return false;
+                },
+                beforeSend: function () {
+                    mostrarCarga(true);
+                },
+                complete: function () {
+                    mostrarCarga(false);
+                }
+            });
+        }
+
+        function actualizarModuloActual() {
+            if ($("#moduloActual").val() != '0') {
+
+                var request = {
+                    Modulo: $("#moduloActual").val()
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "PUT",
+                    url: '@Url.Action("ActualizarModuloActual", "Operaciones")',
+                    data: request,
+                    success: function (response) {
+                        if (response == null) {
+                            showToastError("Ha ocurrido un error");
+                            return;
+                        }
+                        if (response.redirectToUrl) {
+                            window.location.href = response.redirectToUrl;
+                            return
+                        }
+                        showToastOk('El módulo se actualizó correctamente');
+                    },
+                    error: function (xhr) {
+                        showToastError(xhr.responseText);
+                        return false;
+                    },
+                    beforeSend: function () {
+                        mostrarCarga(true);
+                    },
+                    complete: function () {
+                        mostrarCarga(false);
+                    }
+                });
+
+            }
+        }
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

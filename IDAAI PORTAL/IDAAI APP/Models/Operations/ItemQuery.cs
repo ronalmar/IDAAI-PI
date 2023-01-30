@@ -9,5 +9,8 @@ namespace IDAAI_APP.Models.Operations
 
         [StringLength(maximumLength: 100)]
         public string Inventario { get; set; }
+
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

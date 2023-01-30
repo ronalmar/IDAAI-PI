@@ -1,6 +1,7 @@
 ﻿using IDAAI_APP.Models;
 using IDAAI_APP.Models.Operations;
 using IDAAI_APP.Models.Operations.Request;
+using IDAAI_APP.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -9,12 +10,15 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
+using System.Xml.Linq;
 
 namespace IDAAI_APP.Controllers
 {
@@ -22,17 +26,17 @@ namespace IDAAI_APP.Controllers
     {
         private readonly string contentType = "application/json";
         private static readonly string serverName = "localhost";
-        private static readonly string portNumber = "44321";
+        private static readonly string portNumber = "4000";
         private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
         private readonly string pagineo = "&Pagina=1&RecordsPorPagina=100000";
         private bool esLista = true;
         private string command;
-        private StringContent stringContent;
+        private StringContent stringContent;       
 
         public OperacionesController()
         {
 
-        }
+        }        
 
         [HttpGet]
         public IActionResult Index()
@@ -84,25 +88,25 @@ namespace IDAAI_APP.Controllers
 
                 if (!string.IsNullOrEmpty(query.Matricula))
                 {
-                    command = $"api/estudiante/consultarPorMatricula?Matricula={query.Matricula}&Modulo={query.Modulo}{pagineo}";
+                    command = $"api/estudiante/consultarPorMatricula?Usuario={usuario}&Matricula={query.Matricula}&Modulo={query.Modulo}{pagineo}";
                     esLista = false;
                 }
                 else if (!string.IsNullOrEmpty(query.Email))
                 {
-                    command = $"api/estudiante/consultarPorEmail?Email={query.Email}&Modulo={query.Modulo}{pagineo}";
+                    command = $"api/estudiante/consultarPorEmail?Usuario={usuario}&Email={query.Email}&Modulo={query.Modulo}{pagineo}";
                     esLista = false;
                 }
                 else if (!string.IsNullOrEmpty(query.Nombres) || !string.IsNullOrEmpty(query.Apellidos))
                 {
-                    command = $"api/estudiante/listarPorNombres?Nombres={query.Nombres}&Apellidos={query.Apellidos}&Modulo={query.Modulo}{pagineo}";
+                    command = $"api/estudiante/listarPorNombres?Usuario={usuario}&Nombres={query.Nombres}&Apellidos={query.Apellidos}&Modulo={query.Modulo}{pagineo}";
                 }
                 else if (!string.IsNullOrEmpty(query.Carrera) && query.Carrera != "0")
                 {
-                    command = $"api/estudiante/listarPorCarrera?Carrera={query.Carrera}&Modulo={query.Modulo}{pagineo}";
+                    command = $"api/estudiante/listarPorCarrera?Usuario={usuario}&Carrera={query.Carrera}&Modulo={query.Modulo}{pagineo}";
                 }
                 else
                 {
-                    command = $"api/estudiante/listarPorModulo?Modulo={query.Modulo}{pagineo}";
+                    command = $"api/estudiante/listarPorModulo?Usuario={usuario}&Modulo={query.Modulo}{pagineo}";
                 }
 
                 HttpResponseMessage res = await client.GetAsync(command);
@@ -127,10 +131,14 @@ namespace IDAAI_APP.Controllers
                     }
                     return Ok(estudiantes);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -179,6 +187,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/estudiante/registrarEstudiante";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -190,14 +199,18 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
                 }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
+                }
             }
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> RegistrarEstudianteGrupo(EstudianteGrupoRegistrarRequest request)
         {
@@ -244,7 +257,9 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/estudiante/registrarGrupoEstudiante?Modulo={request.Modulo}";
+
+                request.Usuario = usuario;
+                command = $"api/estudiante/registrarGrupoEstudiante?Usuario={usuario}&Modulo={request.Modulo}";
                 using (var content = new MultipartFormDataContent())
                 {
                     byte[] Bytes = new byte[request.Archivo[0].Length + 1];
@@ -271,12 +286,100 @@ namespace IDAAI_APP.Controllers
 
                         return Ok(response);
                     }
-                    else
+                    else if (res.ReasonPhrase.Equals("Unauthorized"))
                     {
                         await HttpContext.SignOutAsync();
                         return Json(new { redirectToUrl = Url.Action("Login", "Home") });
                     }
+                    else
+                    {
+                        return BadRequest(res.Content.ReadAsStringAsync().Result);
+                    }
                 }
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EnviarRegistroEstudianteGrupo(List<EstudianteRegistrarRequest> estudiantes, string modulo, List<Claim> claims)
+        {
+            string response;
+            command = $"api/estudiante/procesarRegistroGrupoEstudiante";
+
+            using (var client = new HttpClient())
+            {
+
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                //var claims = HttpContext.User.Claims.ToList();
+                var usuario = claims[0].Value;
+                var token = claims[1].Value;
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+                //command = $"api/usuario/renovarToken";
+
+                //HttpResponseMessage resToken = await client.GetAsync(command);
+
+                //if (resToken.IsSuccessStatusCode)
+                //{
+                //    var responseToken = resToken.Content.ReadAsStringAsync().Result;
+                //    Token_ tokenNuevo = JsonConvert.DeserializeObject<Token_>(responseToken);
+
+                //    var claimsNuevos = new List<Claim>
+                //    {
+                //        new Claim(ClaimTypes.Name, usuario),
+                //        new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
+                //    };
+
+                //    var claimsIdentity = new ClaimsIdentity(claimsNuevos, "Login");
+
+                //    //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                //}
+
+                //var claimsRenovados = HttpContext.User.Claims.ToList();
+                //var tokenRenovado = claimsRenovados[1].Value;
+
+                //client.DefaultRequestHeaders.Clear();
+                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
+
+                command = $"api/estudiante/procesarRegistroGrupoEstudiante";
+
+                foreach(var estudiante in estudiantes)
+                {
+                    estudiante.Usuario = usuario;
+                }
+
+                EstudianteGrupoRequest request = new()
+                {
+                    Usuario = usuario,
+                    Modulo = modulo,
+                    Estudiantes = estudiantes
+                };
+
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PostAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return RedirectToAction("Login", "Home");
+                }
+                else
+                {
+                    var error = res.Content.ReadAsStringAsync().Result;
+                    return BadRequest(error);
+                }
+
             }
         }
 
@@ -324,6 +427,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/estudiante/editarEstudiante";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -335,10 +439,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -404,10 +512,92 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConsultarClase(PaginacionQuery query)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                var claims = HttpContext.User.Claims.ToList();
+                var usuario = claims[0].Value;
+                var token = claims[1].Value;
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+                command = $"api/usuario/renovarToken";
+
+                HttpResponseMessage resToken = await client.GetAsync(command);
+
+                if (resToken.IsSuccessStatusCode)
+                {
+                    var responseToken = resToken.Content.ReadAsStringAsync().Result;
+                    Token_ tokenNuevo = JsonConvert.DeserializeObject<Token_>(responseToken);
+
+                    var claimsNuevos = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, usuario),
+                        new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(claimsNuevos, "Login");
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                }
+
+                var claimsRenovados = HttpContext.User.Claims.ToList();
+                var tokenRenovado = claimsRenovados[1].Value;
+
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
+
+                command = $"api/asistencia/consultarClase?Usuario={usuario}{pagineo}";
+
+                HttpResponseMessage res = await client.GetAsync(command);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    var response = res.Content.ReadAsStringAsync().Result;
+                    List<Asistencia> listaAsistencia = new();
+
+                    if (esLista)
+                    {
+                        listaAsistencia = JsonConvert.DeserializeObject<List<Asistencia>>(response);
+                    }
+                    else
+                    {
+                        var asistencia = JsonConvert.DeserializeObject<Asistencia>(response);
+                        if (asistencia is null)
+                        {
+                            return Ok(listaAsistencia);
+                        }
+                        listaAsistencia.Add(asistencia);
+                    }
+                    return Ok(listaAsistencia);
+                }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -456,20 +646,20 @@ namespace IDAAI_APP.Controllers
 
                 if (!string.IsNullOrEmpty(query.Matricula))
                 {
-                    command = $"api/asistencia/consultarPorMatricula?Matricula={query.Matricula}&Modulo={query.Modulo}{pagineo}";
+                    command = $"api/asistencia/consultarPorMatricula?Usuario={usuario}&Matricula={query.Matricula}&Modulo={query.Modulo}{pagineo}";
                     esLista = false;
                 }
                 else if (!string.IsNullOrEmpty(query.Nombres) || !string.IsNullOrEmpty(query.Apellidos))
                 {
-                    command = $"api/asistencia/listarPorNombres?Nombres={query.Nombres}&Apellidos={query.Apellidos}&Modulo={query.Modulo}{pagineo}";
+                    command = $"api/asistencia/listarPorNombres?Usuario={usuario}&Nombres={query.Nombres}&Apellidos={query.Apellidos}&Modulo={query.Modulo}{pagineo}";
                 }
                 else if (!string.IsNullOrEmpty(query.Carrera) && query.Carrera != "0")
                 {
-                    command = $"api/asistencia/listarPorCarrera?Carrera={query.Carrera}&Modulo={query.Modulo}{pagineo}";
+                    command = $"api/asistencia/listarPorCarrera?Usuario={usuario}&Carrera={query.Carrera}&Modulo={query.Modulo}{pagineo}";
                 }
                 else
                 {
-                    command = $"api/asistencia/listarPorModulo?Modulo={query.Modulo}{pagineo}";
+                    command = $"api/asistencia/listarPorModulo?Usuario={usuario}&Modulo={query.Modulo}{pagineo}";
                 }
 
                 HttpResponseMessage res = await client.GetAsync(command);
@@ -494,10 +684,14 @@ namespace IDAAI_APP.Controllers
                     }
                     return Ok(listaAsistencia);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -546,6 +740,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/asistencia/registrarRegistroAsistencia";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -557,10 +752,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -609,6 +808,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/asistencia/editarRegistroAsistencia";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -620,10 +820,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -689,10 +893,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -741,11 +949,11 @@ namespace IDAAI_APP.Controllers
 
                 if (!string.IsNullOrEmpty(query.Nombre))
                 {
-                    command = $"api/carrera/listarPorNombre?Nombre={query.Nombre}&Modulo={query.Modulo}{pagineo}";
+                    command = $"api/carrera/listarPorNombre?Usuario={usuario}&Nombre={query.Nombre}&Modulo={query.Modulo}{pagineo}";
                 }
                 else
                 {
-                    command = $"api/carrera/listarPorNombre?Modulo={query.Modulo}{pagineo}";
+                    command = $"api/carrera/listarPorModulo?Usuario={usuario}&Modulo={query.Modulo}{pagineo}";
                 }
 
                 HttpResponseMessage res = await client.GetAsync(command);
@@ -770,10 +978,14 @@ namespace IDAAI_APP.Controllers
                     }
                     return Ok(carreras);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -822,6 +1034,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/carrera/registrarCarrera";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -833,10 +1046,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -885,6 +1102,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/carrera/editarCarrera";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -896,10 +1114,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -965,10 +1187,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1018,15 +1244,15 @@ namespace IDAAI_APP.Controllers
 
                 if (!string.IsNullOrEmpty(query.Nombre))
                 {
-                    command = $"api/modulo/listarPorNombre?Nombre={query.Nombre}{pagineo}";
+                    command = $"api/modulo/listarPorNombre?Usuario={usuario}&Nombre={query.Nombre}{pagineo}";
                 }
                 else if (!string.IsNullOrEmpty(query.PeriodoAcademico))
                 {
-                    command = $"api/modulo/listarPorPeriodoAcademico?PeriodoAcademico={query.PeriodoAcademico}{pagineo}";
+                    command = $"api/modulo/listarPorPeriodoAcademico?Usuario={usuario}&PeriodoAcademico={query.PeriodoAcademico}{pagineo}";
                 }
                 else
                 {
-                    command = $"api/modulo/listarTodos?{pagineo}";
+                    command = $"api/modulo/listarTodos?Usuario={usuario}{pagineo}";
                 }
 
                 HttpResponseMessage res = await client.GetAsync(command);
@@ -1039,10 +1265,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(modulos);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1091,6 +1321,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/modulo/registrarModulo";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -1102,10 +1333,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if(res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1154,6 +1389,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/modulo/editarModulo";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -1165,10 +1401,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1234,10 +1474,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1284,7 +1528,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/inventario/listarPorNombre?Nombre={query.Nombre}{pagineo}";
+                command = $"api/inventario/listarPorNombre?Usuario={usuario}&Nombre={query.Nombre}{pagineo}";
 
                 HttpResponseMessage res = await client.GetAsync(command);
 
@@ -1296,10 +1540,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(inventario);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1348,6 +1596,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/inventario/registrarInventario";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -1359,10 +1608,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1421,10 +1674,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1473,6 +1730,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/inventario/editarInventario";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -1484,10 +1742,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1553,10 +1815,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1603,7 +1869,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/item/listarItems?Rfid={query.Rfid}&Inventario={query.Inventario}{pagineo}";
+                command = $"api/item/listarItems?Usuario={usuario}&Rfid={query.Rfid}&Inventario={query.Inventario}{pagineo}";
 
                 HttpResponseMessage res = await client.GetAsync(command);
 
@@ -1615,10 +1881,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(items);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1667,6 +1937,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/item/registrarItem";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -1678,10 +1949,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1730,6 +2005,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/item/editarItem";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -1741,10 +2017,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1810,10 +2090,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1860,7 +2144,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/prestamo/listarPrestamosPorModulo?Modulo={query.Modulo}{pagineo}";
+                command = $"api/prestamo/listarPrestamosPorModulo?Usuario={usuario}&Modulo={query.Modulo}{pagineo}";
 
                 HttpResponseMessage res = await client.GetAsync(command);
 
@@ -1872,10 +2156,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(prestamos);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1924,6 +2212,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/prestamo/registrarPrestamoPorModulo";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -1935,10 +2224,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -1987,6 +2280,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/prestamo/registrarGrupoPrestamoPorModulo";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -1998,10 +2292,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2050,6 +2348,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/prestamo/devolverPrestamoPorModulo";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -2061,10 +2360,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2129,10 +2432,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2179,7 +2486,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/prestamo/listarPrestamosPorEstudiante?Matricula={query.Matricula}{pagineo}";
+                command = $"api/prestamo/listarPrestamosPorEstudiante?Usuario={usuario}&Matricula={query.Matricula}{pagineo}";
 
                 HttpResponseMessage res = await client.GetAsync(command);
 
@@ -2191,10 +2498,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(prestamos);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2243,6 +2554,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/prestamo/registrarPrestamoPorEstudiante";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -2254,10 +2566,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2306,6 +2622,7 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
+                request.Usuario = usuario;
                 command = $"api/prestamo/devolverPrestamoPorEstudiante";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
 
@@ -2317,10 +2634,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2386,10 +2707,50 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(response);
                 }
-                else
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
+                }
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPut]
+        public async Task<IActionResult> EstablecerAsistencia(EstablecerAsistenciaRequest request)
+        {
+            string response;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));      
+
+                command = $"api/asistencia/establecerAsistencia";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PutAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    return Ok(response);
+                }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2399,7 +2760,6 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> IniciarSesion(LoginUser request)
         {
             string response;
-            string error;
 
             using (var client = new HttpClient())
             {
@@ -2416,13 +2776,13 @@ namespace IDAAI_APP.Controllers
                 if (res.IsSuccessStatusCode)
                 {
                     response = res.Content.ReadAsStringAsync().Result;
-                    Token_ token = JsonConvert.DeserializeObject<Token_>(response);
+                    Token_ token = JsonConvert.DeserializeObject<Token_>(response);                    
 
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, request.Usuario),
                         new Claim(ClaimTypes.Authentication, token.Token)
-                    };
+                    };                    
 
                     var claimsIdentity = new ClaimsIdentity(claims, "Login");
 
@@ -2430,18 +2790,18 @@ namespace IDAAI_APP.Controllers
 
                     return Json(new { redirectToUrl = Url.Action("Index", "Menu") });
                 }
-                error = res.Content.ReadAsStringAsync().Result;
-                error = "El usuario o la contraseña son incorrectos";
+                else
+                {
+                    return BadRequest("El usuario o contraseña ingresados no son correctos");
+                }
             }
-            return BadRequest(error);
-        }
+        }        
 
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Registrarse(RegisterUser request)
         {
             string response;
-            string error;
 
             using (var client = new HttpClient())
             {
@@ -2472,14 +2832,22 @@ namespace IDAAI_APP.Controllers
 
                     return Json(new { redirectToUrl = Url.Action("Index", "Menu") });
                 }
-                error = res.Content.ReadAsStringAsync().Result;
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
+                }
             }
-            return BadRequest(error);
         }
 
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
+            ViewBag.Opcion = "Logout";
             await HttpContext.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }       
@@ -2520,15 +2888,21 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(res.Content.ReadAsStringAsync().Result);
                 }
+                else if(res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
                 else
                 {
-                    return Unauthorized(res.Content.ReadAsStringAsync().Result);
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ObtenerUsuario(string user)
+        [AllowAnonymous]
+        [HttpGet]        
+        public async Task<IActionResult> RenovarToken(List<Claim> claims)
         {
             using (var client = new HttpClient())
             {
@@ -2537,10 +2911,55 @@ namespace IDAAI_APP.Controllers
 
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
 
-                //var claims = HttpContext.User.Claims.ToList();
-                //var usuario = claims[0].Value;
-                //var token = claims[1].Value;
-                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                var usuario = claims[0].Value;
+                var token = claims[1].Value;
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+                command = $"api/usuario/renovarToken";
+
+                HttpResponseMessage res = await client.GetAsync(command);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    var response = res.Content.ReadAsStringAsync().Result;
+                    Token_ tokenNuevo = JsonConvert.DeserializeObject<Token_>(response);
+
+                    var claimsNuevos = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, usuario),
+                        new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
+                    };
+
+                    return Ok(claimsNuevos);
+                }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    var claimsNuevos = new List<Claim>();
+                    return Ok(claimsNuevos);
+                    //return RedirectToAction("Login", "Home");
+                }
+                else
+                {
+                    var claimsNuevos = new List<Claim>();
+                    return Ok(claimsNuevos);
+                    //return RedirectToAction("Login", "Home");
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerUsuario(string user, List<Claim> claims)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                var usuario = claims[0].Value;
+                var token = claims[1].Value;
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
 
                 //command = $"api/usuario/renovarToken";
 
@@ -2581,10 +3000,225 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(usuarios[0]);
                 }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
                 else
                 {
-                    //await HttpContext.SignOutAsync();
-                    return Json(new { redirectToUrl = Url.Action("Logout", "Operaciones") });
+                    return null;
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerModuloActual()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                var claims = HttpContext.User.Claims.ToList();
+
+                var user = claims[0].Value;
+
+                var result = await ObtenerUsuario(user, claims) as OkObjectResult;
+                if (result is null)
+                {
+                    return RedirectToAction("Logout", "Operaciones");
+                }
+                var datosUsuario = result.Value as Usuario_;
+
+                return Ok(datosUsuario);
+
+                //var usuario = claims[0].Value;
+                //var token = claims[1].Value;
+                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+                //command = $"api/usuario/renovarToken";
+
+                //HttpResponseMessage resToken = await client.GetAsync(command);
+
+                //if (resToken.IsSuccessStatusCode)
+                //{
+                //    var responseToken = resToken.Content.ReadAsStringAsync().Result;
+                //    Token_ tokenNuevo = JsonConvert.DeserializeObject<Token_>(responseToken);
+
+                //    var claimsNuevos = new List<Claim>
+                //    {
+                //        new Claim(ClaimTypes.Name, usuario),
+                //        new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
+                //    };
+
+                //    var claimsIdentity = new ClaimsIdentity(claimsNuevos, "Login");
+
+                //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                //}
+
+                //var claimsRenovados = HttpContext.User.Claims.ToList();
+                //var tokenRenovado = claimsRenovados[1].Value;
+
+                //client.DefaultRequestHeaders.Clear();
+                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
+
+                //command = $"api/usuario/obtenerUsuario?Usuario={user}";
+
+                //HttpResponseMessage res = await client.GetAsync(command);
+
+                //if (res.IsSuccessStatusCode)
+                //{
+                //    var response = res.Content.ReadAsStringAsync().Result;
+
+                //    List<Usuario_> usuarios = JsonConvert.DeserializeObject<List<Usuario_>>(response);
+
+                //    return Ok(usuarios[0]);
+                //}
+                //else
+                //{
+                //    //await HttpContext.SignOutAsync();
+                //    return null;
+                //}
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerModuloActual(List<Claim> claims)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                //var claims = HttpContext.User.Claims.ToList();
+
+                var user = claims[0].Value;
+
+                var result = await ObtenerUsuario(user, claims) as OkObjectResult;
+                if (result is null)
+                {
+                    return RedirectToAction("Logout", "Operaciones");
+                }
+                var datosUsuario = result.Value as Usuario_;
+
+                return Ok(datosUsuario);
+
+                //var usuario = claims[0].Value;
+                //var token = claims[1].Value;
+                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+                //command = $"api/usuario/renovarToken";
+
+                //HttpResponseMessage resToken = await client.GetAsync(command);
+
+                //if (resToken.IsSuccessStatusCode)
+                //{
+                //    var responseToken = resToken.Content.ReadAsStringAsync().Result;
+                //    Token_ tokenNuevo = JsonConvert.DeserializeObject<Token_>(responseToken);
+
+                //    var claimsNuevos = new List<Claim>
+                //    {
+                //        new Claim(ClaimTypes.Name, usuario),
+                //        new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
+                //    };
+
+                //    var claimsIdentity = new ClaimsIdentity(claimsNuevos, "Login");
+
+                //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                //}
+
+                //var claimsRenovados = HttpContext.User.Claims.ToList();
+                //var tokenRenovado = claimsRenovados[1].Value;
+
+                //client.DefaultRequestHeaders.Clear();
+                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
+
+                //command = $"api/usuario/obtenerUsuario?Usuario={user}";
+
+                //HttpResponseMessage res = await client.GetAsync(command);
+
+                //if (res.IsSuccessStatusCode)
+                //{
+                //    var response = res.Content.ReadAsStringAsync().Result;
+
+                //    List<Usuario_> usuarios = JsonConvert.DeserializeObject<List<Usuario_>>(response);
+
+                //    return Ok(usuarios[0]);
+                //}
+                //else
+                //{
+                //    //await HttpContext.SignOutAsync();
+                //    return null;
+                //}
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> ActualizarModuloActual(EditarUsuarioModuloActualRequest request)
+        {
+            string response;
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                var claims = HttpContext.User.Claims.ToList();
+                var usuario = claims[0].Value;
+                var token = claims[1].Value;
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+                request.Usuario = usuario;
+                command = $"api/usuario/actualizarModuloActual";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PutAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    command = $"api/usuario/renovarToken";
+
+                    HttpResponseMessage resToken = await client.GetAsync(command);
+
+                    if (resToken.IsSuccessStatusCode)
+                    {
+                        var responseToken = resToken.Content.ReadAsStringAsync().Result;
+                        Token_ tokenNuevo = JsonConvert.DeserializeObject<Token_>(responseToken);
+
+                        var claimsNuevos = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, usuario),
+                        new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
+                    };
+
+                        var claimsIdentity = new ClaimsIdentity(claimsNuevos, "Login");
+
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                    }
+
+                    Usuario_ respuestaUsuario = JsonConvert.DeserializeObject<Usuario_>(response);
+
+                    return Ok(respuestaUsuario);
+                }
+                else if(res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2594,6 +3228,101 @@ namespace IDAAI_APP.Controllers
         {
             string response;
 
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                var claims = HttpContext.User.Claims.ToList();
+                var usuario = claims[0].Value;
+                var token = claims[1].Value;
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+                command = $"api/usuario/editarUsuario";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PutAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    response = res.Content.ReadAsStringAsync().Result;
+
+                    command = $"api/usuario/renovarToken";
+
+                    HttpResponseMessage resToken = await client.GetAsync(command);
+
+                    if (resToken.IsSuccessStatusCode)
+                    {
+                        var responseToken = resToken.Content.ReadAsStringAsync().Result;
+                        Token_ tokenNuevo = JsonConvert.DeserializeObject<Token_>(responseToken);
+
+                        var claimsNuevos = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, request.Usuario),
+                        new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
+                    };
+
+                        var claimsIdentity = new ClaimsIdentity(claimsNuevos, "Login");
+
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                    }
+
+                    return Json(new { redirectToUrl = Url.Action("Perfil", "Menu") });
+                }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
+                }
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> ActualizarFechaUsuario(EditarFechaUsuarioRequest request, List<Claim> claims)
+        {
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(apiUrl);
+                client.DefaultRequestHeaders.Clear();
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+
+                var usuario = claims[0].Value;
+                var token = claims[1].Value;
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+
+                request.Usuario = usuario;
+                command = $"api/usuario/actualizarFecha";
+                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+
+                HttpResponseMessage res = await client.PutAsync(command, stringContent);
+
+                if (res.IsSuccessStatusCode)
+                {        
+                    return Ok(res.Content.ReadAsStringAsync().Result);
+                }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return RedirectToAction("Login", "Home");
+                }
+                else
+                {
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SincronizarAsistencia()
+        {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(apiUrl);
@@ -2617,7 +3346,7 @@ namespace IDAAI_APP.Controllers
 
                     var claimsNuevos = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, request.Usuario),
+                        new Claim(ClaimTypes.Name, usuario),
                         new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
                     };
 
@@ -2633,27 +3362,39 @@ namespace IDAAI_APP.Controllers
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/usuario/editarUsuario";
-                stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
+                command = $"api/asistencia/sincronizarAsistencia";
 
-                HttpResponseMessage res = await client.PutAsync(command, stringContent);
+                HttpResponseMessage res = await client.GetAsync(command);
 
                 if (res.IsSuccessStatusCode)
                 {
-                    response = res.Content.ReadAsStringAsync().Result;
+                    //var response = res.Content.ReadAsStringAsync().Result;
+                    //List<Asistencia> listaAsistencia = new();
 
-                    return Json(new { redirectToUrl = Url.Action("Perfil", "Menu") });
+                    //if (esLista)
+                    //{
+                    //    listaAsistencia = JsonConvert.DeserializeObject<List<Asistencia>>(response);
+                    //}
+                    //else
+                    //{
+                    //    var asistencia = JsonConvert.DeserializeObject<Asistencia>(response);
+                    //    if (asistencia is null)
+                    //    {
+                    //        return Ok(listaAsistencia);
+                    //    }
+                    //    listaAsistencia.Add(asistencia);
+                    //}
+                    //return Ok(listaAsistencia);
+                    return Ok(res.Content.ReadAsStringAsync().Result);
                 }
-                else if(res.StatusCode.Equals(401))
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
                     await HttpContext.SignOutAsync();
                     return Json(new { redirectToUrl = Url.Action("Login", "Home") });
                 }
                 else
                 {
-                    response = res.Content.ReadAsStringAsync().Result;
-
-                    return BadRequest("La contraseña ingresada es incorrecta");
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2700,7 +3441,7 @@ namespace IDAAI_APP.Controllers
                 //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/inventario/listarPorNombre?{pagineo}";
+                command = $"api/inventario/listarPorNombre?Usuario={usuario}{pagineo}";
 
                 HttpResponseMessage res = await client.GetAsync(command);
 
@@ -2712,9 +3453,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(inventario);
                 }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
                 else
                 {
-                    return Json(new { redirectToUrl = Url.Action("Logout", "Operaciones") });
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2761,7 +3507,7 @@ namespace IDAAI_APP.Controllers
                 //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/carrera/listarTodos?{pagineo}";
+                command = $"api/carrera/listarTodos?Usuario={usuario}{pagineo}";
 
                 HttpResponseMessage res = await client.GetAsync(command);
 
@@ -2773,9 +3519,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(carreras);
                 }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
                 else
                 {
-                    return Json(new { redirectToUrl = Url.Action("Logout", "Operaciones") });
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }
@@ -2822,7 +3573,7 @@ namespace IDAAI_APP.Controllers
                 //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
                 //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
-                command = $"api/modulo/listarTodos?{pagineo}";
+                command = $"api/modulo/listarTodos?Usuario={usuario}{pagineo}";
 
                 HttpResponseMessage res = await client.GetAsync(command);
 
@@ -2834,9 +3585,14 @@ namespace IDAAI_APP.Controllers
 
                     return Ok(modulos);
                 }
+                else if (res.ReasonPhrase.Equals("Unauthorized"))
+                {
+                    await HttpContext.SignOutAsync();
+                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                }
                 else
                 {
-                    return Json(new { redirectToUrl = Url.Action("Logout", "Operaciones") });
+                    return BadRequest(res.Content.ReadAsStringAsync().Result);
                 }
             }
         }

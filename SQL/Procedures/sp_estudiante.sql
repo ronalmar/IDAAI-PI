@@ -8,7 +8,8 @@ ALTER PROCEDURE sp_estudiante
 	@i_direccion		VARCHAR(100)		=NULL,
 	@i_carrera			VARCHAR(100)		=NULL,
 	@i_modulo			VARCHAR(50)			=NULL,
-	@i_xmlEstudiantes	XML					=NULL
+	@i_xmlEstudiantes	XML					=NULL,
+	@i_usuario					VARCHAR(25)		=	NULL
 AS
 BEGIN
 	DECLARE 
@@ -36,7 +37,8 @@ BEGIN
 		@moduloInsertar			VARCHAR(50),
 		@moduloIdInsertar		INT,
 		@idInsertado			INT,
-		@codigoIdError			INT
+		@codigoIdError			INT,
+		@usuarioId				INT
 	
 	SET @nombresTrim		=	TRIM(@i_nombres)
 	SET @apellidosTrim		=	TRIM(@i_apellidos)
@@ -58,6 +60,7 @@ BEGIN
 		END
 	SET @carrera			=	TRIM(@i_carrera)
 	SET @modulo				=	TRIM(@i_modulo)
+	SELECT @usuarioId=Id FROM Usuarios WHERE Usuario=@i_usuario AND Estado=1
 
 	DECLARE @Estudiantes TABLE(
 				Id			INT, 
@@ -98,19 +101,27 @@ BEGIN
 		INSERT INTO @EstudiantesXML
 		SELECT * FROM #ESTUDIANTESXML
 		
-		-- VALIDAR QUE EL MODULO EXISTA (ESTADO=1) Y NO SEA LABORATORIO ABIERTO (ID=1)
-		IF NOT EXISTS(SELECT 1 FROM Modulos WHERE Nombre=@modulo AND Id!=1 AND Estado=1)
+		IF(@usuarioId IS NULL)
 		BEGIN
+			-- VALIDAR QUE EXISTA EL USUARIO INGRESADO
 			INSERT INTO @Estudiantes (Id) VALUES (0)
 			SELECT * FROM @Estudiantes
 			RETURN 0;
 		END
 
+		-- VALIDAR QUE EL MODULO EXISTA (ESTADO=1) Y NO SEA LABORATORIO ABIERTO (ID=1)
+		IF NOT EXISTS(SELECT 1 FROM Modulos WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Nombre!='LA' AND Estado=1)
+		BEGIN
+			INSERT INTO @Estudiantes (Id, Nombres) VALUES (-1, 'Usuario')
+			SELECT * FROM @Estudiantes
+			RETURN 0;
+		END
+
 		SELECT @moduloInsertar=Nombre FROM Modulos 
-			WHERE Nombre=@modulo AND Id!=1 AND Estado=1
+			WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Nombre!='LA' AND Estado=1
 		
 		SELECT @moduloIdInsertar=Id	FROM Modulos
-			WHERE Nombre=@modulo AND Id!=1 AND Estado=1
+			WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Nombre!='LA' AND Estado=1
 		
 		SET @codigoIdError=0
 		WHILE(1=1)
@@ -129,7 +140,7 @@ BEGIN
 
 			-- VALIDAR QUE NO EXISTA UN ESTUDIANTE CON LA MATRICULA ITERADA
 			IF EXISTS(SELECT 1 FROM Estudiantes 
-				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML) AND Estado=1)
+				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML) AND UsuarioId=@usuarioId AND Estado=1)
 			BEGIN
 				SET @codigoIdError=@codigoIdError-1;
 
@@ -139,6 +150,7 @@ BEGIN
 				DELETE TOP(1) FROM @EstudiantesXML
 				CONTINUE;
 			END
+
 			-- VALIDAR INGRESO LOGICO SI YA EXISTIA ANTES EN DB (UPDATE CUANDO ESTADO=0)
 			IF EXISTS(SELECT 1 FROM Estudiantes
 				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML) AND Estado=0)
@@ -151,14 +163,15 @@ BEGIN
 				Email=LOWER(@emailInsertar),
 				Direccion=CASE ISNULL(@direccionInsertar,'')
 					WHEN '' THEN '' ELSE UPPER(@direccionInsertar) END,
-				ModuloId=(SELECT Id FROM Modulos WHERE Nombre=@modulo AND Id!=1 AND Estado=1),
+				ModuloId=(SELECT Id FROM Modulos WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND @modulo!='LA' AND Estado=1),
 				CarreraId=CASE ISNULL(@carreraIdInsertar,'')
-					WHEN '' THEN 0 ELSE @carreraIdInsertar END
+					WHEN '' THEN 0 ELSE @carreraIdInsertar END,
+				UsuarioId=@usuarioId
 				WHERE Matricula=@matriculaInsertar
 				AND Estado=0
 
-				SELECT @idInsertado=Id FROM Estudiantes 
-					WHERE Matricula=@matriculaInsertar AND Estado=1
+				SELECT TOP(1) @idInsertado=Id FROM Estudiantes 
+					WHERE Matricula=@matriculaInsertar AND UsuarioId=@usuarioId AND Estado=1
 
 				INSERT INTO @Estudiantes (Id, Nombres, Apellidos, Matricula, 
 					Email, Direccion, Carrera, Modulo) 
@@ -174,10 +187,10 @@ BEGIN
 			--INSERCION DE NUEVO ESTUDIANTE
 
 			INSERT INTO Estudiantes (Nombres, Apellidos, Matricula, Email, 
-				Direccion, CarreraId, ModuloId, Estado)
+				Direccion, CarreraId, ModuloId, UsuarioId, Estado)
 			SELECT UPPER(@nombresInsertar), UPPER(@apellidosInsertar), @matriculaInsertar, 
 				LOWER(@emailInsertar), UPPER(ISNULL(@direccionInsertar,'')), ISNULL(@idCarrera, 0), 
-				@moduloIdInsertar, 1
+				@moduloIdInsertar, @usuarioId, 1
 
 			SET @idInsertado=@@IDENTITY
 
@@ -197,10 +210,21 @@ BEGIN
 
 	IF(@i_accion = 'IN')
 	BEGIN
+		IF(@usuarioId IS NULL)
+		BEGIN
+			-- VALIDAR QUE EXISTA EL USUARIO INGRESADO
+			INSERT INTO @Estudiantes (Id) VALUES (-3)
+
+			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
+			FROM @Estudiantes
+			RETURN 0;
+		END
 		IF EXISTS (SELECT 1 FROM Estudiantes e
 						INNER JOIN Modulos m ON m.Id=e.ModuloId
-						WHERE Matricula=@matricula	
+						WHERE Matricula=@matricula						
 						AND  m.Nombre=@modulo
+						AND e.UsuarioId=@usuarioId
+						AND m.UsuarioId=@usuarioId
 						AND e.Estado=1
 						AND m.Estado=1)
 		BEGIN
@@ -212,8 +236,8 @@ BEGIN
 			RETURN 0;
 		END
 
-		SELECT @idCarrera=Id FROM Carreras WHERE Nombre = @carrera	AND Estado=1
-		SELECT @idModulo=Id	FROM Modulos WHERE Nombre = @modulo		AND Estado=1
+		SELECT @idCarrera=Id FROM Carreras WHERE Nombre = @carrera AND UsuarioId=@usuarioId	AND Estado=1
+		SELECT @idModulo=Id	FROM Modulos WHERE Nombre = @modulo	AND UsuarioId=@usuarioId	AND Estado=1
 
 		--IF(@idCarrera IS NULL)
 		--BEGIN
@@ -246,9 +270,10 @@ BEGIN
 			Matricula	=	@matricula,
 			Email		=	@email,
 			Direccion	=	@direccion,
-			CarreraId	=	@idCarrera,
-			ModuloId	=	@idModulo
-			WHERE Id=(SELECT e.Id FROM Estudiantes e
+			CarreraId	=	@idCarrera,			
+			ModuloId	=	@idModulo,
+			UsuarioId	=	@usuarioId
+			WHERE Id=(SELECT TOP(1) e.Id FROM Estudiantes e
 						INNER JOIN Modulos m ON m.Id=e.ModuloId
 						WHERE Matricula=@matricula	
 						AND  m.Nombre=@modulo
@@ -260,10 +285,11 @@ BEGIN
 				Email, Direccion, Carrera='', Modulo=m.Nombre
 				FROM Estudiantes e
 				INNER JOIN Modulos m	ON	m.Id=e.ModuloId
-				WHERE e.Id=(SELECT e.Id FROM Estudiantes e
+				WHERE e.Id=(SELECT TOP(1) e.Id FROM Estudiantes e
 							INNER JOIN Modulos m ON m.Id=e.ModuloId
 							WHERE Matricula=@matricula	
 							AND  m.Nombre=@modulo
+							AND e.UsuarioId=@usuarioId
 							AND e.Estado=1
 							AND m.Estado=1)
 				RETURN 0;
@@ -273,18 +299,19 @@ BEGIN
 			FROM Estudiantes e
 			INNER JOIN Modulos m	ON	m.Id=e.ModuloId
 			INNER JOIN Carreras c	ON	c.Id=e.CarreraId
-			WHERE e.Id=(SELECT e.Id FROM Estudiantes e
+			WHERE e.Id=(SELECT TOP(1) e.Id FROM Estudiantes e
 						INNER JOIN Modulos m ON m.Id=e.ModuloId
 						WHERE Matricula=@matricula	
 						AND  m.Nombre=@modulo
+						AND e.UsuarioId=@usuarioId
 						AND e.Estado=1
 						AND m.Estado=1)
 
 			RETURN 0;
 		END
 
-		INSERT INTO Estudiantes (Nombres, Apellidos, Matricula, Email, Direccion, CarreraId, ModuloId, Estado)
-		SELECT @nombres, @apellidos, @matricula, @email, @direccion, @idCarrera, @idModulo, 1
+		INSERT INTO Estudiantes (Nombres, Apellidos, Matricula, Email, Direccion, CarreraId, ModuloId, UsuarioId, Estado)
+		SELECT @nombres, @apellidos, @matricula, @email, @direccion, @idCarrera, @idModulo, @usuarioId, 1
 
 		DECLARE @id INT = @@IDENTITY
 
@@ -315,6 +342,7 @@ BEGIN
 		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE c.Nombre LIKE '%' + @i_carrera + '%'
 		AND m.Nombre=@i_modulo
+		AND e.UsuarioId=@usuarioId
 		AND e.Estado=1
 		AND m.Estado=1
 
@@ -329,6 +357,7 @@ BEGIN
 		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE Email = @email
 		AND m.Nombre=@modulo
+		AND e.UsuarioId=@usuarioId
 		AND e.Estado=1
 		AND m.Estado=1
 
@@ -342,6 +371,7 @@ BEGIN
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
 		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE m.Nombre = @modulo
+		AND e.UsuarioId=@usuarioId
 		AND e.Estado=1
 		AND m.Estado=1
 
@@ -356,6 +386,7 @@ BEGIN
 		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE Matricula = @matricula
 		AND m.Nombre=@modulo
+		AND e.UsuarioId=@usuarioId
 		AND e.Estado=1
 		AND m.Estado=1
 
@@ -373,6 +404,7 @@ BEGIN
 			WHERE	Nombres		= @nombres
 			AND		Apellidos	= @apellidos
 			AND m.Nombre=@modulo
+			AND e.UsuarioId=@usuarioId
 			AND e.Estado=1
 			AND m.Estado=1
 
@@ -387,6 +419,7 @@ BEGIN
 			LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 			WHERE Apellidos LIKE '%' + @apellidos + '%'
 			AND m.Nombre=@modulo
+			AND e.UsuarioId=@usuarioId
 			AND e.Estado=1
 			AND m.Estado=1
 
@@ -401,6 +434,7 @@ BEGIN
 			LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 			WHERE Nombres LIKE '%' + @nombres + '%'
 			AND m.Nombre=@modulo
+			AND e.UsuarioId=@usuarioId
 			AND e.Estado=1
 			AND m.Estado=1
 
@@ -416,6 +450,7 @@ BEGIN
 			WHERE (Nombres LIKE '%' + @nombres + '%'
 			AND Apellidos LIKE '%' + @apellidos + '%')
 			AND m.Nombre=@modulo
+			AND e.UsuarioId=@usuarioId
 			AND e.Estado=1
 			AND m.Estado=1
 
@@ -430,13 +465,24 @@ BEGIN
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
 		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE e.Estado=1
+		AND e.UsuarioId=@usuarioId
 		AND m.Estado=1
 
 		RETURN 0;
 	END
 	IF(@i_accion = 'UP')
 	BEGIN
-		IF NOT EXISTS (SELECT 1 FROM Estudiantes WHERE Id=@i_id AND Estado=1)
+		IF (@usuarioId IS NULL)
+		BEGIN
+			--No existe Usuario con el Id ingresado
+			INSERT INTO @Estudiantes (Id) VALUES (-3)
+
+			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
+			FROM @Estudiantes
+			RETURN 0;
+		END
+
+		IF NOT EXISTS (SELECT 1 FROM Estudiantes WHERE Id=@i_id AND UsuarioId=@usuarioId AND Estado=1)
 		BEGIN
 			--No existe estudiante con el Id ingresado
 			INSERT INTO @Estudiantes (Id) VALUES (0)
@@ -444,12 +490,14 @@ BEGIN
 			SELECT Id, Nombres, Apellidos, Matricula, Email, Direccion, Carrera, Modulo
 			FROM @Estudiantes
 			RETURN 0;
-		END
+		END		
 
 		IF EXISTS (SELECT 1 FROM Estudiantes e
 						INNER JOIN Modulos m ON m.Id=e.ModuloId
 						WHERE Matricula=@matricula	
-						AND  m.Nombre=@modulo
+						AND m.Nombre=@modulo
+						AND m.UsuarioId=@usuarioId
+						AND e.UsuarioId=@usuarioId
 						AND e.Id!=@i_id
 						AND e.Estado=1
 						AND m.Estado=1)
@@ -462,8 +510,8 @@ BEGIN
 			RETURN 0;
 		END
 
-		SELECT @idCarrera=Id FROM Carreras WHERE Nombre = @carrera	AND Estado=1
-		SELECT @idModulo=Id	FROM Modulos WHERE Nombre = @modulo		AND Estado=1
+		SELECT @idCarrera=Id FROM Carreras WHERE Nombre = @carrera AND UsuarioId=@usuarioId	AND Estado=1
+		SELECT @idModulo=Id	FROM Modulos WHERE Nombre = @modulo AND UsuarioId=@usuarioId AND Estado=1
 		
 		--IF(@idCarrera IS NULL AND ISNULL(@carrera, '')!='')
 		--BEGIN
@@ -510,6 +558,7 @@ BEGIN
 		FROM Modulos m 
 		INNER JOIN Estudiantes e ON e.ModuloId=m.Id
 		WHERE e.Id = @i_id
+		AND e.UsuarioId=@usuarioId
 		AND m.Nombre = CASE		WHEN ISNULL(@modulo,'')='' THEN m.Nombre
 								ELSE @modulo
 								END
@@ -520,6 +569,7 @@ BEGIN
 		INNER JOIN Modulos m	ON	m.Id=e.ModuloId
 		LEFT JOIN Carreras c	ON	c.Id=e.CarreraId
 		WHERE e.Id=@i_id
+		AND e.UsuarioId=@usuarioId
 		AND e.Estado=1
 		AND m.Estado=1
 

@@ -6,5 +6,8 @@ namespace IDAAI_APP.Models.Operations
     {
         [StringLength(maximumLength: 25)]
         public string Nombre { get; set; }
+
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

@@ -6,5 +6,9 @@ namespace IDAAI_API.Entidades.Operations.Consultas
     {
         [StringLength(maximumLength: 25)]
         public string Nombre { get; set; }
+
+
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

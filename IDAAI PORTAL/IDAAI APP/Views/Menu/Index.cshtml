@@ -5,12 +5,64 @@
 }
 
 @{
-    Layout = "_LayoutMenu";
+    Layout = "_Layout";
 }
 
 <div class="text-center my-5">
-    <p class="fw-bold">Bienvenido @ViewBag.Usuario</p>
-    <p class="">Seleccione el tipo de Laboratorio:</p>
-    <a asp-controller="LaboratorioAbierto" asp-action="Index" type="submit" class="btn btn-primary btn-lg w-50 my-2 py-5 rounded">Laboratorio Abierto</a>
-    <a asp-controller="LaboratorioClases" asp-action="Index" type="submit" class="btn btn-primary btn-lg w-50 my-2 py-5 rounded">Laboratorio de Clases</a>
+    <h1 class="fs-2 mb-3 fw-bold">
+        Bienvenido <span class="fw-bold fs-1">@ViewBag.Usuario.ToUpper()</span>
+    </h1>
+    <h4 class="fs-4">Seleccione el tipo de Laboratorio:</h4>
+    <div class="contenedorLaboratorio mt-5">
+        <div class="btn-group" role="group">
+            <a asp-controller="LaboratorioAbierto" asp-action="Index" type="button" id="b1" onmouseover="setActive('b1')" onmouseout="setInactive('b1')" class="botonlab btn btn-1 btn-warning text-white fw-bold rounded-start fs-5">Laboratorio Abierto</a>
+            
+            <a asp-controller="LaboratorioClases" asp-action="Index" type="button" id="b2" onmouseover="setActive('b2')" onmouseout="setInactive('b2')" class="botonlab btn btn-2 btn-primary fw-bold rounded-end fs-5">Laboratorio de Clases</a>
+        </div>
+    </div>
 </div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+
+    $(function(){
+ 
+    })
+
+    function setActive(btn) {
+         let b = document.getElementById(btn);
+         b.classList.add('active');
+         if(btn=='b1'){
+             let ob = document.getElementById('b2');
+             ob.classList.add('opaco');
+             $("#b1").addClass('fs-2');
+             //$("#b1").append(`
+             //      <img width="100" height="100" id="imagenLC" src="~/images/inventario.png" alt="Laboratorio abierto" />
+             //`)
+        } else {
+            let ob = document.getElementById('b1');
+            ob.classList.add('opaco');
+            $("#b2").addClass('fs-2');
+            //$("#b2").append(`
+            //        <img width="100" height="100" id="imagenLA" src="~/images/clase.png" alt="Laboratorio de clases" />
+            //`)
+         }
+    }
+
+    function setInactive(btn) {
+        let b = document.getElementById(btn);
+        b.classList.remove('active');
+         if(btn=='b1'){
+            let ob = document.getElementById('b2');
+            ob.classList.remove('opaco');
+            $("#b1").removeClass('fs-2');
+             //$("#imagenLC").remove()
+          }else {
+            let ob = document.getElementById('b1');
+            ob.classList.remove('opaco');
+            $("#b2").removeClass('fs-2');
+            //$("#imagenLA").remove()
+         }
+    }
+
+</script>

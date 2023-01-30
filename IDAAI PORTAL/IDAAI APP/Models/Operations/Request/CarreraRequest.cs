@@ -14,6 +14,11 @@ namespace IDAAI_APP.Models.Operations.Request
         [Required]
         [StringLength(maximumLength: 50)]
         public string Modulo { get; set; }
+
+        [Required]
+        [JsonProperty("Usuario")]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 
     public class CarreraEditarRequest
@@ -29,5 +34,10 @@ namespace IDAAI_APP.Models.Operations.Request
         [JsonProperty("Modulo")]
         [StringLength(maximumLength: 50)]
         public string Modulo { get; set; }
+
+        [Required]
+        [JsonProperty("Usuario")]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

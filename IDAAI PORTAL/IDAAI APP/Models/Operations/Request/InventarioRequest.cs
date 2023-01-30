@@ -14,6 +14,10 @@ namespace IDAAI_APP.Models.Operations.Request
         public string Descripcion { get; set; }
 
         public int CantidadTotal { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 
     public class InventarioEditarRequest
@@ -30,5 +34,9 @@ namespace IDAAI_APP.Models.Operations.Request
         public int CantidadDisponible { get; set; }
 
         public int CantidadTotal { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

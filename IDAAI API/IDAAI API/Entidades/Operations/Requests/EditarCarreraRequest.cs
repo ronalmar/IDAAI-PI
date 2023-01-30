@@ -5,8 +5,8 @@ namespace IDAAI_API.Entidades.Operations.Requests
 {
     public class EditarCarreraRequest
     {
-        [JsonProperty("Id")]
         [Required]
+        [JsonProperty("Id")]       
         public int Id { get; set; }
 
         [JsonProperty("Nombre")]
@@ -16,6 +16,11 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [JsonProperty("Modulo")]
         [StringLength(maximumLength: 50)]
         public string Modulo { get; set; }
+
+        [Required]
+        [JsonProperty("Usuario")]
+        [StringLength(maximumLength: 50)]
+        public string Usuario { get; set; }
 
     }
 }

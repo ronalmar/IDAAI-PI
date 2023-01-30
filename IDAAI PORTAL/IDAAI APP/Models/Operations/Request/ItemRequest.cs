@@ -12,6 +12,10 @@ namespace IDAAI_APP.Models.Operations.Request
         [Required]
         [StringLength(maximumLength: 100)]
         public string Inventario { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 
     public class ItemEditarRequest
@@ -25,7 +29,10 @@ namespace IDAAI_APP.Models.Operations.Request
         public bool? EstaDisponible { get; set; }
 
         [StringLength(maximumLength: 100)]
-
         public string Inventario { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

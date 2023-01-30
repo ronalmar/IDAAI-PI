@@ -1,0 +1,98 @@
+﻿@{
+    ViewData["Title"] = "Registrar Asistencia";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="d-flex align-items-center justify-content-center">
+    <div class="row d-flex align-items-center justify-content-evenly px-4 mt-5 shadow bg-light rounded mb-5 col-xl-8 col-xxl-9 col-md-7 col-sm-9 col-11">
+        <div class="col-12 mt-3 mb-3 pb-2 border-bottom">
+            <h2 class="mb-3 text-center fw-bold mt-3">@ViewData["Title"]</h2>
+        </div>
+
+        <div class="col-lg-6 mx-auto">
+            <div class="col-12 col-md-12 mt-3">
+                <img width="175" height="150" class="d-block mx-auto" src="~/images/asistencia.png" alt="Asistencia de estudiante" />
+            </div>
+        </div>
+
+        <div class="col-lg-6 mx-auto">
+            <div class="col-8 col-sm-6 mx-auto col-md-6 col-lg-8 mt-2 mb-2">
+                <form id="loginForm">
+                    <div class="ml-5 mt-2">
+                        <label class="fw-bold mb-2 mt-4 ml-5" for="matricula">Matrícula:</label>
+                    </div>
+
+                    <div class="text-center">
+                        <input type="text" class="form-control mb-3" id="matricula" />
+                        <button onclick="marcarAsistencia()" id="botonAccion" type="button" class="botonAccion btn btn-success bg-gradient px-3 mt-2 mb-2 py-3 rounded-pill" style="">Marcar Asistencia</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+       
+        <div class="mt-5">
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+
+    $("#loginForm").submit(function (event) {
+        var isValid = false;
+
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+
+    $("#matricula").keyup(function (event) {
+        if (event.keyCode === 13) {
+            marcarAsistencia();
+        }
+    });    
+
+    function marcarAsistencia() {
+        if ($("#matricula").val().trim() == '') {
+            showToastError('Debe ingresar la matrícula')
+            return
+        }
+
+        if ($("#matricula").val().length != 9) {
+            showToastError('La matrícula no es válida (debe tener 9 dígitos)')
+            return
+        }
+
+        var request = {
+            Matricula: $("#matricula").val().trim()
+        }
+
+        $.ajax({
+            cache: false,
+            type: "PUT",
+            url: '@Url.Action("EstablecerAsistencia", "Operaciones")',
+            data: request,
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                showToastOk(`Se marcó correctamente la asistencia del día de hoy para el estudiante con matrícula ${request.Matricula}`);
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
+        });
+    }
+
+</script>

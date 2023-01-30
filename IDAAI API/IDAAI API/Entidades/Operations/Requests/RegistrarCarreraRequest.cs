@@ -15,5 +15,10 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [StringLength(maximumLength: 50)]
         public string Modulo { get; set; }
 
+        [JsonProperty("Usuario")]
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
+
     }
 }

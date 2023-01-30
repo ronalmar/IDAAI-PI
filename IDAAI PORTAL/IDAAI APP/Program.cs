@@ -1,6 +1,7 @@
 using IDAAI_APP.Controllers;
 using IDAAI_APP.Middleware;
 using IDAAI_APP.Models;
+using IDAAI_APP.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +18,7 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AuthorizeFilter(politicaUsuariosAutenticados));
 });
+builder.Services.AddScoped<ICSVService, CSVService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -48,5 +50,9 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(name: "asistencia",
+    pattern: "asistencia",
+    defaults: new { controller = "Home", action = "AsistenciaEstudiante" });
 
 app.Run();

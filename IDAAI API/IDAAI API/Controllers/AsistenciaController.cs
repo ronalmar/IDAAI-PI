@@ -43,7 +43,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.RegistroAsistencia
-                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CN', @i_nombres='{query.Nombres}', @i_apellidos='{query.Apellidos}', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CN', @i_usuario='{query.Usuario}', @i_nombres='{query.Nombres}', @i_apellidos='{query.Apellidos}', @i_modulo='{query.Modulo}'").ToListAsync();
                 
                 var resultPaginado = Paginacion<Asistencia>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<AsistenciaDTO> listaAsistenciaDTO = new();
@@ -68,7 +68,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.RegistroAsistencia
-                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CC', @i_carrera='{query.Carrera}', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CC', @i_usuario='{query.Usuario}', @i_carrera='{query.Carrera}', @i_modulo='{query.Modulo}'").ToListAsync();
                 
                 var resultPaginado = Paginacion<Asistencia>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<AsistenciaDTO> listaAsistenciaDTO = new();
@@ -93,7 +93,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.RegistroAsistencia
-                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CL', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CL', @i_usuario='{query.Usuario}', @i_modulo='{query.Modulo}'").ToListAsync();
               
                 var resultPaginado = Paginacion<Asistencia>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<AsistenciaDTO> listaAsistenciaDTO = new();
@@ -113,12 +113,12 @@ namespace IDAAI_API.Controllers
         // api/asistencia/listarTodos
         [HttpGet("listarTodos")]
         public async Task<ActionResult<AsistenciaDTO>> ListarTodos(
-            [FromQuery] PaginacionQuery query)
+            [FromQuery] EstudianteTodosQuery query)
         {
             try
             {
                 var result = await _context.RegistroAsistencia
-                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CT'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CT', @i_usuario='{query.Usuario}'").ToListAsync();
                
                 var resultPaginado = Paginacion<Asistencia>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<AsistenciaDTO> listaAsistenciaDTO = new();
@@ -143,7 +143,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.RegistroAsistencia
-                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CM', @i_matricula='{query.Matricula}', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='CM', @i_usuario='{query.Usuario}', @i_matricula='{query.Matricula}', @i_modulo='{query.Modulo}'").ToListAsync();
 
                 AsistenciaDTO asistenciaDTO = new();
                 if (result.Count == 0)
@@ -170,12 +170,12 @@ namespace IDAAI_API.Controllers
                 if (request.EsAsistencia == true)
                 {
                     result = await _context.RegistroAsistencia
-                        .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='IA', @i_matricula='{request.Matricula}', @i_fecha='{request.Fecha}', @i_modulo='{request.Modulo}'").ToListAsync();
+                        .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='IA', @i_usuario='{request.Usuario}', @i_matricula='{request.Matricula}', @i_fecha='{request.Fecha}', @i_modulo='{request.Modulo}'").ToListAsync();
                 }
                 else
                 {
                     result = await _context.RegistroAsistencia
-                     .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='IF', @i_matricula='{request.Matricula}', @i_fecha='{request.Fecha}', @i_modulo='{request.Modulo}'").ToListAsync();
+                     .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='IF', @i_usuario='{request.Usuario}', @i_matricula='{request.Matricula}', @i_fecha='{request.Fecha}', @i_modulo='{request.Modulo}'").ToListAsync();
                 }
                 if (result.Count == 0)
                 {
@@ -201,17 +201,188 @@ namespace IDAAI_API.Controllers
                 if (request.EsAsistencia == true)
                 {
                     result = await _context.RegistroAsistencia
-                        .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='UA', @i_idRegistroAsistencia='{request.Id}'").ToListAsync();
+                        .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='UA', @i_usuario='{request.Usuario}', @i_idRegistroAsistencia='{request.Id}'").ToListAsync();
                 }
                 else
                 {
                     result = await _context.RegistroAsistencia
-                     .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='UF', @i_idRegistroAsistencia='{request.Id}'").ToListAsync();
+                     .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='UF', @i_usuario='{request.Usuario}', @i_idRegistroAsistencia='{request.Id}'").ToListAsync();
                 }
                 if (result.Count == 0)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_10);
                 }
+                var asistenciaDTO = mapper.Map<AsistenciaDTO>(result[0]);
+                return Ok(asistenciaDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/asistencia/consultarClase
+        [HttpGet("consultarClase")]
+        public async Task<ActionResult<AsistenciaDTO>> EstablecerAsistencia(
+            [FromQuery] EstudianteTodosQuery query)
+        {
+            try
+            {
+                var result = await _context.RegistroAsistencia
+                        .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='AE', @i_tipoAccion='AA', @i_usuario='{query.Usuario}'").ToListAsync();
+
+                var resultPaginado = Paginacion<Asistencia>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                List<AsistenciaDTO> listaAsistenciaDTO = new();
+
+                if (result.Count == 0)
+                {
+                    foreach (var asistencia in resultPaginado)
+                    {
+                        var asistenciaDTO = mapper.Map<AsistenciaDTO>(asistencia);
+                        listaAsistenciaDTO.Add(asistenciaDTO);
+                    }
+                    return Ok(listaAsistenciaDTO);
+                }
+                if (result[0].Id == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_41);
+                }
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_42);
+                }
+                if (result[0].Id == -2)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_43);
+                }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_44);
+                }
+
+                foreach (var asistencia in resultPaginado)
+                {
+                    var asistenciaDTO = mapper.Map<AsistenciaDTO>(asistencia);
+                    listaAsistenciaDTO.Add(asistenciaDTO);
+                }
+                return Ok(listaAsistenciaDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/asistencia/sincronizarAsistencia
+        [HttpGet("sincronizarAsistencia")]
+        public async Task<ActionResult<AsistenciaDTO>> SincronizarAsistencia()
+        {
+            try
+            {
+                var result = await _context.RegistroAsistencia
+                        .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='JB'").ToListAsync();
+
+                //var resultPaginado = Paginacion<Asistencia>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                //List<AsistenciaDTO> listaAsistenciaDTO = new();
+
+                //if (result.Count == 0)
+                //{
+                //    foreach (var asistencia in resultPaginado)
+                //    {
+                //        var asistenciaDTO = mapper.Map<AsistenciaDTO>(asistencia);
+                //        listaAsistenciaDTO.Add(asistenciaDTO);
+                //    }
+                //    return Ok(listaAsistenciaDTO);
+                //}
+                //if (result[0].Id == 0)
+                //{
+                //    return BadRequest(Mensajes.ERROR_VAL_41);
+                //}
+                //if (result[0].Id == -1)
+                //{
+                //    return BadRequest(Mensajes.ERROR_VAL_42);
+                //}
+                //if (result[0].Id == -2)
+                //{
+                //    return BadRequest(Mensajes.ERROR_VAL_43);
+                //}
+                //if (result[0].Id == -3)
+                //{
+                //    return BadRequest(Mensajes.ERROR_VAL_44);
+                //}
+
+                //foreach (var asistencia in resultPaginado)
+                //{
+                //    var asistenciaDTO = mapper.Map<AsistenciaDTO>(asistencia);
+                //    listaAsistenciaDTO.Add(asistenciaDTO);
+                //}
+                //return Ok(listaAsistenciaDTO);
+
+                if(result.Count < 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
+                if (result[0].Id == 0)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        // api/asistencia/establecerAsistencia
+        [HttpPut("establecerAsistencia")]
+        public async Task<ActionResult<AsistenciaDTO>> EstablecerAsistencia(
+            [FromBody] EstablecerAsistenciaRequest request)
+        {
+            try
+            {
+                List<Asistencia> result;
+
+                result = await _context.RegistroAsistencia
+                        .FromSqlRaw($"EXEC sp_registroasistencia @i_accion='AE', @i_matricula='{request.Matricula}'").ToListAsync();
+                
+                if (result.Count == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
+                if (result[0].Id == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_41);
+                }
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_42);
+                }
+                if (result[0].Id == -2)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_43);
+                }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_44);
+                }
+                if (result[0].Id == -4)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_45);
+                }
+                if (result[0].Id == -5)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_47);
+                }
+                if (result[0].Id == -6)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_46);
+                }
+
                 var asistenciaDTO = mapper.Map<AsistenciaDTO>(result[0]);
                 return Ok(asistenciaDTO);
             }

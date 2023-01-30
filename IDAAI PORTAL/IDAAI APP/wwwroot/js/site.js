@@ -6,6 +6,8 @@ var informacion = new Object();
 var paginaActual = 0;
 var numeroPaginas;
 var idSeleccionado;
+var moduloSeleccionado;
+var esPantallaClase = false;
 
 var campos = 'Campos';
 var nombres = 'nombres';
@@ -23,7 +25,8 @@ var Pantalla = {
     Modulo: 'Modulo',
     Inventario: 'Inventario',
     Item: 'Item',
-    Prestamo: 'Prestamo'
+    Prestamo: 'Prestamo',
+    PrestamoLA: 'PrestamoLA'
 }
 var Info = {
     Estudiante: {
@@ -51,8 +54,12 @@ var Info = {
         Campos: ["rfid", "estadoItem", "inventario"]
     },
     Prestamo: {
-        Titulos: ["Código RFID", "Inventario", "Fecha Prestado", "Fecha Devuelto", "Estado", "Módulo"],
-        Campos: ["item", "inventario", "fechaPrestado", "fechaDevuelto", "estadoDevolucion", "modulo"]
+        Titulos: ["Item", "Inventario", "Fecha Prestado", "Fecha Devuelto", "Módulo", "Estado"],
+        Campos: ["item", "inventario", "fechaPrestado", "fechaDevuelto", "modulo", "estadoDevolucion"]
+    },
+    PrestamoLA: {
+        Titulos: ["Item", "Inventario", "Fecha Prestado", "Fecha Devuelto", "Nombres", "Apellidos", "Matrícula", "Estado"],
+        Campos: ["item", "inventario", "fechaPrestado", "fechaDevuelto", "nombres", "apellidos", "matricula", "estadoDevolucion"]
     }
 }
 var PantallaActual;
@@ -100,6 +107,17 @@ var Datos = {
         fechaDevuelto: null,
         estadoDevolucion: null,
         modulo: null
+    },
+    PrestamoLA: {
+        id: null,
+        item: null,
+        inventario: null,
+        fechaPrestado: null,
+        fechaDevuelto: null,
+        estadoDevolucion: null,
+        nombres: null,
+        apellidos: null,
+        matricula: null
     }
 }
 var CamposQuery = {
@@ -240,7 +258,6 @@ var RequestRegistrar = {
 function prepararPantalla(pantalla) {
     PantallaActual = pantalla;
     generarModalEliminacion(pantalla);
-    $(`#navBar${PantallaActual}`).addClass("active");
 }
 
 function generarModalEliminacion() {
@@ -384,10 +401,12 @@ function cargarTabla(listaDatos, numeroPaginas) {
                         <tr class='align-middle'>
                         <th scope="row">${contador}</th>
                         ${informacion.Campos.map(campo => {
-                            return `<td class="${registro[campo] ? '' : 'text-center'}">${!registro[campo] || registro[campo] == '' ? '-' : campo == 'nombres' || campo == 'apellidos' ? formatearNombres(registro[campo]) : registro[campo]}</td >`
-                        }).join('')}                       
-                        <td><button ${PantallaActual == 'Asistencia' || PantallaActual == 'Prestamo' ? `onClick="editar(${registro.id})"` : `onClick="seleccionarDatosFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalEditar"`} id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar registro'/><i class="bi bi-pencil-square"></i></button>
-                        <button onClick="seleccionarIdFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar registro'/><i class="bi-trash"></i></button></td>
+                            return `<td class="${registro[campo] ? '' : 'text-center'}">${!registro[campo] || registro[campo] == '' ? '-' : campo == 'nombres' || campo == 'apellidos' ? formatearNombres(registro[campo]) : registro[campo]
+                        }</td >`
+                        }).join('')}
+                        ${registro.nombre != 'General' ? ` <td id='acciones${registro.nombre}'><button ${PantallaActual == 'Asistencia' || PantallaActual == 'Prestamo' || PantallaActual == 'PrestamoLA' ? `onClick="editar(${registro.id})"` : `onClick="seleccionarDatosFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalEditar"`} id='botonEditar' class='btn-sm btn-primary' type='button' title='Editar registro'/><i class="bi bi-pencil-square"></i></button>
+                        <button onClick="seleccionarIdFila(${registro.id})" data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminacion" class='btn-sm btn-primary' type='button' title='Eliminar registro'/><i class="bi-trash"></i></button></td>` : `<td></td>` }
+                       
                     </tr>
                 `);
     });
@@ -431,6 +450,7 @@ function seleccionarDatosFila(id) {
                 $("#modalEditarPeriodo").val(periodoAcademico[2])
                 $("#modalEditarNombre").val(registro.nombre)
                 $("#modalEditarDescripcion").val(registro.descripcion)
+                moduloSeleccionado = registro.nombre;
 
                 if (!registro.diasClase) {
                     $("#modalEditarLunes").prop('checked', false);

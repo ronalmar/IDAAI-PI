@@ -13,7 +13,10 @@ namespace IDAAI_API.Entidades.Operations.Requests
         public bool? EstaDisponible { get; set; }
 
         [StringLength(maximumLength: 100)]
-
         public string Inventario { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

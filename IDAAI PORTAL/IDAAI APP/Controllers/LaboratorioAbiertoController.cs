@@ -19,7 +19,7 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return RedirectToAction("Asistencia");
+            return RedirectToAction("Item");
         }
 
         [HttpGet]
@@ -35,12 +35,18 @@ namespace IDAAI_APP.Controllers
             }
 
             ViewBag.Carreras = Carreras;
+            ViewBag.Opcion = "Asistencia";
+            ViewBag.Laboratorio = "Abierto";
+
             return View();
         }
 
         [HttpGet]
         public IActionResult Inventario()
         {
+            ViewBag.Opcion = "Inventario";
+            ViewBag.Laboratorio = "Abierto";
+
             return View();
         }
 
@@ -55,13 +61,28 @@ namespace IDAAI_APP.Controllers
             {
                 Inventario.Add(new SelectListItem() { Text = inventario.Nombre, Value = inventario.Nombre });
             }
+
+            foreach (var inventarioUnidad in Inventario)
+            {
+                if (inventarioUnidad.Value == "General")
+                {
+                    inventarioUnidad.Selected = true;
+                }
+            }
+
             ViewBag.Inventario = Inventario;
+            ViewBag.Opcion = "Item";
+            ViewBag.Laboratorio = "Abierto";
+
             return View();
         }
 
         [HttpGet]
         public IActionResult Prestamo()
         {
+            ViewBag.Opcion = "Prestamo";
+            ViewBag.Laboratorio = "Abierto";
+
             return View();
         }
 
@@ -78,12 +99,18 @@ namespace IDAAI_APP.Controllers
             }
 
             ViewBag.Carreras = Carreras;
+            ViewBag.Opcion = "Estudiante";
+            ViewBag.Laboratorio = "Abierto";
+
             return View();
         }
 
         [HttpGet]
         public IActionResult Carrera()
         {
+            ViewBag.Opcion = "Carrera";
+            ViewBag.Laboratorio = "Abierto";
+
             return View();
         }
 

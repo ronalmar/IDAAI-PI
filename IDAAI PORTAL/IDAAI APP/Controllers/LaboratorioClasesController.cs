@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
+using System.Reflection;
+using System.Security.Claims;
 
 namespace IDAAI_APP.Controllers
 {
@@ -18,7 +20,38 @@ namespace IDAAI_APP.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return RedirectToAction("Asistencia");
+            return RedirectToAction("Clase");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Clase()
+        {
+            var claims = HttpContext.User.Claims.ToList();
+
+            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var listaModulos = result.Value as List<Modulo>;
+            List<SelectListItem> Modulos = new();
+            foreach (var modulo in listaModulos)
+            {
+                Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
+            }
+
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var datosModuloActual = respuestaModuloActual.Value as Usuario_;
+            var moduloActual = datosModuloActual.ModuloActual;
+            foreach (var modulo in Modulos)
+            {
+                if (modulo.Value == moduloActual)
+                {
+                    modulo.Selected = true;
+                }
+            }
+
+            ViewBag.Modulos = Modulos;
+            ViewBag.Opcion = "Clase";
+            ViewBag.Laboratorio = "Clases";
+
+            return View();
         }
 
         [HttpGet]
@@ -41,14 +74,52 @@ namespace IDAAI_APP.Controllers
                 Carreras.Add(new SelectListItem() { Text = carrera.Nombre, Value = carrera.Nombre });
             }
 
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var datosModuloActual = respuestaModuloActual.Value as Usuario_;
+            var moduloActual = datosModuloActual.ModuloActual;
+            foreach (var modulo in Modulos)
+            {
+                if (modulo.Value == moduloActual)
+                {
+                    modulo.Selected = true;
+                }
+            }
+
             ViewBag.Modulos = Modulos;
             ViewBag.Carreras = Carreras;
+            ViewBag.Opcion = "Asistencia";
+            ViewBag.Laboratorio = "Clases";
+
             return View();
         }
 
         [HttpGet]
-        public IActionResult Inventario()
+        public async Task<IActionResult> Inventario()
         {
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var listaModulos = result.Value as List<Modulo>;
+            List<SelectListItem> Modulos = new();
+            foreach (var modulo in listaModulos)
+            {
+                Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
+            }
+
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var datosModuloActual = respuestaModuloActual.Value as Usuario_;
+            var moduloActual = datosModuloActual.ModuloActual;
+            foreach (var modulo in Modulos)
+            {
+                if (modulo.Value == moduloActual)
+                {
+                    modulo.Selected = true;
+                }
+            }
+
+            ViewBag.Modulos = Modulos;
+            ViewBag.Opcion = "Inventario";
+            ViewBag.Laboratorio = "Clases";
+
             return View();
         }
 
@@ -63,7 +134,38 @@ namespace IDAAI_APP.Controllers
             {
                 Inventario.Add(new SelectListItem() { Text = inventario.Nombre, Value = inventario.Nombre });
             }
+            var result2 = await operaciones.GetModulos(claims) as OkObjectResult;
+            var listaModulos = result2.Value as List<Modulo>;
+            List<SelectListItem> Modulos = new();
+            foreach (var modulo in listaModulos)
+            {
+                Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
+            }
+
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var datosModuloActual = respuestaModuloActual.Value as Usuario_;
+            var moduloActual = datosModuloActual.ModuloActual;
+            foreach (var modulo in Modulos)
+            {
+                if (modulo.Value == moduloActual)
+                {
+                    modulo.Selected = true;
+                }
+            }
+
+            foreach (var inventarioUnidad in Inventario)
+            {
+                if (inventarioUnidad.Value == "General")
+                {
+                    inventarioUnidad.Selected = true;
+                }
+            }
+
+            ViewBag.Modulos = Modulos;
             ViewBag.Inventario = Inventario;
+            ViewBag.Opcion = "Item";
+            ViewBag.Laboratorio = "Clases";
+
             return View();
         }
 
@@ -78,7 +180,22 @@ namespace IDAAI_APP.Controllers
             {
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
+
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var datosModuloActual = respuestaModuloActual.Value as Usuario_;
+            var moduloActual = datosModuloActual.ModuloActual;
+            foreach (var modulo in Modulos)
+            {
+                if (modulo.Value == moduloActual)
+                {
+                    modulo.Selected = true;
+                }
+            }
+
             ViewBag.Modulos = Modulos;
+            ViewBag.Opcion = "Prestamo";
+            ViewBag.Laboratorio = "Clases";
+
             return View();
         }
 
@@ -102,8 +219,22 @@ namespace IDAAI_APP.Controllers
                 Carreras.Add(new SelectListItem() { Text = carrera.Nombre, Value = carrera.Nombre });
             }
 
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var datosModuloActual = respuestaModuloActual.Value as Usuario_;
+            var moduloActual = datosModuloActual.ModuloActual;
+            foreach (var modulo in Modulos)
+            {
+                if (modulo.Value == moduloActual)
+                {
+                    modulo.Selected = true;
+                }
+            }
+
             ViewBag.Modulos = Modulos;
             ViewBag.Carreras = Carreras;
+            ViewBag.Opcion = "Estudiante";
+            ViewBag.Laboratorio = "Clases";
+
             return View();
         }
 
@@ -118,13 +249,52 @@ namespace IDAAI_APP.Controllers
             {
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
+
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var datosModuloActual = respuestaModuloActual.Value as Usuario_;
+            var moduloActual = datosModuloActual.ModuloActual;
+            foreach (var modulo in Modulos)
+            {
+                if (modulo.Value == moduloActual)
+                {
+                    modulo.Selected = true;
+                }
+            }
+
             ViewBag.Modulos = Modulos;
+            ViewBag.Opcion = "Carrera";
+            ViewBag.Laboratorio = "Clases";
+
             return View();
         }
 
         [HttpGet]
-        public IActionResult Modulo()
+        public async Task<IActionResult> Modulo()
         {
+            var claims = HttpContext.User.Claims.ToList();
+            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var listaModulos = result.Value as List<Modulo>;
+            List<SelectListItem> Modulos = new();
+            foreach (var modulo in listaModulos)
+            {
+                Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
+            }
+
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var datosModuloActual = respuestaModuloActual.Value as Usuario_;
+            var moduloActual = datosModuloActual.ModuloActual;
+            foreach (var modulo in Modulos)
+            {
+                if (modulo.Value == moduloActual)
+                {
+                    modulo.Selected = true;
+                }
+            }
+
+            ViewBag.Modulos = Modulos;
+            ViewBag.Opcion = "Modulo";
+            ViewBag.Laboratorio = "Clases";
+
             return View();
         }
 

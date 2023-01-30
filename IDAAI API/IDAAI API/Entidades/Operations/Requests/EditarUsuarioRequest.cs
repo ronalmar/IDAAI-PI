@@ -27,4 +27,12 @@ namespace IDAAI_API.Entidades.Operations.Requests
         public string Email { get; set; }
 
     }
+
+    public class EditarFechaUsuarioRequest
+    {
+        [JsonProperty("Usuario")]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
+
+    }
 }

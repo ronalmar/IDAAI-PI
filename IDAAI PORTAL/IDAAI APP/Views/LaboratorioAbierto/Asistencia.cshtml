@@ -3,7 +3,7 @@
 }
 
 @{
-    Layout = "_LayoutLaboratorioAbierto";
+    Layout = "_Layout";
 }
 
 <div id ="pantalla" class="container-fluid">
@@ -106,6 +106,7 @@
 
     $().ready(function () {
         prepararPantalla(Pantalla.Asistencia);
+        consultar()
     })
 
     function consultar(recarga = false) {
@@ -160,10 +161,10 @@
         var request = {
             Matricula: $("#modalRegistrarMatricula").val(),
             Fecha: $("#modalRegistrarFecha").val(),
-            EsAsistencia: $("#modalRegistrarEstadoAsistencia").val(),
+            EsAsistencia: $("#modalRegistrarEsAsistencia").val(),
             Modulo: "LA"
         }
-
+        console.log(request)
         $.ajax({
             cache: false,
             type: "POST",
@@ -266,7 +267,7 @@
                 }
                 consultar(true);
                 $("#modalConfirmarEliminacion").modal("hide");
-                showToastOk('El registor fue eliminado correctamente');
+                showToastOk('El registro fue eliminado correctamente');
             },
             error: function (xhr) {
                 showToastError(xhr.responseText);

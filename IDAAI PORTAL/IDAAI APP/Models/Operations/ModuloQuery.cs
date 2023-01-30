@@ -9,5 +9,8 @@ namespace IDAAI_APP.Models.Operations
 
         [StringLength(maximumLength: 50)]
         public string PeriodoAcademico { get; set; }
+
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

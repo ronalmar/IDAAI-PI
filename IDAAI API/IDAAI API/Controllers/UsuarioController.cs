@@ -98,6 +98,7 @@ namespace IDAAI_API.Controllers
             }
         }
 
+        [Authorize]
         // api/usuario/editarUsuario
         [HttpPut("editarUsuario")]
         public async Task<ActionResult<AutenticacionDTO>> EditarUsuario(
@@ -145,6 +146,7 @@ namespace IDAAI_API.Controllers
             }
         }
 
+        [Authorize]
         // api/usuario/eliminarUsuario
         [HttpDelete("eliminarUsuario")]
         public async Task<ActionResult<AutenticacionDTO>> EliminarUsuario(
@@ -168,6 +170,7 @@ namespace IDAAI_API.Controllers
             }
         }
 
+        [Authorize]
         // api/usuario/obtenerUsuario
         [HttpGet("obtenerUsuario")]
         public async Task<ActionResult<AutenticacionDTO>> ObtenerUsuario(
@@ -184,6 +187,72 @@ namespace IDAAI_API.Controllers
                     return Ok(result);
                 }
                 return BadRequest(Mensajes.ERROR_VAL_39);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [Authorize]
+        // api/usuario/actualizarFecha
+        [HttpPut("actualizarFecha")]
+        public async Task<ActionResult<AutenticacionDTO>> ActualizarFecha(
+            [FromBody] EditarFechaUsuarioRequest request)
+        {
+            try
+            {
+
+                var result = await _context.Autenticacion
+                    .FromSqlRaw($"EXEC sp_usuario @i_accion='FE', @i_usuario='{request.Usuario}'").ToListAsync();
+
+                if (result.Count > 0)
+                {
+                    if (result[0].Id == 0)
+                    {
+                        return BadRequest(Mensajes.ERROR_VAL_19);
+                    }
+
+                    var usuarioDTO = mapper.Map<AutenticacionDTO>(result[0]);
+                    return Ok(usuarioDTO);
+                }
+                return BadRequest(Mensajes.ERROR_VAL_08);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [Authorize]
+        // api/usuario/actualizarModuloActual
+        [HttpPut("actualizarModuloActual")]
+        public async Task<ActionResult<AutenticacionDTO>> ActualizarModuloActual(
+            [FromBody] EditarUsuarioModuloActualRequest request)
+        {
+            try
+            {
+
+                var result = await _context.Autenticacion
+                    .FromSqlRaw($"EXEC sp_usuario @i_accion='MA', @i_usuario='{request.Usuario}', @i_modulo='{request.Modulo}'").ToListAsync();
+
+                if (result.Count > 0)
+                {                    
+                    if (result[0].Id == 0)
+                    {
+                        return BadRequest(Mensajes.ERROR_VAL_19);
+                    }
+                    else if (result[0].Id == -1)
+                    {
+                        return BadRequest(Mensajes.ERROR_VAL_13);
+                    }
+                    else
+                    {
+                        return Ok(result[0]);
+                    }
+                }
+                return BadRequest(Mensajes.ERROR_VAL_08);
             }
             catch (Exception e)
             {

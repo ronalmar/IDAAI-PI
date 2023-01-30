@@ -7,5 +7,8 @@ namespace IDAAI_API.Entidades.Operations.Estudiante
     {
         [StringLength(maximumLength: 10)]
         public string Matricula { get; set; }
+
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

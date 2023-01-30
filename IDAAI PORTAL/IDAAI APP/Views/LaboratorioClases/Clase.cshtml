@@ -1,0 +1,197 @@
+﻿@{
+    ViewData["Title"] = "Clase";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+<div id ="pantalla" class="container-fluid">
+
+    <div class="row pt-4 pb-5 px-4 shadow bg-light rounded">
+        <div class="pb-2 border-bottom" align="center">
+            <h4 class="fw-bold">Registros de Asistencia de hoy para el Módulo actual</h4>
+            <button class="btn btn-primary mt-4 mb-3" onclick="consultar()" title="Consultar lista de registros de asistencia de estudiantes del módulo actual">
+                Actualizar
+                <i class="bi-arrow-counterclockwise"></i>
+            </button>
+            <button class="btn btn-success mt-4 mb-3" onclick="sincronizar()" title="Establece registros de asistencia en falta para hoy de los estudiantes de todos los módulos que tienen clase a fecha de hoy">
+                Sincronizar
+                @*<i class="bi-arrow-counterclockwise"></i>*@
+            </button>
+            <input type="hidden" id="estado" />
+        </div>
+        <div class="row pt-3">
+            <div class="col-md-12">
+                <div id="contenedorTabla" class="mt-5">
+                </div>
+            </div>
+        </div>        
+    </div>
+
+</div>
+
+<style>
+
+</style>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+
+    $().ready(function () {
+        prepararPantalla(Pantalla.Asistencia);
+        esPantallaClase = true;
+        consultar()
+    })
+
+    function consultar(recarga = false) {
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: `@Url.Action("ConsultarClase", "Operaciones")`,
+            data: null,
+            success: function (response) {
+                console.log(response)
+                if (response.length == 0 || response == null) {
+                    showToastError("No se encontraron resultados");
+                }
+                if (response.redirectToUrl) { 
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
+                crearTabla(response, Info[PantallaActual], recarga);
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
+        });
+    }
+
+    function sincronizar() {
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: `@Url.Action("SincronizarAsistencia", "Operaciones")`,
+            data: null,
+            success: function (response) {
+                console.log(response)
+                if (response.length == 0 || response == null) {
+                    showToastError("No se encontraron resultados");
+                }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
+                showToastOk("Registros de asistencia de hoy preparados");
+                consultar()
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
+        });
+    }
+
+    function editar(id) {
+        var esAsistencia = true;
+        var contador = 0;
+        respuestaTotal.forEach(registro => {
+            contador++
+            if(registro.id == id){
+                if(registro.estadoAsistencia == 'Asistencia'){
+                    esAsistencia = false;
+                }
+            }
+            if(contador == respuestaTotal.length){
+                var request = {
+                    id: id,
+                    esAsistencia: esAsistencia
+                }
+
+                $.ajax({
+                    cache: false,
+                    type: "PUT",
+                    url: '@Url.Action("EditarAsistencia", "Operaciones")',
+                    data: request,
+                    success: function (response) {
+                        if (response == null) {
+                            showToastError("Ha ocurrido un error");
+                            return;
+                        }
+                        if (response.redirectToUrl) {
+                            window.location.href = response.redirectToUrl;
+                            return
+                        }
+                        consultar(true);
+                        $("#modalEditar").modal("hide");
+                        showToastOk('El registro se actualizó correctamente');
+                    },
+                    error: function (xhr) {
+                        showToastError(xhr.responseText);
+                        return false;
+                    },
+                    beforeSend: function () {
+                        mostrarCarga(true);
+                    },
+                    complete: function () {
+                        mostrarCarga(false);
+                    }
+                });
+
+            }
+        })             
+    }
+
+    function eliminar() {
+        var request = {
+            Id: idSeleccionado
+        }
+
+        $.ajax({
+            cache: false,
+            type: "DELETE",
+            url: `@Url.Action("EliminarAsistencia", "Operaciones")`,
+            data: request,
+            success: function (response) {
+                if (response == null) {
+                    showToastError("Ha ocurrido un error");
+                    return;
+                }
+                if (response.redirectToUrl) {
+                    window.location.href = response.redirectToUrl;
+                    return
+                }
+                consultar(true);
+                $("#modalConfirmarEliminacion").modal("hide");
+                showToastOk('El registro fue eliminado correctamente');
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseText);
+                $("#modalConfirmarEliminacion").modal("hide");
+                return false;
+            },
+            beforeSend: function () {
+                mostrarCarga(true);
+            },
+            complete: function () {
+                mostrarCarga(false);
+            }
+        });
+    }
+
+</script>

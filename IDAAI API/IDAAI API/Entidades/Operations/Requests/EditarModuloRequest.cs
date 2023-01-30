@@ -5,8 +5,8 @@ namespace IDAAI_API.Entidades.Operations.Requests
 {
     public class EditarModuloRequest
     {
-        [JsonProperty("Id")]
         [Required]
+        [JsonProperty("Id")]       
         public int Id { get; set; }
 
         [JsonProperty("Nombre")]
@@ -24,6 +24,11 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [JsonProperty("DiasClase")]
         [StringLength(maximumLength: 10)]
         public string DiasClase { get; set; }
+
+        [Required]
+        [JsonProperty("Usuario")]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
 
     }
 }

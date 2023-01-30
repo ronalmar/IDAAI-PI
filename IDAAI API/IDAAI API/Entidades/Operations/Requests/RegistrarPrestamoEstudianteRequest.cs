@@ -11,5 +11,9 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [Required]
         [StringLength(maximumLength: 10)]
         public string Matricula { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

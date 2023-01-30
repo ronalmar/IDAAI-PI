@@ -3,7 +3,7 @@
 }
 
 @{
-    Layout = "_LayoutLaboratorioAbierto";
+    Layout = "_Layout";
 }
 
 <div id="pantalla" class="container-fluid">
@@ -205,6 +205,7 @@
 
     $().ready(function(){       
          prepararPantalla(Pantalla.Estudiante);
+        consultar()
     })
 
     function consultar(recarga = false) {
@@ -351,11 +352,22 @@
             return;
         }
 
+        var request = {
+            Id: idSeleccionado,
+            Nombres: $("#modalEditarNombres").val(),
+            Apellidos: $("#modalEditarApellidos").val(),
+            Matricula: $("#modalEditarMatricula").val(),
+            Email: $("#modalEditarEmail").val(),
+            Direccion: $("#modalEditarDireccion").val(),
+            Carrera: $("#modalEditarCarrera").val(),
+            Modulo: "LA"
+        }
+
         $.ajax({
             cache: false,
             type: "PUT",
             url: '@Url.Action("EditarEstudiante", "Operaciones")',
-            data: obtenerEditarRequest()[PantallaActual],
+            data: request,
             success: function (response) {
                 if ( response == null) {
                     showToastError("Ha ocurrido un error");
@@ -403,7 +415,7 @@
                 }
                 consultar(true);
                 $("#modalConfirmarEliminacion").modal("hide");
-                showToastOk('El registor fue eliminado correctamente');
+                showToastOk('El registro fue eliminado correctamente');
             },
             error: function (xhr) {
                 showToastError(xhr.responseText);

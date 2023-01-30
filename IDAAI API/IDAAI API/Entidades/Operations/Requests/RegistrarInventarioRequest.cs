@@ -13,5 +13,9 @@ namespace IDAAI_API.Entidades.Operations.Requests
         public string Descripcion { get; set; }
 
         public int CantidadTotal { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

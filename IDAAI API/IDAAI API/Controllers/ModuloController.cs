@@ -42,7 +42,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='CN', @i_nombre='{query.Nombre}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='CN', @i_usuario='{query.Usuario}', @i_nombre='{query.Nombre}'").ToListAsync();
 
                 var resultPaginado = Paginacion<Modulo>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<ModuloDTO> listaModuloDTO = new();
@@ -67,7 +67,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='CP', @i_periodoAcademico='{query.PeriodoAcademico}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='CP', @i_usuario='{query.Usuario}', @i_periodoAcademico='{query.PeriodoAcademico}'").ToListAsync();
 
                 var resultPaginado = Paginacion<Modulo>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<ModuloDTO> listaModuloDTO = new();
@@ -87,12 +87,12 @@ namespace IDAAI_API.Controllers
         // api/modulo/listarTodos
         [HttpGet("listarTodos")]
         public async Task<ActionResult<List<ModuloDTO>>> ListarTodos(
-            [FromQuery] PaginacionQuery query)
+            [FromQuery] ModuloUsuarioQuery query)
         {
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='CT'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='CT', @i_usuario='{query.Usuario}'").ToListAsync();
 
                 var resultPaginado = Paginacion<Modulo>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<ModuloDTO> listaModuloDTO = new();
@@ -117,12 +117,17 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='IN', @i_nombre='{request.Nombre}', @i_diasClase='{request.DiasClase}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='IN', @i_nombre='{request.Nombre}', @i_diasClase='{request.DiasClase}', @i_descripcion='{request.Descripcion}', @i_usuario='{request.Usuario}', @i_periodoAcademico='{request.PeriodoAcademico}'").ToListAsync();
 
                 if (result.Count == 0)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_14);
                 }
+                if (result[0].Id == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+
                 var moduloDTO = mapper.Map<ModuloDTO>(result[0]);
                 return Ok(moduloDTO);
             }
@@ -140,12 +145,21 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Modulos
-                    .FromSqlRaw($"EXEC sp_modulo @i_accion='UP', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}', @i_diasClase='{request.DiasClase}', @i_id='{request.Id}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_modulo @i_accion='UP', @i_usuario='{request.Usuario}', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_periodoAcademico='{request.PeriodoAcademico}', @i_diasClase='{request.DiasClase}', @i_id='{request.Id}'").ToListAsync();
 
                 if (result.Count == 0)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_13);
                 }
+                if (result[0].Id == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_14);
+                }
+
                 var moduloDTO = mapper.Map<ModuloDTO>(result[0]);
                 return Ok(moduloDTO);
             }

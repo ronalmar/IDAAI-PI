@@ -12,6 +12,10 @@ namespace IDAAI_APP.Models.Operations.Request
         [Required]
         [StringLength(maximumLength: 50)]
         public string Modulo { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 
     public class PrestamoGrupoModuloRegistrarRequest
@@ -22,6 +26,10 @@ namespace IDAAI_APP.Models.Operations.Request
         [Required]
         [StringLength(maximumLength: 50)]
         public string Modulo { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 
     public class PrestamoEstudianteRegistrarRequest
@@ -33,11 +41,19 @@ namespace IDAAI_APP.Models.Operations.Request
         [Required]
         [StringLength(maximumLength: 10)]
         public string Matricula { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 
     public class PrestamoEditarRequest
     {
         [Required]
         public int Id { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }

@@ -5,8 +5,8 @@ namespace IDAAI_API.Entidades.Operations.Requests
 {
     public class RegistrarModuloRequest
     {
-        [JsonProperty("Nombre")]
         [Required]
+        [JsonProperty("Nombre")]        
         [StringLength(maximumLength: 50)]
         public string Nombre { get; set; }
 
@@ -21,6 +21,11 @@ namespace IDAAI_API.Entidades.Operations.Requests
         [JsonProperty("DiasClase")]
         [StringLength(maximumLength: 10)]
         public string DiasClase { get; set; }
+
+        [Required]
+        [JsonProperty("Usuario")]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
 
     }
 }

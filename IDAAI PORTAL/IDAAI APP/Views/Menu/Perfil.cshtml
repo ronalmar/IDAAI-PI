@@ -1,36 +1,60 @@
 ﻿@{
-    ViewData["Title"] = "Perfil";
+    ViewData["Title"] = "Perfil de Usuario";
 }
 
 @{
-    Layout = "_LayoutMenu";
+    Layout = "_Layout";
 }
 
-<div class="container-fluid my-5">
-    <div class="row pt-2 mb-5">
-        <div class="py-3 bg-primary border rounded-top rounded-3" align="center">
-            <h1 class="text-light">Información del usuario</h1>
-            <input type="hidden" id="usuarioId" value="@ViewBag.Id"/>
+
+<div class="d-flex align-items-center justify-content-center">
+    <div class="row d-flex align-items-center justify-content-evenly px-4 mt-5 shadow bg-light rounded mb-5 col-lg-12 col-md-8 col-sm-9 col-11">
+        <div class="col-12 mt-3 mb-3 pb-2 border-bottom">
+            <h2 class="mb-3 text-center fw-bold mt-3">@ViewData["Title"]</h2>
+            <input type="hidden" id="usuarioId" value="@ViewBag.Id" />
         </div>
-        <div class="py-4 ml-5 d-flex justify-content-around bg-light border rounded-bottom rounded-3">
-            <div class="col-md-4 input-wrapper">
-                <label class="fw-bold mb-3" for="usuario">Usuario</label>
-                <h4 id="txtUsuario">@ViewBag.Usuario</h4>
+
+        <div class="col-lg-6 mx-auto">
+            <div class="col-12 col-md-12 mt-3">
+                <img width="175" height="150" class="d-block mx-auto" src="~/images/signUp.png" alt="Perfil de usuario" />
             </div>
-            <div class="col-md-6 input-wrapper">
-                <label class="fw-bold mb-3" for="email">Email</label>
-                <h4 id="txtEmail">@ViewBag.Email</h4>
-            </div>
-            <div class="col-md-2 mt-3">
-                <div class="col-md-12">
-                    <div class="col-md-12">
-                        <button class="btn btn-success" onClick="seleccionarDatosUsuario()" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" title="Editar usuario">
+        </div>
+
+        <div class="col-lg-6 mx-auto">
+            <div class="col-8 col-sm-5 mx-auto col-md-6 col-lg-8 mt-2 mb-2">
+                <form id="loginForm">
+                    <div class="col-xs-8">
+                        <div class="ml-5 mt-2">
+                            <label class="fw-bold mb-2 mt-4 ml-5" for="txtUsuario">Usuario:</label>
+                        </div>
+
+                        <div class="text-start">
+                            <h4 id="txtUsuario">@ViewBag.Usuario</h4>
+                        </div>
+
+                        <div class="ml-5 mt-2">
+                            <label class="fw-bold mb-2 mt-4 ml-5" for="txtEmail">Email:</label>
+                        </div>
+
+                        <div class="text-start">
+                            <h4 id="txtEmail">@ViewBag.Email</h4>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button onClick="seleccionarDatosUsuario()" data-bs-toggle="modal" data-bs-target="#modalEditarUsuario" 
+                            title="Editar usuario" id="botonAccion" type="button" class="botonAccionbtn btn-primary bg-gradient px-3 mt-2 mb-2 py-3 rounded-pill" 
+                            style="">Actualizar Datos
                             <i class="bi bi-pencil-square"></i>
                         </button>
+                        
                     </div>
-                </div>
+                </form>
             </div>
-        </div>        
+        </div>
+
+        <div class="mt-5">
+        </div>
     </div>
 
     <!-- Modal Editar Usuario -->
@@ -54,8 +78,8 @@
                         <label class="fw-bold mb-2" for="modalPasswordAnterior">Contraseña anterior</label>
                         <input type="password" class="form-control input-text" maxlength="100" id="modalPasswordAnterior" title="Contraseña anterior del usuario" />
                     </div>
-                     <div class="mb-2 col-md-12">
-                       <label class="fw-bold mb-2" for="modalPasswordNueva">Contraseña nueva</label>
+                    <div class="mb-2 col-md-12">
+                        <label class="fw-bold mb-2" for="modalPasswordNueva">Contraseña nueva</label>
                         <input type="password" class="form-control input-text" maxlength="100" id="modalPasswordNueva" title="Contraseña nueva del usuario" />
                     </div>
                     <div class="mb-2 col-md-12">

@@ -3,7 +3,7 @@
 }
 
 @{
-    Layout = "_LayoutLaboratorioClases";
+    Layout = "_Layout";
 }
 
 <div id="pantalla" class="container-fluid">
@@ -229,6 +229,9 @@
 
     $().ready(function(){       
          prepararPantalla(Pantalla.Estudiante);
+        if ($("#moduloActual").val() && $("#moduloActual").val() != '0') {
+            consultar()
+        }
     })
 
     function consultar(recarga = false) {
@@ -333,7 +336,7 @@
         $.ajax({
             cache: false,
             type: "POST",           
-            url: '@Url.Action("RegistrarEstudianteGrupo", "Operaciones")',
+            url: '@Url.Action("RegistrarEstudiantePorGrupo", "Estudiante")',
             data: formData,
             processData: false,
             contentType: false,
@@ -348,10 +351,29 @@
                 }
                 consultar(true);
                 $("#modalRegistrarGrupo").modal("hide");
-                showToastOk('El registro se creó correctamente');
+
+                var respuestaJS = JSON.parse(response);
+
+                var contador = 0;
+                var contadorRegistrados = 0;
+                respuestaJS.forEach(function (estudiante, index) {                    
+                    setTimeout(function () {
+                        contador++
+                        if (estudiante.id > 0) {
+                            contadorRegistrados++
+                            showToastOk(`Se registró al estudiante ${estudiante.nombres} ${estudiante.apellidos} con matrícula ${estudiante.matricula}`)
+                        } else {
+                            showToastError(`El estudiante ${estudiante.nombres} ${estudiante.apellidos} con matrícula ${estudiante.matricula} ya se encontraba registrado`)
+                        }
+                        if (contador === respuestaJS.length) {
+                            showToastOk(`Proceso completado. Total de estudiantes registrados: ${contadorRegistrados}`)
+                        }
+                    }, 500 * (index + 1));                    
+                });
+
             },
             error: function (xhr) {
-                showToastError(xhr.responseText);
+                showToastError("Debe ingresar un archivo CSV válido");
                 return false;
             },
             beforeSend: function () {

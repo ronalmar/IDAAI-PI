@@ -50,7 +50,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.PrestamosPorEstudiantes
-                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='CE', @i_matricula='{query.Matricula}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='CE', @i_usuario='{query.Usuario}', @i_matricula='{query.Matricula}'").ToListAsync();
                 
                 var resultPaginado = Paginacion<PrestamoEstudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<PrestamoEstudianteDTO> listaPrestamoEstudianteDTO = new();
@@ -75,7 +75,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.PrestamosPorModulos
-                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='CM', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='CM', @i_usuario='{query.Usuario}', @i_modulo='{query.Modulo}'").ToListAsync();
 
                 var resultPaginado = Paginacion<PrestamoModulo>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<PrestamoModuloDTO> listaPrestamoModuloDTO = new();
@@ -100,7 +100,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.PrestamosPorEstudiantes
-                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='IN', @i_modoClases='{0}', @i_rfid='{request.Rfid}', @i_matricula='{request.Matricula}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='IN', @i_usuario='{request.Usuario}', @i_modoClases='{0}', @i_rfid='{request.Rfid}', @i_matricula='{request.Matricula}'").ToListAsync();
                 if(result.Count < 1)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_08);
@@ -117,6 +117,16 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_29);
                 }
+                if (result[0].Id == -10)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+                if (result[0].Id == -11)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_52);
+                }
+
+
                 var prestamoItemEstudianteDTO = mapper.Map<PrestamoEstudianteDTO>(result[0]);
                 return Ok(prestamoItemEstudianteDTO);               
             }
@@ -134,7 +144,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.PrestamosPorModulos
-                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='IN', @i_modoClases='{1}', @i_grupoItems='{0}', @i_rfid='{request.Rfid}', @i_modulo='{request.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='IN', @i_usuario='{request.Usuario}', @i_modoClases='{1}', @i_grupoItems='{0}', @i_rfid='{request.Rfid}', @i_modulo='{request.Modulo}'").ToListAsync();
                 if (result.Count < 1)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_08);
@@ -151,6 +161,16 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_29);
                 }
+                if (result[0].Id == -9)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+                if (result[0].Id == -12)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_52);
+                }
+
+
                 var prestamoItemModuloDTO = mapper.Map<PrestamoModuloDTO>(result[0]);
                 return Ok(prestamoItemModuloDTO);
             }
@@ -173,7 +193,7 @@ namespace IDAAI_API.Controllers
                 SqlXml xml = new(xmlRfids.CreateReader());
 
                 var result = await _context.PrestamosPorModulos
-                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='IN', @i_modoClases='{1}', @i_grupoItems='{1}', @i_xmlItems='{xmlRfids}', @i_modulo='{request.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='IN', @i_usuario='{request.Usuario}', @i_modoClases='{1}', @i_grupoItems='{1}', @i_xmlItems='{xmlRfids}', @i_modulo='{request.Modulo}'").ToListAsync();
                 if (result.Count < 1)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_08);
@@ -194,6 +214,16 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_32);
                 }
+                if (result[0].Id == -9)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+                if (result[0].Id == -13)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_52);
+                }
+
+
                 var resultPaginado = Paginacion<PrestamoModulo>.Paginar(result, request.Pagina, request.RecordsPorPagina);
                 List<PrestamoModuloDTO> listaPrestamoModuloCreadosDTO = new();
                 foreach (var prestamoModulo in resultPaginado)
@@ -218,7 +248,7 @@ namespace IDAAI_API.Controllers
             {
 
                 var result = await _context.PrestamosPorEstudiantes
-                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='UE', @i_id='{request.Id}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='UE', @i_usuario='{request.Usuario}', @i_id='{request.Id}'").ToListAsync();
 
                 if (result.Count < 1)
                 {
@@ -236,6 +266,11 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_35);
                 }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+
                 var prestamoItemEstudianteDTO = mapper.Map<PrestamoEstudianteDTO>(result[0]);
                 return Ok(prestamoItemEstudianteDTO);
             }
@@ -254,7 +289,7 @@ namespace IDAAI_API.Controllers
             {
 
                 var result = await _context.PrestamosPorModulos
-                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='UM', @i_id='{request.Id}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_prestamoitem @i_accion='UM', @i_usuario='{request.Usuario}', @i_id='{request.Id}'").ToListAsync();
 
                 if (result.Count < 1)
                 {
@@ -272,6 +307,11 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_36);
                 }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+
                 var prestamoItemModuloDTO = mapper.Map<PrestamoModuloDTO>(result[0]);
                 return Ok(prestamoItemModuloDTO);
             }

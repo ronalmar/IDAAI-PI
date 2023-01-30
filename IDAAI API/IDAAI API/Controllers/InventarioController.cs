@@ -48,7 +48,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Inventario
-                    .FromSqlRaw($"EXEC sp_inventario @i_accion='CN', @i_nombre='{query.Nombre}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_inventario @i_accion='CN', @i_nombre='{query.Nombre}', @i_usuario='{query.Usuario}'").ToListAsync();
                 
                 var resultPaginado = Paginacion<Inventario>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<InventarioDTO> listainventarioDTO = new();
@@ -73,7 +73,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Inventario
-                    .FromSqlRaw($"EXEC sp_inventario @i_accion='IN', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_cantidadTotal='{request.CantidadTotal}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_inventario @i_accion='IN', @i_nombre='{request.Nombre}', @i_usuario='{request.Usuario}', @i_descripcion='{request.Descripcion}', @i_cantidadTotal='{request.CantidadTotal}'").ToListAsync();
                 if(result.Count < 1)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_08);
@@ -81,7 +81,12 @@ namespace IDAAI_API.Controllers
                 if (result[0].Id == 0)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_21);
-                }               
+                }
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+
                 var inventarioDTO = mapper.Map<InventarioDTO>(result[0]);
                 return Ok(inventarioDTO);               
             }
@@ -99,7 +104,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Inventario
-                    .FromSqlRaw($"EXEC sp_inventario @i_accion='UP', @i_id='{request.Id}', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_cantidadDisponible='{request.CantidadDisponible}', @i_cantidadTotal='{request.CantidadTotal}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_inventario @i_accion='UP', @i_id='{request.Id}', @i_usuario='{request.Usuario}', @i_nombre='{request.Nombre}', @i_descripcion='{request.Descripcion}', @i_cantidadDisponible='{request.CantidadDisponible}', @i_cantidadTotal='{request.CantidadTotal}'").ToListAsync();
 
                 if (result.Count < 1)
                 {
@@ -113,6 +118,15 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_21);
                 }
+                if (result[0].Id == -2)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_51);
+                }
+
                 var inventarioDTO = mapper.Map<InventarioDTO>(result[0]);
                 return Ok(inventarioDTO);
             }
@@ -140,6 +154,11 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_22);
                 }
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_50);
+                }
+
                 var inventarioDTO = mapper.Map<InventarioDTO>(result[0]);
                 return Ok(inventarioDTO);
             }

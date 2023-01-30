@@ -52,7 +52,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Estudiantes
-                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CN', @i_nombres='{query.Nombres}', @i_apellidos='{query.Apellidos}', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CN', @i_usuario='{query.Usuario}', @i_nombres='{query.Nombres}', @i_apellidos='{query.Apellidos}', @i_modulo='{query.Modulo}'").ToListAsync();
                 
                 var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<EstudianteDTO> listaEstudiantesDTO = new();
@@ -77,7 +77,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Estudiantes
-                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CC', @i_carrera='{query.Carrera}', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CC', @i_usuario='{query.Usuario}', @i_carrera='{query.Carrera}', @i_modulo='{query.Modulo}'").ToListAsync();
                 
                 var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<EstudianteDTO> listaEstudiantesDTO = new();
@@ -102,7 +102,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Estudiantes
-                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CL', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CL', @i_usuario='{query.Usuario}', @i_modulo='{query.Modulo}'").ToListAsync();
                
                 var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<EstudianteDTO> listaEstudiantesDTO = new();
@@ -122,12 +122,12 @@ namespace IDAAI_API.Controllers
         // api/estudiante/listarTodos
         [HttpGet("listarTodos")]
         public async Task<ActionResult<EstudianteDTO>> ListarTodos(
-            [FromQuery] PaginacionQuery query)
+            [FromQuery] EstudianteTodosQuery query)
         {
             try
             {
                 var result = await _context.Estudiantes
-                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CT'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CT', @i_usuario='{query.Usuario}'").ToListAsync();
 
                 var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
                 List<EstudianteDTO> listaEstudiantesDTO = new();
@@ -152,7 +152,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Estudiantes
-                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CM', @i_matricula='{query.Matricula}', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CM', @i_usuario='{query.Usuario}', @i_matricula='{query.Matricula}', @i_modulo='{query.Modulo}'").ToListAsync();
 
                 EstudianteDTO estudianteDTO = new();
                 if(result.Count == 0)
@@ -176,7 +176,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Estudiantes
-                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CE', @i_email='{query.Email}', @i_modulo='{query.Modulo}'").ToListAsync();
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='CE', @i_usuario='{query.Usuario}', @i_email='{query.Email}', @i_modulo='{query.Modulo}'").ToListAsync();
 
                 EstudianteDTO estudianteDTO = new();
                 if (result.Count == 0)
@@ -200,7 +200,7 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Estudiantes
-                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='IN', @i_nombres='{request.Nombres}', @i_apellidos='{request.Apellidos}', @i_matricula='{request.Matricula}'" +
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='IN', @i_usuario='{request.Usuario}', @i_nombres='{request.Nombres}', @i_apellidos='{request.Apellidos}', @i_matricula='{request.Matricula}'" +
                                     $", @i_email='{request.Email}', @i_direccion='{request.Direccion}', @i_carrera='{request.Carrera}', @i_modulo='{request.Modulo}'").ToListAsync();
                 if(result.Count < 1)
                 {
@@ -218,6 +218,11 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_13);
                 }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+
                 var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
                 return Ok(estudianteDTO);               
             }
@@ -277,7 +282,8 @@ namespace IDAAI_API.Controllers
                 SqlXml xml = new(xmlEstudiantes.CreateReader());
 
                 var result = await _context.Estudiantes
-                   .FromSqlRaw($"EXEC sp_estudiante @i_accion='IG', @i_modulo='{query.Modulo}', @i_xmlEstudiantes='{xmlEstudiantes}'").ToListAsync();
+                   .FromSqlRaw($"EXEC sp_estudiante @i_accion='IG', @i_usuario='{query.Usuario}', @i_modulo='{query.Modulo}', @i_xmlEstudiantes='{xmlEstudiantes}'").ToListAsync();
+
                 if (result.Count < 1)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_08);
@@ -286,8 +292,71 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_13);
                 }
+                if (result[0].Id == -1 && result[0].Nombres == "Usuario")
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
 
                 var resultPaginado = Paginacion<Estudiante>.Paginar(result, query.Pagina, query.RecordsPorPagina);
+                List<EstudianteDTO> listaEstudiantesDTO = new();
+                foreach (var estudiante in resultPaginado)
+                {
+                    var estudianteDTO = mapper.Map<EstudianteDTO>(estudiante);
+                    listaEstudiantesDTO.Add(estudianteDTO);
+                }
+                return Ok(listaEstudiantesDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // api/estudiante/procesarRegistroGrupoEstudiante
+        [HttpPost("procesarRegistroGrupoEstudiante")]
+        public async Task<ActionResult<EstudianteDTO>> ProcesarRegistroGrupoEstudiante(
+            [FromBody] RegistrarGrupoEstudianteRequest request)
+        {
+            try
+            {
+                
+                if (request is null)
+                {
+                    return BadRequest();
+                }
+
+                var estudiantes = request.Estudiantes;
+
+                XDocument xmlEstudiantes = new(
+                    new XElement("Estudiantes", estudiantes.Select(estudiante =>
+                        new XElement("Estudiante",
+                            new XElement("Nombres", estudiante.Nombres),
+                            new XElement("Apellidos", estudiante.Apellidos),
+                            new XElement("Matricula", estudiante.Matricula),
+                            new XElement("Email", estudiante.Email),
+                            new XElement("Modulo", estudiante.Modulo),
+                            new XElement("Carrera", estudiante.Carrera),
+                            new XElement("Direccion", estudiante.Direccion))))
+                );
+                SqlXml xml = new(xmlEstudiantes.CreateReader());
+
+                var result = await _context.Estudiantes
+                   .FromSqlRaw($"EXEC sp_estudiante @i_accion='IG', @i_usuario='{request.Usuario}', @i_modulo='{request.Modulo}', @i_xmlEstudiantes='{xmlEstudiantes}'").ToListAsync();
+
+                if (result.Count < 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
+                if (result[0].Id == 0 && result.Count == 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_13);
+                }
+                if (result[0].Id == -1 && result[0].Nombres == "Usuario")
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+
+                var resultPaginado = Paginacion<Estudiante>.Paginar(result, 1, 100);
                 List<EstudianteDTO> listaEstudiantesDTO = new();
                 foreach (var estudiante in resultPaginado)
                 {
@@ -310,9 +379,13 @@ namespace IDAAI_API.Controllers
             try
             {
                 var result = await _context.Estudiantes
-                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='UP', @i_id='{request.Id}', @i_nombres='{request.Nombres}', @i_apellidos='{request.Apellidos}', @i_matricula='{request.Matricula}'" +
+                    .FromSqlRaw($"EXEC sp_estudiante @i_accion='UP', @i_usuario='{request.Usuario}', @i_id='{request.Id}', @i_nombres='{request.Nombres}', @i_apellidos='{request.Apellidos}', @i_matricula='{request.Matricula}'" +
                                     $", @i_email='{request.Email}', @i_direccion='{request.Direccion}', @i_carrera='{request.Carrera}', @i_modulo='{request.Modulo}'").ToListAsync();
 
+                if (result.Count < 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
                 if (result[0].Id == 0)
                 {
                     return BadRequest(Mensajes.ERROR_VAL_09);
@@ -325,6 +398,11 @@ namespace IDAAI_API.Controllers
                 {
                     return BadRequest(Mensajes.ERROR_VAL_13);
                 }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_19);
+                }
+
                 var estudianteDTO = mapper.Map<EstudianteDTO>(result[0]);
                 return Ok(estudianteDTO);
             }

@@ -26,4 +26,22 @@ namespace IDAAI_APP.Models.Operations.Request
         [StringLength(maximumLength: 50)]
         public string Email { get; set; }
     }
+
+    public class EditarUsuarioModuloActualRequest
+    {
+        [JsonProperty("Usuario")]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
+
+        [JsonProperty("Modulo")]
+        [StringLength(maximumLength: 50)]
+        public string Modulo { get; set; }
+    }
+
+    public class EditarFechaUsuarioRequest
+    {
+        [JsonProperty("Usuario")]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
+    }
 }

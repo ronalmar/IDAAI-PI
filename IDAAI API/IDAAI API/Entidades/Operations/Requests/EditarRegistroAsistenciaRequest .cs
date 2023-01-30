@@ -9,5 +9,17 @@ namespace IDAAI_API.Entidades.Operations.Requests
 
         [Required]
         public bool EsAsistencia { get; set; }
+
+        [Required]
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
+    }
+
+    public class EstablecerAsistenciaRequest
+    {
+
+        [Required]
+        [StringLength(maximumLength: 10)]
+        public string Matricula { get; set; }
     }
 }

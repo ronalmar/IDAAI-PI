@@ -1,24 +1,54 @@
 ﻿@{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Crear Cuenta";
 }
 
 @{
     Layout = "_Layout";
 }
 
-<div class="my-5">
-    <div class="mx-5 my-3 w-25">
-        <h1 class="mb-3">@ViewData["Title"]</h1>
-        <form id="loginForm">
-            <label class="fw-bold" for="user">Usuario:</label>
-            <input type="text" class="form-control mb-3" id="user" />
+<div class="d-flex align-items-center justify-content-center">
+    <div class="row d-flex align-items-center justify-content-evenly px-4 mt-5 shadow bg-light rounded mb-5 col-lg-12 col-md-8 col-sm-9 col-11">
+        <div class="col-12 mt-3 mb-3 pb-2 border-bottom">
+            <h2 class="mb-3 text-center fw-bold mt-3">@ViewData["Title"]</h2>
+        </div>
 
-            <label class="fw-bold" for="password">Contraseña:</label>
-            <input type="password" class="form-control mb-3" id="password" />
+        <div class="col-lg-5 mx-auto">
+            <div class="col-12 col-md-12 mt-3">
+                <img width="175" height="150" class="d-block mx-auto" src="~/images/signUp.png" alt="Inicio de sesión de usuario" />
+            </div>
+        </div>
 
-            <button onclick="registrarse()" type="button" class="btn btn-success">Registrarse</button>
-            <button onclick="cancelar()" type="button" class="btn btn-secondary">Cancelar</button>
-        </form>
+        <div class="col-lg-7 mx-auto">
+            <div class="col-11 col-sm-10 mx-auto col-md-9 col-lg-8 mt-2 mb-2">
+                <form id="loginForm">
+                    <div class="col-xs-8">
+                        <div class="ml-5 mt-2">
+                            <label class="fw-bold mb-2 mt-4 ml-5" for="user">Usuario:</label>
+                        </div>
+
+                        <div class="text-center">
+                            <input type="text" class="form-control" id="user" />
+                        </div>
+
+                        <div class="ml-5 mt-2">
+                            <label class="fw-bold mb-2 mt-4 ml-5" for="password">Contraseña:</label>
+                        </div>
+
+                        <div class="text-center">
+                            <input type="password" class="form-control mb-3" id="password" />
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button onclick="registrarse()" id="botonAccion" type="button" class="botonAccionbtn btn-success bg-gradient px-3 mt-2 mb-2 py-3 rounded-pill" style="">Registrarse</button>
+                        <button onclick="cancelar()" type="button" class="botonAccion btn btn-secondary bg-gradient px-3 mt-2 mb-2 py-3 rounded-pill">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-5">
+        </div>
     </div>
 </div>
 
@@ -35,13 +65,13 @@
 
     $("#user").keyup(function (event) {
         if (event.keyCode === 13) {
-            iniciarSesion();
+            registrarse();
         }
     });
 
     $("#password").keyup(function (event) {
         if (event.keyCode === 13) {
-            iniciarSesion();
+            registrarse();
         }
     });
 
@@ -63,10 +93,8 @@
                 return false;
             },
             beforeSend: function () {
-                mostrarCarga(true);
             },
             complete: function () {
-                mostrarCarga(false);
             }
         });
     }

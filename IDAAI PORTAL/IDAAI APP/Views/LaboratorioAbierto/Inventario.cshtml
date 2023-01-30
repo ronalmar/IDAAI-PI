@@ -3,7 +3,7 @@
 }
 
 @{
-    Layout = "_LayoutLaboratorioAbierto";
+    Layout = "_Layout";
 }
 
 <div id="pantalla" class="container-fluid">
@@ -64,7 +64,7 @@
                         <input type="number" class="form-control" id="modalRegistrarCantidadTotal" title="Cantidad total de objetos del nuevo registro en el inventario" />
                     </div>
                     <div class="mb-2 col-md-12">
-                        <label class="fw-bold mb-2" for="modalRegistrarDescripcion">Descripción</label>
+                        <label class="fw-bold mb-2" for="modalRegistrarDescripcion">Descripción*</label>
                         <textarea type="text" class="form-control input-text" rows="4" maxlength="300" id="modalRegistrarDescripcion" title="Descripción del nuevo registro en el inventario" ></textarea>
                     </div>  
                 </div>
@@ -90,12 +90,12 @@
                         <input type="text" class="form-control input-text" maxlength="100" id="modalEditarNombre" title="Nombre del registro en el inventario" />
                     </div>
                     <div class="mb-2 col-md-12">
-                        <label class="fw-bold mb-2" for="modalEditarCantidadTotal">Cantidad total</label>
-                        <input type="number" class="form-control" id="modalEditarCantidadTotal" title="Cantidad total de objetos del registro en el inventario" />
+                        <label class="fw-bold mb-2" for="modalEditarCantidadtotal">Cantidad total</label>
+                        <input type="number" class="form-control" id="modalEditarCantidadtotal" title="Cantidad total de objetos del registro en el inventario" />
                     </div>
                     <div class="mb-2 col-md-12">
-                        <label class="fw-bold mb-2" for="modalEditarCantidadDisponible">Cantidad disponible</label>
-                        <input type="number" class="form-control" id="modalEditarCantidadDisponible" title="Cantidad disponible de objetos del registro en el inventario" />
+                        <label class="fw-bold mb-2" for="modalEditarCantidaddisponible">Cantidad disponible</label>
+                        <input type="number" class="form-control" id="modalEditarCantidaddisponible" title="Cantidad disponible de objetos del registro en el inventario" />
                     </div>
                     <div class="mb-2 col-md-12">
                         <label class="fw-bold mb-2" for="modalEditarDescripcion">Descripción</label>
@@ -120,6 +120,7 @@
 
     $().ready(function () {
         prepararPantalla(Pantalla.Inventario);
+        consultar()
     })
 
     function consultar(recarga = false) {
@@ -247,7 +248,7 @@
                 }
                 consultar(true);
                 $("#modalConfirmarEliminacion").modal("hide");
-                showToastOk('El registor fue eliminado correctamente');
+                showToastOk('El registro fue eliminado correctamente');
             },
             error: function (xhr) {
                 showToastError(xhr.responseText);

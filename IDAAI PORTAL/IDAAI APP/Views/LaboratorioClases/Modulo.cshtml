@@ -3,7 +3,7 @@
 }
 
 @{
-    Layout = "_LayoutLaboratorioClases";
+    Layout = "_Layout";
 }
 
 <div id="pantalla" class="container-fluid">
@@ -249,6 +249,9 @@
 
     $().ready(function () {
         prepararPantalla(Pantalla.Modulo);
+        if ($("#moduloActual").val() && $("#moduloActual").val() != '0') {
+            consultar()
+        }
     })
 
     function consultar(recarga = false) {
@@ -337,6 +340,8 @@
                     return
                 }
                 consultar(true);
+                var modulo = JSON.parse(response)
+                $(`#moduloActual`).append(new Option(modulo.nombre, modulo.nombre));
                 $("#modalRegistrar").modal("hide");
                 showToastOk('El registro se creó correctamente');
             },
@@ -406,8 +411,19 @@
                     return
                 }
                 consultar(true);
+                var modulo = JSON.parse(response)
+
                 $("#modalEditar").modal("hide");
                 showToastOk('El registro se actualizó correctamente');
+
+                if($(`#moduloActual`).val() == moduloSeleccionado){
+                      location.reload(true);
+                      return
+                }
+
+                $(`#moduloActual`).append(new Option(modulo.nombre, modulo.nombre));
+                $(`#moduloActual option[value='${moduloSeleccionado}']`).remove();               
+               
             },
             error: function (xhr) {
                 showToastError(xhr.responseText);
@@ -442,8 +458,10 @@
                     return
                 }
                 consultar(true);
+                var modulo = JSON.parse(response)
+                $(`#moduloActual option[value='${modulo.nombre}']`).remove();
                 $("#modalConfirmarEliminacion").modal("hide");
-                showToastOk('El registor fue eliminado correctamente');
+                showToastOk('El registro fue eliminado correctamente');
             },
             error: function (xhr) {
                 showToastError(xhr.responseText);

@@ -10,5 +10,8 @@ namespace IDAAI_API.Entidades.Operations.Estudiante
         
         [StringLength(maximumLength: 100)]
         public string Apellidos { get; set; }
+
+        [StringLength(maximumLength: 25)]
+        public string Usuario { get; set; }
     }
 }
