@@ -318,8 +318,7 @@ namespace IDAAI_API.Controllers
             [FromBody] RegistrarGrupoEstudianteRequest request)
         {
             try
-            {
-                
+            {                
                 if (request is null)
                 {
                     return BadRequest();
@@ -356,7 +355,7 @@ namespace IDAAI_API.Controllers
                     return BadRequest(Mensajes.ERROR_VAL_19);
                 }
 
-                var resultPaginado = Paginacion<Estudiante>.Paginar(result, 1, 100);
+                var resultPaginado = Paginacion<Estudiante>.Paginar(result, 1, 100000);
                 List<EstudianteDTO> listaEstudiantesDTO = new();
                 foreach (var estudiante in resultPaginado)
                 {

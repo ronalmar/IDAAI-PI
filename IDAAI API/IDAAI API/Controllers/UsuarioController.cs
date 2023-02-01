@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using IDAAI_API.Entidades.Models;
 using AutoMapper;
 using IDAAI_API.DTOs;
+//using System.Web.Mvc;
 
 namespace IDAAI_API.Controllers
 {
@@ -40,6 +41,7 @@ namespace IDAAI_API.Controllers
         }
 
         // api/usuario/loginUsuario
+        [System.Web.Mvc.ValidateInput(false)]
         [HttpPost("loginUsuario")]
         public async Task<ActionResult<RespuestaAutenticacion>> LoginUsuario(
             [FromBody] LoginRequest request)
@@ -55,8 +57,8 @@ namespace IDAAI_API.Controllers
                 {
                     var token = ConstruirToken(request);
                     return Ok(token);
-                }                    
-                return StatusCode(StatusCodes.Status401Unauthorized, new { token = ""});
+                }
+                return StatusCode(StatusCodes.Status401Unauthorized, new { token = "" });
             }
             catch (Exception e)
             {

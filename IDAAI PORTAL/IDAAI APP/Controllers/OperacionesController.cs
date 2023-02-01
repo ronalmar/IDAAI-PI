@@ -18,16 +18,31 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
+//using System.Web.Mvc;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace IDAAI_APP.Controllers
-{
+{   
     public class OperacionesController : Controller
     {
         private readonly string contentType = "application/json";
+        // PROD
         private static readonly string serverName = "localhost";
-        private static readonly string portNumber = "4000";
+        private static readonly string portNumber = "2000";
         private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
+
+        // DEVPROD
+        //private static readonly string serverName = "192.168.222.1";
+        //private static readonly string portNumber = "45455";
+        //private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
+
+        // DEV
+        //private static readonly string serverName = "localhost";
+        //private static readonly string portNumber = "44321";
+        //private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
+
         private readonly string pagineo = "&Pagina=1&RecordsPorPagina=100000";
         private bool esLista = true;
         private string command;
@@ -317,33 +332,6 @@ namespace IDAAI_APP.Controllers
                 var usuario = claims[0].Value;
                 var token = claims[1].Value;
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-
-                //command = $"api/usuario/renovarToken";
-
-                //HttpResponseMessage resToken = await client.GetAsync(command);
-
-                //if (resToken.IsSuccessStatusCode)
-                //{
-                //    var responseToken = resToken.Content.ReadAsStringAsync().Result;
-                //    Token_ tokenNuevo = JsonConvert.DeserializeObject<Token_>(responseToken);
-
-                //    var claimsNuevos = new List<Claim>
-                //    {
-                //        new Claim(ClaimTypes.Name, usuario),
-                //        new Claim(ClaimTypes.Authentication, tokenNuevo.Token)
-                //    };
-
-                //    var claimsIdentity = new ClaimsIdentity(claimsNuevos, "Login");
-
-                //    //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                //}
-
-                //var claimsRenovados = HttpContext.User.Claims.ToList();
-                //var tokenRenovado = claimsRenovados[1].Value;
-
-                //client.DefaultRequestHeaders.Clear();
-                //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
-                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenRenovado}");
 
                 command = $"api/estudiante/procesarRegistroGrupoEstudiante";
 
@@ -2755,12 +2743,24 @@ namespace IDAAI_APP.Controllers
             }
         }
 
+        [System.Web.Mvc.ValidateInput(false)]
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> IniciarSesion(LoginUser request)
         {
             string response;
+            //
+            //var claimsPrueba = new List<Claim>
+            //        {
+            //            new Claim(ClaimTypes.Name, request.Usuario),
+            //            new Claim(ClaimTypes.Authentication, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc3VhcmlvIjoiYWRtaW4xIiwibmJmIjoxNjc1MjI0MzE4LCJleHAiOjE2NzUyMjYxMTgsImlhdCI6MTY3NTIyNDMxOH0.wNb3KHv46MTihdronYJSbYEdaITQR-QvSZ6u7v-DlW8")
+            //        };
 
+            //var claimsIdentityPrueba = new ClaimsIdentity(claimsPrueba, "Login");
+
+            //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentityPrueba));
+            //return Json(new { redirectToUrl = Url.Action("Index", "Menu") });
+            //
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(apiUrl);
@@ -2770,7 +2770,7 @@ namespace IDAAI_APP.Controllers
 
                 command = $"api/usuario/loginUsuario";
                 stringContent = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, contentType);
-
+                
                 HttpResponseMessage res = await client.PostAsync(command, stringContent);
 
                 if (res.IsSuccessStatusCode)
@@ -2790,9 +2790,14 @@ namespace IDAAI_APP.Controllers
 
                     return Json(new { redirectToUrl = Url.Action("Index", "Menu") });
                 }
+                else if(res.ReasonPhrase.Equals("Unauthorized"))
+                {                    
+                    return BadRequest("El usuario o contraseña ingresados no son correctos");
+                }
                 else
                 {
-                    return BadRequest("El usuario o contraseña ingresados no son correctos");
+                    var error = res.Content.ReadAsStringAsync().Result;
+                    return BadRequest(error);
                 }
             }
         }        

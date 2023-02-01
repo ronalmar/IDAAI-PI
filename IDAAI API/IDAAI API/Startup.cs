@@ -22,6 +22,14 @@ namespace IDAAI_API
 
         public void ConfigureServices(IServiceCollection services) 
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
             var secretkey = Configuration.GetSection("settings").GetSection("secretkey").ToString();
             var keyBytes = Encoding.UTF8.GetBytes(secretkey);
             services.AddAuthentication(config =>
@@ -84,15 +92,20 @@ namespace IDAAI_API
         {
 
             // Configure the HTTP request pipeline.
-            if (env.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
 

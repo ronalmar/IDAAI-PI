@@ -223,7 +223,127 @@ namespace IDAAI_API.Controllers
                     return BadRequest(Mensajes.ERROR_VAL_49);
                 }
 
-                var resultPaginado = Paginacion<Item>.Paginar(result, 1, 100);
+                var resultPaginado = Paginacion<Item>.Paginar(result, 1, 100000);
+                List<ItemDTO> listaItemsDTO = new();
+                foreach (var item in resultPaginado)
+                {
+                    var itemDTO = mapper.Map<ItemDTO>(item);
+                    listaItemsDTO.Add(itemDTO);
+                }
+                return Ok(listaItemsDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        // api/item/enviarItemsDetectadosRfid
+        [HttpPost("enviarItemsDetectadosRfid")]
+        public async Task<ActionResult<ItemDTO>> EnviarItemsDetectadosRfid(
+           [FromBody] GrupoItemsDetectadosRfidRequest request)
+        {
+            try
+            {
+                List<string> rfids = new();
+
+                foreach (var dato in request.Rfids)
+                {
+                    var rfid = dato.Rfid;
+                    rfids.Add(rfid);
+                }
+
+                XDocument xmlRfids = new(
+                   new XElement("Items", rfids.Select(rfid => new XElement("Item", new XElement("Rfid", rfid))))
+                );
+                SqlXml xml = new(xmlRfids.CreateReader());
+
+                var result = await _context.Items
+                    .FromSqlRaw($"EXEC sp_item @i_accion='EI', @i_grupoItemsDetectados='{xmlRfids}'").ToListAsync();
+
+                if (result.Count < 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
+                if (result[0].Id == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_41);
+                }
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_42);
+                }
+                if (result[0].Id == -2)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_48);
+                }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_49);
+                }
+
+                var resultPaginado = Paginacion<Item>.Paginar(result, 1, 100000);
+                List<ItemDTO> listaItemsDTO = new();
+                foreach (var item in resultPaginado)
+                {
+                    var itemDTO = mapper.Map<ItemDTO>(item);
+                    listaItemsDTO.Add(itemDTO);
+                }
+                return Ok(listaItemsDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        // api/item/EnviarItemsDetectadosZebra
+        [HttpPost("enviarItemsDetectadosZebra")]
+        public async Task<ActionResult<ItemDTO>> EnviarItemsDetectadosZebra(
+           [FromBody] GrupoItemsDetectadosZebraRequest request)
+        {
+            try
+            {
+                List<string> rfids= new();
+
+                foreach(var dato in request.ListaDatos)
+                {
+                    var rfid = dato.data.idHex;
+                    rfids.Add(rfid);
+                }
+
+                XDocument xmlRfids = new(
+                   new XElement("Items", rfids.Select(rfid => new XElement("Item", new XElement("Rfid", rfid))))
+                );
+                SqlXml xml = new(xmlRfids.CreateReader());
+
+                var result = await _context.Items
+                    .FromSqlRaw($"EXEC sp_item @i_accion='EI', @i_grupoItemsDetectados='{xmlRfids}'").ToListAsync();
+
+                if (result.Count < 1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_08);
+                }
+                if (result[0].Id == 0)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_41);
+                }
+                if (result[0].Id == -1)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_42);
+                }
+                if (result[0].Id == -2)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_48);
+                }
+                if (result[0].Id == -3)
+                {
+                    return BadRequest(Mensajes.ERROR_VAL_49);
+                }
+
+                var resultPaginado = Paginacion<Item>.Paginar(result, 1, 100000);
                 List<ItemDTO> listaItemsDTO = new();
                 foreach (var item in resultPaginado)
                 {

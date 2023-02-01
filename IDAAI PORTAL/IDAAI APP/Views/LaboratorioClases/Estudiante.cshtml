@@ -373,7 +373,11 @@
 
             },
             error: function (xhr) {
-                showToastError("Debe ingresar un archivo CSV válido");
+                if (xhr.responseText.length > 170) {
+                    showToastError("Debe ingresar un archivo CSV válido");
+                } else {
+                    showToastError(xhr.responseText);
+                }
                 return false;
             },
             beforeSend: function () {

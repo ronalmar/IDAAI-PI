@@ -108,9 +108,13 @@ BEGIN
 			SELECT * FROM @Estudiantes
 			RETURN 0;
 		END
-
+		--
+			--INSERT INTO @Estudiantes (Id, Nombres) VALUES (-1, 'Usuario')
+			--SELECT * FROM @Estudiantes
+			--RETURN 0;
+		--
 		-- VALIDAR QUE EL MODULO EXISTA (ESTADO=1) Y NO SEA LABORATORIO ABIERTO (ID=1)
-		IF NOT EXISTS(SELECT 1 FROM Modulos WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Nombre!='LA' AND Estado=1)
+		IF NOT EXISTS(SELECT 1 FROM Modulos WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Estado=1)
 		BEGIN
 			INSERT INTO @Estudiantes (Id, Nombres) VALUES (-1, 'Usuario')
 			SELECT * FROM @Estudiantes
@@ -118,10 +122,10 @@ BEGIN
 		END
 
 		SELECT @moduloInsertar=Nombre FROM Modulos 
-			WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Nombre!='LA' AND Estado=1
+			WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Estado=1
 		
 		SELECT @moduloIdInsertar=Id	FROM Modulos
-			WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Nombre!='LA' AND Estado=1
+			WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Estado=1
 		
 		SET @codigoIdError=0
 		WHILE(1=1)
@@ -139,8 +143,9 @@ BEGIN
 											AND Estado=1)
 
 			-- VALIDAR QUE NO EXISTA UN ESTUDIANTE CON LA MATRICULA ITERADA
-			IF EXISTS(SELECT 1 FROM Estudiantes 
-				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML) AND UsuarioId=@usuarioId AND Estado=1)
+			IF EXISTS(SELECT 1 FROM Estudiantes e INNER JOIN Modulos m ON m.Id=e.ModuloId
+				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML) AND m.Nombre=@modulo
+				AND e.UsuarioId=@usuarioId AND m.UsuarioId=@usuarioId AND e.Estado=1 AND m.Estado=1)
 			BEGIN
 				SET @codigoIdError=@codigoIdError-1;
 
@@ -163,7 +168,7 @@ BEGIN
 				Email=LOWER(@emailInsertar),
 				Direccion=CASE ISNULL(@direccionInsertar,'')
 					WHEN '' THEN '' ELSE UPPER(@direccionInsertar) END,
-				ModuloId=(SELECT Id FROM Modulos WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND @modulo!='LA' AND Estado=1),
+				ModuloId=(SELECT Id FROM Modulos WHERE Nombre=@modulo AND UsuarioId=@usuarioId AND Estado=1),
 				CarreraId=CASE ISNULL(@carreraIdInsertar,'')
 					WHEN '' THEN 0 ELSE @carreraIdInsertar END,
 				UsuarioId=@usuarioId

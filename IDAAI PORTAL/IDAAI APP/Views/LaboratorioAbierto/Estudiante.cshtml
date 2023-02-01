@@ -48,10 +48,10 @@
                             Agregar
                             <i class="bi-plus"></i>
                         </button>
-                        @*<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarGrupo" title="Registrar grupo de estudiantes">
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalRegistrarGrupo" title="Registrar grupo de estudiantes">
                             Grupo
                             <i class="bi-plus"></i>
-                        </button>*@
+                        </button>
                         <button class="btn btn-secondary" onclick="location.reload(true)" title="Reiniciar pantalla">
                             Limpiar
                             <i class="bi-trash"></i>
@@ -113,7 +113,7 @@
         </div>
     </div>
 
-    @* <!-- Modal Registrar Grupo -->
+    <!-- Modal Registrar Grupo -->
     <div class="modal fade" id="modalRegistrarGrupo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -123,14 +123,14 @@
                 </div>
                 <form id="registrarGrupoForm" enctype="multipart/form-data">
                     <div class="modal-body px-4 mb-3 col-md-12 row">
-                        <div class="mb-2 col-md-6">
+                        @*<div class="mb-2 col-md-6">
                             <div class="form-group">
                                 <label class="fw-bold mb-2" for="grupoModulo">Módulo*</label>
                                 <select class="form-control" id="grupoModulo" asp-items="ViewBag.Modulos" title="Nombre del módulo">
                                     <option value="0">Seleccione</option>
                                 </select>
                             </div>
-                        </div>
+                        </div>*@
                         <div class="mb-2">
                             <label class="fw-bold mb-2" for="grupoEstudiantes">Estudiantes*</label>
                             <input type="file" accept=".csv" class="form-control input-text" maxlength="100" name="grupoEstudiantes" id="grupoEstudiantes" title="Archivo contenedor de grupo de estudiantes a registrar" />
@@ -143,7 +143,7 @@
                 </form>
             </div>
         </div>
-    </div>*@
+    </div>
 
     <!-- Modal Editar -->
     <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -303,20 +303,20 @@
     }
 
     function registrarGrupo() {
-        if ($("#grupoModulo").val() == 0 || $("#grupoEstudiantes").val() === '') {
-            showToastError('Los campos: Módulo y Estudiantes son obligatorios');
+        if ($("#grupoEstudiantes").val() === '') {
+            showToastError('Debe ingresar un archivo CSV para procesar el registro');
             return;
         }
 
         var formData = new FormData();
         let file = $("#grupoEstudiantes")[0].files[0];
         formData.append('Archivo', file);
-        formData.append('Modulo',  $("#grupoModulo").val());
+        formData.append('Modulo', 'LA');
 
         $.ajax({
             cache: false,
-            type: "POST",           
-            url: '@Url.Action("RegistrarEstudianteGrupo", "Operaciones")',
+            type: "POST",
+            url: '@Url.Action("RegistrarEstudiantePorGrupo", "Estudiante")',
             data: formData,
             processData: false,
             contentType: false,
@@ -331,10 +331,33 @@
                 }
                 consultar(true);
                 $("#modalRegistrarGrupo").modal("hide");
-                showToastOk('El registro se creó correctamente');
+
+                var respuestaJS = JSON.parse(response);
+
+                var contador = 0;
+                var contadorRegistrados = 0;
+                respuestaJS.forEach(function (estudiante, index) {
+                    setTimeout(function () {
+                        contador++
+                        if (estudiante.id > 0) {
+                            contadorRegistrados++
+                            showToastOk(`Se registró al estudiante ${estudiante.nombres} ${estudiante.apellidos} con matrícula ${estudiante.matricula}`)
+                        } else {
+                            showToastError(`El estudiante ${estudiante.nombres} ${estudiante.apellidos} con matrícula ${estudiante.matricula} ya se encontraba registrado`)
+                        }
+                        if (contador === respuestaJS.length) {
+                            showToastOk(`Proceso completado. Total de estudiantes registrados: ${contadorRegistrados}`)
+                        }
+                    }, 500 * (index + 1));
+                });
+
             },
             error: function (xhr) {
-                showToastError(xhr.responseText);
+                if(xhr.responseText.length > 170){
+                    showToastError("Debe ingresar un archivo CSV válido");
+                }else{
+                    showToastError(xhr.responseText);
+                }
                 return false;
             },
             beforeSend: function () {
@@ -344,7 +367,7 @@
                 mostrarCarga(false);
             }
         });
-    }
+    }    
 
     function editar() {
         if (!esEmail($("#modalEditarEmail").val())) {
