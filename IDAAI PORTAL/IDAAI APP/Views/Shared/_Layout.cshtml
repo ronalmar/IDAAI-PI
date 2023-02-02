@@ -27,6 +27,9 @@
     var opcionModulo = ViewBag.Opcion == "Modulo" ? "active" : "";
     var opcionLaboratorio = ViewBag.Laboratorio == "Clases" ? "C" : "A";
 
+    var opcionMenuEstudiantes = ViewBag.Opcion == "Clase" || ViewBag.Opcion == "Asistencia" || ViewBag.Opcion == "Estudiante" || ViewBag.Opcion == "Carrera" ? "active" : "";
+    var opcionMenuInventario = ViewBag.Opcion == "Inventario" || ViewBag.Opcion == "Prestamo" || ViewBag.Opcion == "Item" ? "active" : "";
+
     var bgNavegacion = ViewBag.Opcion == "Home" || ViewBag.Opcion == "Login" || ViewBag.Opcion == "Registro" || ViewBag.Opcion == "Menu" || ViewBag.Opcion == "Perfil" || ViewBag.Opcion == "Logout" ? "bg-dark" : "bg-primary";
 }
 <body>
@@ -91,7 +94,30 @@
                     </button>
                     <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul class="navbar-nav flex-grow-1 mr-auto">
-                            <li class="nav-item">
+                            <li class="nav-item dropdown">
+                                <a title="Menú relacionado a la información de los estudiantes" class="nav-link dropdown-toggle @opcionMenuEstudiantes" href="#" id="navbarDropdownMenuLinkEstudiantes" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Académico
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkEstudiantes">
+                                    <a class="dropdown-item @opcionClase" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Clase">Clase</a>
+                                    <a class="dropdown-item @opcionAsistencia" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Asistencia">Asistencia</a>
+                                    <a class="dropdown-item @opcionEstudiante" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Estudiante">Estudiantes</a>
+                                    <a class="dropdown-item @opcionCarrera" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Carrera">Carreras</a>
+                                </div>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a title="Menú relacionado a la información del inventario" class="nav-link dropdown-toggle @opcionMenuInventario" href="#" id="navbarDropdownMenuLinkInventario" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Inventario
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkInventario">
+                                    <a class="dropdown-item @opcionItem" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Item">Items</a>
+                                    <a class="dropdown-item @opcionPrestamo" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Prestamo">Préstamo de Items</a>
+                                    <a class="dropdown-item @opcionInventario" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Inventario">Administración de Inventario</a>                                    
+                                </div>
+                            </li>
+
+                           @* <li class="nav-item">
                                 <a class="nav-link @opcionClase" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Clase">Clase</a>
                             </li>
                             <li class="nav-item">
@@ -111,7 +137,7 @@
                             </li>                           
                             <li class="nav-item">
                                 <a class="nav-link @opcionCarrera" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Carrera">Carreras</a>
-                            </li>
+                            </li>*@
                             <li class="nav-item">
                                 <a class="nav-link @opcionModulo" aria-current="page" asp-area="" asp-controller="LaboratorioClases" asp-action="Modulo">Módulos</a>
                             </li>
@@ -151,7 +177,29 @@
                     </button>
                     <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul class="navbar-nav flex-grow-1 mr-auto">
-                            <li class="nav-item">
+                            <li class="nav-item dropdown">
+                                <a title="Menú relacionado a la información de los estudiantes" class="nav-link dropdown-toggle @opcionMenuEstudiantes" href="#" id="navbarDropdownMenuLinkEstudiantes" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Académico
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkEstudiantes">                                   
+                                    <a class="dropdown-item @opcionAsistencia" aria-current="page" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Asistencia">Asistencia</a>
+                                    <a class="dropdown-item @opcionEstudiante" aria-current="page" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Estudiante">Estudiantes</a>
+                                    <a class="dropdown-item @opcionCarrera" aria-current="page" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Carrera">Carreras</a>
+                                </div>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a title="Menú relacionado a la información del inventario" class="nav-link dropdown-toggle @opcionMenuInventario" href="#" id="navbarDropdownMenuLinkInventario" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Inventario
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkInventario">
+                                    <a class="dropdown-item @opcionItem" aria-current="page" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Item">Items</a>
+                                    <a class="dropdown-item @opcionPrestamo" aria-current="page" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Prestamo">Préstamo de Items</a>
+                                    <a class="dropdown-item @opcionInventario" aria-current="page" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Inventario">Administración de Inventario</a>
+                                </div>
+                            </li>
+
+                           @* <li class="nav-item">
                                 <a class="nav-link @opcionItem" aria-current="page" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Item">Items</a>
                             </li>
                             <li class="nav-item">
@@ -168,7 +216,7 @@
                             </li>                            
                             <li class="nav-item">
                                 <a class="nav-link @opcionCarrera" aria-current="page" asp-area="" asp-controller="LaboratorioAbierto" asp-action="Carrera">Carreras</a>
-                            </li>
+                            </li>*@
                         </ul>
                     </div>
                     <div>

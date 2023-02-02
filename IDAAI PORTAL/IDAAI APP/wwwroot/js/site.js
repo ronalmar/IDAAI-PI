@@ -462,27 +462,41 @@ function seleccionarDatosFila(id) {
                     $("#modalEditarDomingo").prop('checked', false);
                     return
                 }
-
+                
                 if (registro.diasClase.includes('L')) {
                     $("#modalEditarLunes").prop('checked', true);
+                } else {
+                    $("#modalEditarLunes").prop('checked', false);
                 }
                 if (registro.diasClase.includes('M')) {
                     $("#modalEditarMartes").prop('checked', true);
+                } else {
+                    $("#modalEditarMartes").prop('checked', false);
                 }
                 if (registro.diasClase.includes('X')) {
                     $("#modalEditarMiercoles").prop('checked', true);
+                } else {
+                    $("#modalEditarMiercoles").prop('checked', false);
                 }
                 if (registro.diasClase.includes('J')) {
                     $("#modalEditarJueves").prop('checked', true);
+                } else {
+                    $("#modalEditarJueves").prop('checked', false);
                 }
                 if (registro.diasClase.includes('V')) {
                     $("#modalEditarViernes").prop('checked', true);
+                } else {
+                    $("#modalEditarViernes").prop('checked', false);
                 }
                 if (registro.diasClase.includes('S')) {
                     $("#modalEditarSabado").prop('checked', true);
+                } else {
+                    $("#modalEditarSabado").prop('checked', false);
                 }
                 if (registro.diasClase.includes('D')) {
                     $("#modalEditarDomingo").prop('checked', true);
+                } else {
+                    $("#modalEditarDomingo").prop('checked', false);
                 }
             }
         })

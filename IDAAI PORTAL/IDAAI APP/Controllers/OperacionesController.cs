@@ -29,19 +29,19 @@ namespace IDAAI_APP.Controllers
     {
         private readonly string contentType = "application/json";
         // PROD
-        private static readonly string serverName = "localhost";
-        private static readonly string portNumber = "2000";
-        private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
+        //private static readonly string serverName = "localhost";
+        //private static readonly string portNumber = "2000";
+        //private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
 
-        // DEVPROD
-        //private static readonly string serverName = "192.168.222.1";
-        //private static readonly string portNumber = "45455";
+        // DEV CONVEYER
+        //private static readonly string serverName = "192.168.1.22";
+        //private static readonly string portNumber = "45456";
         //private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
 
         // DEV
-        //private static readonly string serverName = "localhost";
-        //private static readonly string portNumber = "44321";
-        //private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
+        private static readonly string serverName = "localhost";
+        private static readonly string portNumber = "44321";
+        private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
 
         private readonly string pagineo = "&Pagina=1&RecordsPorPagina=100000";
         private bool esLista = true;

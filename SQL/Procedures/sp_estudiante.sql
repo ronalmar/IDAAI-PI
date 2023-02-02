@@ -144,8 +144,8 @@ BEGIN
 
 			-- VALIDAR QUE NO EXISTA UN ESTUDIANTE CON LA MATRICULA ITERADA
 			IF EXISTS(SELECT 1 FROM Estudiantes e INNER JOIN Modulos m ON m.Id=e.ModuloId
-				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML) AND m.Nombre=@modulo
-				AND e.UsuarioId=@usuarioId AND m.UsuarioId=@usuarioId AND e.Estado=1 AND m.Estado=1)
+				WHERE Matricula=(SELECT TOP(1) Matricula FROM @EstudiantesXML)
+				AND e.ModuloId=@moduloIdInsertar AND e.Estado=1 AND m.Estado=1)
 			BEGIN
 				SET @codigoIdError=@codigoIdError-1;
 
