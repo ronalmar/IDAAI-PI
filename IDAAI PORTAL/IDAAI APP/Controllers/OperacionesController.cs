@@ -28,6 +28,11 @@ namespace IDAAI_APP.Controllers
     public class OperacionesController : Controller
     {
         private readonly string contentType = "application/json";
+        // PROD DOCKER
+        private static readonly string serverName = "localhost";
+        private static readonly string portNumber = "20000";
+        private readonly string apiUrl = $"http://{serverName}:{portNumber}/";
+
         // PROD
         //private static readonly string serverName = "localhost";
         //private static readonly string portNumber = "2000";
@@ -39,9 +44,9 @@ namespace IDAAI_APP.Controllers
         //private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
 
         // DEV
-        private static readonly string serverName = "localhost";
-        private static readonly string portNumber = "44321";
-        private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
+        //private static readonly string serverName = "localhost";
+        //private static readonly string portNumber = "44321";
+        //private readonly string apiUrl = $"https://{serverName}:{portNumber}/";
 
         private readonly string pagineo = "&Pagina=1&RecordsPorPagina=100000";
         private bool esLista = true;
@@ -359,8 +364,7 @@ namespace IDAAI_APP.Controllers
                 }
                 else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
-                    await HttpContext.SignOutAsync();
-                    return RedirectToAction("Login", "Home");
+                    return Unauthorized();
                 }
                 else
                 {
@@ -3007,8 +3011,7 @@ namespace IDAAI_APP.Controllers
                 }
                 else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
-                    await HttpContext.SignOutAsync();
-                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                    return Unauthorized();
                 }
                 else
                 {
@@ -3108,7 +3111,7 @@ namespace IDAAI_APP.Controllers
                 var result = await ObtenerUsuario(user, claims) as OkObjectResult;
                 if (result is null)
                 {
-                    return RedirectToAction("Logout", "Operaciones");
+                    return Unauthorized();
                 }
                 var datosUsuario = result.Value as Usuario_;
 
@@ -3315,8 +3318,7 @@ namespace IDAAI_APP.Controllers
                 }
                 else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
-                    await HttpContext.SignOutAsync();
-                    return RedirectToAction("Login", "Home");
+                    return Unauthorized();
                 }
                 else
                 {
@@ -3460,8 +3462,8 @@ namespace IDAAI_APP.Controllers
                 }
                 else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
-                    await HttpContext.SignOutAsync();
-                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                    var error = res.Content.ReadAsStringAsync().Result;
+                    return Unauthorized();
                 }
                 else
                 {
@@ -3526,8 +3528,8 @@ namespace IDAAI_APP.Controllers
                 }
                 else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
-                    await HttpContext.SignOutAsync();
-                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                    var error = res.Content.ReadAsStringAsync().Result;
+                    return Unauthorized();
                 }
                 else
                 {
@@ -3592,8 +3594,8 @@ namespace IDAAI_APP.Controllers
                 }
                 else if (res.ReasonPhrase.Equals("Unauthorized"))
                 {
-                    await HttpContext.SignOutAsync();
-                    return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                    var error = res.Content.ReadAsStringAsync().Result;
+                    return Unauthorized();
                 }
                 else
                 {

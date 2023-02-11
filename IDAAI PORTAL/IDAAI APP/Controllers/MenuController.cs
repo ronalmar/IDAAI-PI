@@ -1,4 +1,5 @@
 ﻿using IDAAI_APP.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -54,7 +55,8 @@ namespace IDAAI_APP.Controllers
             var result = await operaciones.ObtenerUsuario(user, claims) as OkObjectResult;
             if(result is null)
             {
-                return RedirectToAction("Logout", "Operaciones");
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
             }
             var datosUsuario = result.Value as Usuario_;
 

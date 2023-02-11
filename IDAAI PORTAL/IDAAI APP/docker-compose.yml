@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  idaaiapp:
+    image: ${DOCKER_REGISTRY-}idaaiapp
+    build:
+      context: .
+      dockerfile: Dockerfile

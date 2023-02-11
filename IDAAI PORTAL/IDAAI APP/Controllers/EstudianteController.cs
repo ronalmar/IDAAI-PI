@@ -67,7 +67,9 @@ namespace IDAAI_APP.Controllers
 
             if(respuesta is null)
             {
-                return BadRequest("Ocurrió un error en la ejecución");
+                await HttpContext.SignOutAsync();
+                return Json(new { redirectToUrl = Url.Action("Login", "Home") });
+                //return BadRequest("Ocurrió un error en la ejecución");
             }
             if (respuesta.StatusCode.Equals(400))
             {

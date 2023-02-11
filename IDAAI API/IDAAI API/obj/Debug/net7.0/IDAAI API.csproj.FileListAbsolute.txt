@@ -87,3 +87,8 @@ D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Deb
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\System.Web.WebPages.Razor.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\System.Web.WebPages.dll
 D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\Microsoft.Web.Infrastructure.dll
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\out\web.config
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\out\appsettings.Development.json
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\out\appsettings.json
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\out\IDAAI API.deps.json
+D:\Archivos\Materia Integradora\IDAAI\Proyecto IDAAI\IDAAI API\IDAAI API\bin\Debug\net7.0\out\IDAAI API.runtimeconfig.json

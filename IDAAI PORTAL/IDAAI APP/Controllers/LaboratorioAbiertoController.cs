@@ -1,4 +1,5 @@
 ﻿using IDAAI_APP.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -26,7 +27,12 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Asistencia()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetCarreras(claims) as OkObjectResult;
+            var result = await operaciones.GetCarreras(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaCarreras = result.Value as List<Carrera>;
             List<SelectListItem> Carreras = new();
             foreach (var carrera in listaCarreras)
@@ -54,7 +60,12 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Item()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetInventario(claims) as OkObjectResult;
+            var result = await operaciones.GetInventario(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaInventario = result.Value as List<Inventario>;
             List<SelectListItem> Inventario = new();
             foreach (var inventario in listaInventario)
@@ -90,7 +101,12 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Estudiante()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetCarreras(claims) as OkObjectResult;
+            var result = await operaciones.GetCarreras(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaCarreras = result.Value as List<Carrera>;
             List<SelectListItem> Carreras = new();
             foreach (var carrera in listaCarreras)

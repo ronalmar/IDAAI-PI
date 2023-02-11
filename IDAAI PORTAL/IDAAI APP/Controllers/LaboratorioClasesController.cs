@@ -1,4 +1,5 @@
 ﻿using IDAAI_APP.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
@@ -28,7 +29,12 @@ namespace IDAAI_APP.Controllers
         {
             var claims = HttpContext.User.Claims.ToList();
 
-            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var result = await operaciones.GetModulos(claims) as ObjectResult;
+            if(result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
@@ -36,7 +42,12 @@ namespace IDAAI_APP.Controllers
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
 
-            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as ObjectResult;
+            if (respuestaModuloActual is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var datosModuloActual = respuestaModuloActual.Value as Usuario_;
             var moduloActual = datosModuloActual.ModuloActual;
             foreach (var modulo in Modulos)
@@ -58,7 +69,12 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Asistencia()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var result = await operaciones.GetModulos(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
@@ -66,7 +82,12 @@ namespace IDAAI_APP.Controllers
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
 
-            var result2 = await operaciones.GetCarreras(claims) as OkObjectResult;
+            var result2 = await operaciones.GetCarreras(claims) as ObjectResult;
+            if (result2 is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaCarreras = result2.Value as List<Carrera>;
             List<SelectListItem> Carreras = new();
             foreach (var carrera in listaCarreras)
@@ -74,7 +95,12 @@ namespace IDAAI_APP.Controllers
                 Carreras.Add(new SelectListItem() { Text = carrera.Nombre, Value = carrera.Nombre });
             }
 
-            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as ObjectResult;
+            if (respuestaModuloActual is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var datosModuloActual = respuestaModuloActual.Value as Usuario_;
             var moduloActual = datosModuloActual.ModuloActual;
             foreach (var modulo in Modulos)
@@ -97,7 +123,12 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Inventario()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var result = await operaciones.GetModulos(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
@@ -105,7 +136,12 @@ namespace IDAAI_APP.Controllers
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
 
-            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as ObjectResult;
+            if (respuestaModuloActual is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var datosModuloActual = respuestaModuloActual.Value as Usuario_;
             var moduloActual = datosModuloActual.ModuloActual;
             foreach (var modulo in Modulos)
@@ -127,14 +163,24 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Item()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetInventario(claims) as OkObjectResult;
+            var result = await operaciones.GetInventario(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaInventario = result.Value as List<Inventario>;
             List<SelectListItem> Inventario = new();
             foreach (var inventario in listaInventario)
             {
                 Inventario.Add(new SelectListItem() { Text = inventario.Nombre, Value = inventario.Nombre });
             }
-            var result2 = await operaciones.GetModulos(claims) as OkObjectResult;
+            var result2 = await operaciones.GetModulos(claims) as ObjectResult;
+            if (result2 is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaModulos = result2.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
@@ -142,7 +188,12 @@ namespace IDAAI_APP.Controllers
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
 
-            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as ObjectResult;
+            if (respuestaModuloActual is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var datosModuloActual = respuestaModuloActual.Value as Usuario_;
             var moduloActual = datosModuloActual.ModuloActual;
             foreach (var modulo in Modulos)
@@ -173,7 +224,12 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Prestamo()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var result = await operaciones.GetModulos(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
@@ -181,7 +237,12 @@ namespace IDAAI_APP.Controllers
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
 
-            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as ObjectResult;
+            if (respuestaModuloActual is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var datosModuloActual = respuestaModuloActual.Value as Usuario_;
             var moduloActual = datosModuloActual.ModuloActual;
             foreach (var modulo in Modulos)
@@ -203,7 +264,12 @@ namespace IDAAI_APP.Controllers
         public  async Task<IActionResult> Estudiante()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var result = await operaciones.GetModulos(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
@@ -211,7 +277,12 @@ namespace IDAAI_APP.Controllers
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }           
 
-            var result2 = await operaciones.GetCarreras(claims) as OkObjectResult;
+            var result2 = await operaciones.GetCarreras(claims) as ObjectResult;
+            if (result2 is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaCarreras = result2.Value as List<Carrera>;
             List<SelectListItem> Carreras = new();
             foreach (var carrera in listaCarreras)
@@ -219,7 +290,12 @@ namespace IDAAI_APP.Controllers
                 Carreras.Add(new SelectListItem() { Text = carrera.Nombre, Value = carrera.Nombre });
             }
 
-            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as ObjectResult;
+            if (respuestaModuloActual is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var datosModuloActual = respuestaModuloActual.Value as Usuario_;
             var moduloActual = datosModuloActual.ModuloActual;
             foreach (var modulo in Modulos)
@@ -242,7 +318,12 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Carrera()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var result = await operaciones.GetModulos(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
@@ -250,7 +331,12 @@ namespace IDAAI_APP.Controllers
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
 
-            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as ObjectResult;
+            if (respuestaModuloActual is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var datosModuloActual = respuestaModuloActual.Value as Usuario_;
             var moduloActual = datosModuloActual.ModuloActual;
             foreach (var modulo in Modulos)
@@ -272,7 +358,12 @@ namespace IDAAI_APP.Controllers
         public async Task<IActionResult> Modulo()
         {
             var claims = HttpContext.User.Claims.ToList();
-            var result = await operaciones.GetModulos(claims) as OkObjectResult;
+            var result = await operaciones.GetModulos(claims) as ObjectResult;
+            if (result is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var listaModulos = result.Value as List<Modulo>;
             List<SelectListItem> Modulos = new();
             foreach (var modulo in listaModulos)
@@ -280,7 +371,12 @@ namespace IDAAI_APP.Controllers
                 Modulos.Add(new SelectListItem() { Text = modulo.Nombre, Value = modulo.Nombre });
             }
 
-            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as OkObjectResult;
+            var respuestaModuloActual = await operaciones.ObtenerModuloActual(claims) as ObjectResult;
+            if (respuestaModuloActual is null)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Home");
+            }
             var datosModuloActual = respuestaModuloActual.Value as Usuario_;
             var moduloActual = datosModuloActual.ModuloActual;
             foreach (var modulo in Modulos)
